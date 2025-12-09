@@ -41,8 +41,8 @@ function void apb_slave_seq_item_converter::from_class(input apb_slave_tx input_
  // output_conv_h.paddr = input_conv_h.paddr;
  // `uvm_info("apb_seq_item_conv_class",$sformatf("After randomizing the paddr=%0h",output_conv_h.paddr),UVM_HIGH);
 
- // output_conv_h.pselx = input_conv_h.psel;
- // `uvm_info("apb_seq_item_conv_class",$sformatf("After randomizing the psel=%0b",output_conv_h.pselx),UVM_HIGH);
+ // output_conv_h.psel = input_conv_h.psel;
+ // `uvm_info("apb_seq_item_conv_class",$sformatf("After randomizing the psel=%0b",output_conv_h.psel),UVM_HIGH);
 
  // output_conv_h.pwdata = input_conv_h.pwdata;
  // `uvm_info("apb_slave_seq_item_conv_class",$sformatf("After ramdomizing pwdata=%0h",output_conv_h.pwdata),UVM_HIGH); 
@@ -81,7 +81,7 @@ function void apb_slave_seq_item_converter::to_class(input apb_transfer_char_s i
   output_conv_h.pwdata = input_conv_h.pwdata;
   `uvm_info("apb_seq_item_conv_class",$sformatf("After randomizing the pwdata=%0h",output_conv_h.pwdata),UVM_HIGH);
 
-  output_conv_h.psel = input_conv_h.pselx;
+  output_conv_h.psel = input_conv_h.psel;
   `uvm_info("apb_seq_item_conv_class",$sformatf("After randomizing the psel=%0b",output_conv_h.psel),UVM_HIGH);
   
   $cast(output_conv_h.pprot,input_conv_h.pprot);
@@ -111,7 +111,7 @@ function void apb_slave_seq_item_converter::do_print(uvm_printer printer);
   apb_transfer_char_s apb_st;
   super.do_print(printer);
   
-  printer.print_field("pselx",apb_st.pselx,NO_OF_SLAVES,UVM_BIN);
+  printer.print_field("psel",apb_st.psel,NO_OF_SLAVES,UVM_BIN);
   printer.print_field("pwrite",apb_st.pwrite,1,UVM_BIN);
   printer.print_field($sformatf("pwdata"),apb_st.pwdata,DATA_WIDTH,UVM_HEX);
   printer.print_field("no_of_wait_states",apb_st.no_of_wait_states,UVM_DEC);

@@ -18,7 +18,7 @@ interface apb_master_monitor_bfm (input bit pclk,
                                   input logic penable,
                                   input logic pwrite,
                                   input logic [ADDRESS_WIDTH-1:0]paddr,
-                                  input logic [NO_OF_SLAVES-1:0]pselx,
+                                  input logic [NO_OF_SLAVES-1:0]psel,
                                   input logic [DATA_WIDTH-1:0]pwdata,
                                   input logic [(DATA_WIDTH/8)-1:0]pstrb, 
                                   input logic [DATA_WIDTH-1:0]prdata
@@ -68,40 +68,43 @@ interface apb_master_monitor_bfm (input bit pclk,
   //  apb_cfg_packet  - Handle for apb_transfer_cfg_s class
   //-------------------------------------------------------
   task sample_data (output apb_transfer_char_s apb_data_packet, input apb_transfer_cfg_s apb_cfg_packet);
-    @(negedge pclk);
+    @(posedge pclk);
     
-    // MSHA:while(^pselx === 1'bX) begin
-    // MSHA:  @(negedge pclk);
-    // MSHA:  `uvm_info(name, $sformatf("Inside while loop PSEL"), UVM_HIGH)
-    // MSHA:end
-    while($countones(pselx) !== 1 || penable !== 1 ) begin
-      `uvm_info(name, $sformatf("Inside while loop: penable =%0d, pready=%0d, pselx=%0d", penable, pready, pselx), UVM_HIGH)
-      @(negedge pclk);
+     while(psel !== 1) begin
+      `uvm_info(name, $sformatf("Inside while loop: penable =%0d, pready=%0d, psel=%0d", penable, pready, psel), UVM_HIGH)
+      @(posedge pclk);
+      $display("SET UP STATE ");
     end
 
-    //Waiting for pready to be '1
-    while(pready !== 1) begin
-      `uvm_info(name, $sformatf("Inside while loop: penable =%0d, pready=%0d, pselx=%0d", penable, pready, pselx), UVM_HIGH)
-      @(negedge pclk);
-      //Increment the counter of wait states
-      apb_data_packet.no_of_wait_states++;
-    end
-
+   $display("SET UP STATE CAPTURED @%0T",$time());
     apb_data_packet.pslverr = pslverr;
     apb_data_packet.pprot   = pprot;
+    $display("MASTER MON WRITE IS %0d",pwrite);
     apb_data_packet.pwrite  = pwrite;
     apb_data_packet.paddr   = paddr;
-    apb_data_packet.pselx   = pselx;
+    apb_data_packet.psel   = psel;
     apb_data_packet.pstrb   = pstrb;
 
     if (pwrite == WRITE) begin
       apb_data_packet.pwdata = pwdata;
     end
-    else begin
-      apb_data_packet.prdata = prdata;
-    end
-    `uvm_info(name, $sformatf("MASTER_SAMPLE_DATA=%p", apb_data_packet), UVM_HIGH)
+    `uvm_info(name, $sformatf("\n\n\nMASTER_SAMPLE_DATA=%p\n\n\n", apb_data_packet), UVM_MEDIUM)
   endtask : sample_data
+
+task access_state(output apb_transfer_char_s apb_data_packet, input apb_transfer_cfg_s apb_cfg_packet);
+@(posedge pclk);
+  while(pready !== 1) begin
+      $display("ACCESS SATTE");
+      `uvm_info(name, $sformatf("Inside while loop: penable =%0d, pready=%0d, psel=%0d", penable, pready, psel), UVM_HIGH)
+      @(posedge pclk);
+      //Increment the counter of wait states
+      apb_data_packet.no_of_wait_states++;
+    end
+  apb_data_packet.pready = pready;
+  $display("$$$$$$$$$$$$$$$$$$$$$BFM PENABLE IS %0b %0t$$$$$$$$$$$$$$$$$",penable,$time());
+  apb_data_packet.penable = penable;
+endtask
+
 
 endinterface : apb_master_monitor_bfm
 

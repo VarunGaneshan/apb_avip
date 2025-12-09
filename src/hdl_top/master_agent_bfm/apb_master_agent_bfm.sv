@@ -22,7 +22,7 @@ module apb_master_agent_bfm(apb_if intf);
   //-------------------------------------------------------
   apb_master_driver_bfm apb_master_drv_bfm_h (.pclk(intf.pclk),
                                               .preset_n(intf.preset_n),
-                                              .pselx(intf.pselx),
+                                              .psel(intf.psel),
                                               .penable(intf.penable),
                                               .pprot(intf.pprot),
                                               .paddr(intf.paddr),
@@ -39,7 +39,7 @@ module apb_master_agent_bfm(apb_if intf);
   //-------------------------------------------------------
   apb_master_monitor_bfm apb_master_mon_bfm_h (.pclk(intf.pclk),
                                               .preset_n(intf.preset_n),
-                                              .pselx(intf.pselx),
+                                              .psel(intf.psel),
                                               .paddr(intf.paddr),
                                               .pwrite(intf.pwrite),
                                               .pwdata(intf.pwdata),

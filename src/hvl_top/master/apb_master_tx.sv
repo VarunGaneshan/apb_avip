@@ -18,8 +18,11 @@
   rand protection_type_e pprot;
 
   //Variable: pselx
-  //Used to select the slave
+  //Used to select the address range for the slave
   rand slave_no_e pselx;
+
+  bit psel;
+
 
   //Variable: pwrite
   //Write when pwrite is 1 and read is 0
@@ -60,6 +63,8 @@
   //Variable : address
   bit [ADDRESS_WIDTH-1:0]address;
 
+  bit pready;
+  bit penable;
   //-------------------------------------------------------
   // Externally defined Tasks and Functions
   //-------------------------------------------------------
@@ -110,7 +115,7 @@ endfunction : new
 //--------------------------------------------------------------------------------------------
 function void apb_master_tx::do_copy (uvm_object rhs);
   apb_master_tx apb_master_tx_copy_obj;
-
+  $display("CLONE IS BEING CALLED");
   if(!$cast(apb_master_tx_copy_obj,rhs)) begin
     `uvm_fatal("do_copy","cast of the rhs object failed")
   end
@@ -118,13 +123,17 @@ function void apb_master_tx::do_copy (uvm_object rhs);
 
   paddr   = apb_master_tx_copy_obj.paddr;
   pprot   = apb_master_tx_copy_obj.pprot;
-  pselx   = apb_master_tx_copy_obj.pselx;
+  psel   = apb_master_tx_copy_obj.psel;
   pwrite  = apb_master_tx_copy_obj.pwrite;
   pwdata  = apb_master_tx_copy_obj.pwdata;
   pstrb   = apb_master_tx_copy_obj.pstrb;
   prdata  = apb_master_tx_copy_obj.prdata;
   pslverr = apb_master_tx_copy_obj.pslverr;
-
+  
+  penable = apb_master_tx_copy_obj.penable;
+   $display("PENABLE IS %0d",penable);
+  pready = apb_master_tx_copy_obj.penable;
+  no_of_wait_states_detected =apb_master_tx_copy_obj.no_of_wait_states_detected;
 endfunction : do_copy
 
 //--------------------------------------------------------------------------------------------
@@ -186,10 +195,10 @@ function void apb_master_tx::post_randomize();
   // Derive the slave number using the index
   for(int i=0; i<NO_OF_SLAVES; i++) begin
     if(pselx[i]) begin
-      index = i;
+      index = 0;
     end
   end
-  
+ /* 
   // Randmoly chosing paddr value between a given range
   if (!std::randomize(paddr) with { paddr inside {[apb_master_agent_cfg_h.master_min_addr_range_array[index]:
                                                    apb_master_agent_cfg_h.master_max_addr_range_array[index]]};
@@ -197,7 +206,8 @@ function void apb_master_tx::post_randomize();
   }) begin
     `uvm_fatal("FATAL_STD_RANDOMIZATION_PADDR", $sformatf("Not able to randomize paddr"));
   end
-
+*/
+  paddr =100;
   //Constraint to make pwdata non-zero when pstrb is high for that 8-bit lane
   for(int i=0; i<DATA_WIDTH/8; i++) begin
     `uvm_info(get_type_name(),$sformatf("MASTER-TX-pstrb[%0d]=%0d",i,pstrb[i]),UVM_HIGH);

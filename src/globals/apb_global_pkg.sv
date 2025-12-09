@@ -140,12 +140,14 @@ package apb_global_pkg;
     bit pwrite;
     bit pslverr;
     bit [2:0]pprot;
-    bit [NO_OF_SLAVES-1:0]pselx;
+    bit psel;
     bit [(DATA_WIDTH/8)-1:0]pstrb;
     bit [DATA_WIDTH-1:0]prdata;
     bit [ADDRESS_WIDTH-1:0]paddr; 
     bit [DATA_WIDTH-1:0]pwdata;
     int no_of_wait_states;
+    bit pready;
+    bit penable;
   }apb_transfer_char_s;
   
   //-------------------------------------------------------

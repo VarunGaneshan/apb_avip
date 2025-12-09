@@ -14,7 +14,7 @@ interface apb_if (input pclk, input preset_n);
   
   //Variable : pselx
   //Used to select the slave
-  logic [NO_OF_SLAVES-1:0]pselx;
+  logic psel;
 
   //Variable : penable
   //Used to write data when penable is high

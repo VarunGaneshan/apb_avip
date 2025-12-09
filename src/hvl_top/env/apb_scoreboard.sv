@@ -18,7 +18,7 @@ class apb_scoreboard extends uvm_scoreboard;
   
   //Variable: apb_master_analysis_fifo
   //Used to store the apb_master_data
-  uvm_tlm_analysis_fifo#(apb_master_tx) apb_master_analysis_fifo;
+  uvm_analysis_imp #(apb_master_tx,apb_scoreboard) apb_master_analysis_fifo;
 
   //Variable: apb_slave_analysis_fifo
   //Used to store the apb_slave_data
@@ -76,7 +76,13 @@ class apb_scoreboard extends uvm_scoreboard;
   //Used to note the slave number 
   bit index;
 
-  //-------------------------------------------------------
+  bit[7:0]mem[longint];
+
+  apb_master_tx apb_master_queue[$];
+  apb_fsm_state_e state =IDLE;
+
+  apb_master_tx apb_master_temp;
+  //------------------------------------------------------
   // Externally defined Tasks and Functions
   //-------------------------------------------------------
   extern function new(string name = "apb_scoreboard", uvm_component parent = null);
@@ -84,6 +90,7 @@ class apb_scoreboard extends uvm_scoreboard;
   extern virtual task run_phase(uvm_phase phase);
   extern virtual function void check_phase (uvm_phase phase);
   extern virtual function void report_phase(uvm_phase phase);
+  extern function void write(apb_master_tx t1);
 
 endclass : apb_scoreboard
 
@@ -115,6 +122,48 @@ function void apb_scoreboard::build_phase(uvm_phase phase);
   super.build_phase(phase);
 endfunction : build_phase
 
+
+function void apb_scoreboard::write (apb_master_tx t1);
+  
+  apb_master_temp = t1;
+  $display("REF STATE IS %s and psel is %0d",state,t1.psel);
+  case(state)
+ 
+    IDLE: begin 
+      if(t1.psel == 1) begin 
+       state = SETUP;
+     end 
+    end  
+
+
+    SETUP: begin 
+      $display("enter set up state in ref and en is %0d and ready is %0d",t1.penable,t1.pready);
+      if(t1.penable && t1.pready ==1) begin 
+        if(t1.pwrite == 1)begin  
+	  for(int i=0; i<(DATA_WIDTH/8); i++)begin
+            if(t1.pstrb[i] == 1)begin
+              mem[t1.paddr+i] = t1.pwdata[8*i+7 -: 8];
+              $display("THE DATA IS WRITTEN TO MEM");
+            end
+          end      
+        end
+        else if(t1.pwrite ==0) begin 
+          for(int i=0; i<(DATA_WIDTH/8); i++)begin
+            if(mem.exists(apb_master_temp.paddr + i ) )begin
+              apb_master_temp.prdata[8*i+7 -: 8] = mem[apb_master_temp.paddr + i];
+            end
+          end 
+        end
+        state =IDLE;
+        apb_master_queue.push_back(apb_master_temp);
+      end 
+    end  
+
+
+  endcase 
+  
+
+endfunction 
 //--------------------------------------------------------------------------------------------
 // Task: run_phase
 // Used to give delays and check the wdata and rdata are similar or not
@@ -129,23 +178,18 @@ task apb_scoreboard::run_phase(uvm_phase phase);
   forever begin
  
   `uvm_info(get_type_name(),$sformatf("before calling master's analysis fifo get method"),UVM_HIGH)
-  apb_master_analysis_fifo.get(apb_master_tx_h);
-  apb_master_tx_count++;
   
   `uvm_info(get_type_name(),$sformatf("after calling master's analysis fifo get method"),UVM_HIGH) 
-  `uvm_info(get_type_name(),$sformatf("printing apb_master_tx_h, \n %s",apb_master_tx_h.sprint()),UVM_HIGH)
+ // `uvm_info(get_type_name(),$sformatf("printing apb_master_tx_h, \n %s",apb_master_tx_h.sprint()),UVM_HIGH)
   `uvm_info(get_type_name(),$sformatf("before calling slave's analysis_fifo"),UVM_HIGH)
   
-  for(int i=0;i<NO_OF_SLAVES;i++) begin
-    if(apb_master_tx_h.pselx[i]==1) begin
-      index = i;
-      break;
-    end
-  end
   
-  apb_slave_analysis_fifo[index].get(apb_slave_tx_h);
+  apb_slave_analysis_fifo[0].get(apb_slave_tx_h);
   apb_slave_tx_count++;
-  
+  $display("SLAVE COUNT INCREMENTED @%0t",$time());
+  wait(apb_master_queue.size()>0) 
+  apb_master_tx_h=apb_master_queue.pop_front();
+  apb_master_tx_count++ ; 
   `uvm_info(get_type_name(),$sformatf("after calling slave's analysis fifo get method"),UVM_HIGH) 
   `uvm_info(get_type_name(),$sformatf("printing apb_slave_tx_h, \n %s",apb_slave_tx_h.sprint()),UVM_HIGH)
   
@@ -159,6 +203,7 @@ task apb_scoreboard::run_phase(uvm_phase phase);
   // Verifying pwdata in master and slave 
   //-------------------------------------------------------
   if(apb_master_tx_h.pwdata == apb_slave_tx_h.pwdata) begin
+    $display("THE PWDATA COMPARED IS %0d",apb_master_tx_h.pwdata);
     `uvm_info(get_type_name(),$sformatf("apb_pwdata from master and slave is equal"),UVM_HIGH);
     `uvm_info("SB_PWDATA_MATCHED", $sformatf("Master PWDATA = 'h%0x and Slave PWDATA = 'h%0x",
                                     apb_master_tx_h.pwdata,apb_slave_tx_h.pwdata), UVM_HIGH);             
@@ -210,16 +255,15 @@ task apb_scoreboard::run_phase(uvm_phase phase);
   //-------------------------------------------------------
   // Verifying prdata in master and slave 
   //-------------------------------------------------------
-  if(apb_slave_tx_h.prdata == apb_master_tx_h.prdata) begin
+  if(apb_master_tx_h.prdata == apb_slave_tx_h.prdata) begin
     `uvm_info(get_type_name(),$sformatf("apb_prdata from master and slave is equal"),UVM_HIGH);
-    `uvm_info("SB_PRDATA_MATCHED", $sformatf("Master PRDATA = 'h%0x and Slave PRDATA = 'h%0x",
-                                    apb_master_tx_h.prdata,apb_slave_tx_h.prdata), UVM_HIGH);
+    `uvm_info("SB_PRDATA_MATCHED", $sformatf("Master PRDATA = 'h%0x and Slave PRDATA = 'h%0x",apb_master_tx_h.prdata,apb_slave_tx_h.prdata), UVM_HIGH);
     byte_data_cmp_verified_slave_prdata_count++;
   end
   else begin
     `uvm_info(get_type_name(),$sformatf("apb_prdata from master and slave is not equal"),UVM_HIGH);
-    `uvm_error("ERROR_SC_PRDATA_MISMATCH", $sformatf("Master PRDATA = 'h%0x and Slave PRDATA = 'h%0x",
-                                            apb_master_tx_h.prdata,apb_slave_tx_h.prdata));
+    `uvm_error("ERROR_SC_PRDATA_MISMATCH", $sformatf("Master PRDATA = 'h%0x and Slave PRDATA = 'h%0x for master address %0d ,slave address %0d",
+                                            apb_master_tx_h.prdata,apb_slave_tx_h.prdata,apb_master_tx_h.paddr,apb_slave_tx_h.paddr));
     byte_data_cmp_failed_slave_prdata_count++;
   end
 
@@ -323,13 +367,6 @@ function void apb_scoreboard::check_phase(uvm_phase phase);
   //   This is to make sure that we have taken all packets from both FIFOs and made the
   //   comparisions
   //--------------------------------------------------------------------------------------------
-  if(apb_master_analysis_fifo.size() == 0)begin
-    `uvm_info ("SC_CheckPhase", $sformatf ("APB Master analysis FIFO is empty"),UVM_HIGH);
-  end
-  else begin
-    `uvm_info (get_type_name(), $sformatf ("apb_master_analysis_fifo:%0d",apb_master_analysis_fifo.size() ),UVM_HIGH);
-    `uvm_error ("SC_CheckPhase", $sformatf ("apb Master analysis FIFO is not empty"));
-  end
   if(apb_slave_analysis_fifo[index].size()== 0)begin
     `uvm_info ("SC_CheckPhase", $sformatf ("APB Slave analysis FIFO is empty"),UVM_HIGH);
   end

@@ -46,7 +46,7 @@ class apb_slave_tx extends uvm_sequence_item;
 
   //Variable: choose_packet_data
   //Used for driving the prdata from this packet rather than from the Slave memory
-  rand bit choose_packet_data;
+  bit choose_packet_data;
 
   //Variable: transfer_size
   //Used to decide the transfer size of the data
@@ -62,7 +62,7 @@ class apb_slave_tx extends uvm_sequence_item;
   constraint pslverr_c2 {soft pslverr == NO_ERROR;}
 
   //To choose the randomised pslverr and prdata make choose_packet_data as high
-  constraint choose_data_packet_c3 {soft choose_packet_data==1;} 
+  //constraint choose_data_packet_c3 {soft choose_packet_data==1;} 
 
   //-------------------------------------------------------
   // Externally defined Tasks and Functions

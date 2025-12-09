@@ -45,6 +45,8 @@ task apb_32b_write_test::run_phase(uvm_phase phase);
   `uvm_info(get_type_name(),$sformatf("apb_32b_write_test"),UVM_LOW);
   phase.raise_objection(this);
     apb_virtual_32b_seq_h.start(apb_env_h.apb_virtual_seqr_h);
+    #1000;
+
   phase.drop_objection(this);
 
 endtask : run_phase

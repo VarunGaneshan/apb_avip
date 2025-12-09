@@ -20,7 +20,7 @@ interface apb_master_driver_bfm (input  bit   pclk,
                                  output logic penable,
                                  output logic pwrite,
                                  output logic [ADDRESS_WIDTH-1:0]paddr,
-                                 output logic [NO_OF_SLAVES-1:0]pselx,
+                                 output logic psel,
                                  output logic [DATA_WIDTH-1:0]pwdata,
                                  output logic [(DATA_WIDTH/8)-1:0]pstrb
                                 );
@@ -54,6 +54,13 @@ interface apb_master_driver_bfm (input  bit   pclk,
   initial begin
     `uvm_info(name, $sformatf(name),UVM_LOW)
   end
+
+  clocking masterCb @(posedge pclk);
+    default input #1 output #1;
+    input  preset_n,pready,pslverr,prdata;
+    output pwrite ,paddr, psel,pwdata,pstrb,pprot,penable;
+  endclocking   
+
  
   //-------------------------------------------------------
   // Task: wait_for_preset_n
@@ -93,14 +100,14 @@ interface apb_master_driver_bfm (input  bit   pclk,
   //  This task drives the apb interface to idle state
   //--------------------------------------------------------------------------------------------
   task drive_idle_state();
-    @(posedge pclk);
-    pselx   <= '0;
-    penable <= 1'b0;
+    $display("DRIVING TO SET UP STATE");
+    @(masterCb);
+    masterCb.psel   <= '0;
+    masterCb.penable <= 1'b0;
     state = IDLE;
     `uvm_info(name,$sformatf("DROVE THE IDLE STATE"),UVM_HIGH)
 
-    `uvm_info("DEBUG_MSHA", $sformatf("drive_apb_idle state = %0s and state = %0d",
-                                    state.name(), state), UVM_NONE);
+    `uvm_info("DEBUG_MSHA", $sformatf("drive_apb_idle state = %0s and state = %0d",state.name(), state), UVM_NONE);
     
   endtask : drive_idle_state
 
@@ -112,24 +119,23 @@ interface apb_master_driver_bfm (input  bit   pclk,
   //  data_packet - apb_transfer_char_s
   //--------------------------------------------------------------------------------------------
   task drive_setup_state(inout apb_transfer_char_s data_packet);
-    @(posedge pclk);
+    //@(posedge pclk);
     `uvm_info(name,$sformatf("DRIVING THE SETUP STATE"),UVM_HIGH)
-    
-    pselx   <= data_packet.pselx;
-    penable <= 1'b0;
-    paddr   <= data_packet.paddr;
-    pwrite  <= data_packet.pwrite;
+   $display("DRIVING THE SELECT"); 
+    masterCb.psel   <= 1'b 1;
+    masterCb.penable <= 1'b0;
+    masterCb.paddr   <= data_packet.paddr;
+    masterCb.pwrite  <= data_packet.pwrite;
     
     if(data_packet.pwrite == WRITE) begin
-      pwdata <= data_packet.pwdata;
-      pstrb  <= data_packet.pstrb;
-    end
-    
+      masterCb.pwdata <= data_packet.pwdata;
+      masterCb.pstrb  <= data_packet.pstrb;
+    end 
     else begin
-      pstrb <= '0;
+      masterCb.pstrb <= '0;
     end
     
-    pprot <= data_packet.pprot;
+    masterCb.pprot <= data_packet.pprot;
     state=SETUP;
     `uvm_info("DEBUG_MSHA", $sformatf("drive_apb_setup state = %0s and state = %0d", state.name(), state), UVM_NONE);
     
@@ -144,18 +150,15 @@ interface apb_master_driver_bfm (input  bit   pclk,
   //  data_packet - handle for apb_transfer_char_s
   //-------------------------------------------------------
   task waiting_in_access_state(inout apb_transfer_char_s data_packet);
-    @(posedge pclk);
+    @(masterCb);
     `uvm_info(name,$sformatf("INSIDE ACCESS STATE"),UVM_HIGH);
-
+    $display("DRIVING THE ACCESS");
     state = ACCESS;  
-    penable <= 1'b1;
+    masterCb.penable <= 1'b1;
     
     `uvm_info("DEBUG_NADEEM",$sformatf("pready=%0d",pready), UVM_HIGH);
       detect_wait_state(data_packet);
-    // MSHA: if(pready == 0) begin
-    // MSHA:   detect_wait_state(data_packet);
-    // MSHA: end
-    // MSHA: `uvm_info("DEBUG_MSHA",$sformatf("wait_apb_access_state=%0d and state=%0d",state.name(),state), UVM_NONE);
+    `uvm_info("DEBUG_MSHA",$sformatf("wait_apb_access_state=%0d and state=%0d",state.name(),state), UVM_NONE);
   
   endtask : waiting_in_access_state
 
@@ -167,29 +170,23 @@ interface apb_master_driver_bfm (input  bit   pclk,
   // data_packet - handle for apb_transfer_char_s
   //--------------------------------------------------------------------------------------------
   task detect_wait_state(inout apb_transfer_char_s data_packet);
-    @(posedge pclk);
+    @(masterCb);
     `uvm_info(name,$sformatf("DETECT_WAIT_STATE"),UVM_HIGH);
 
-    while(pready==0) begin
+    while(masterCb.pready==0) begin
       `uvm_info(name,"WAIT_STATE_DETECTED",UVM_HIGH);
-      @(posedge pclk);
+      @(masterCb);
       state = WAIT_STATE;
       data_packet.no_of_wait_states++;
     end
     `uvm_info(name,$sformatf("DATA READY TO TRANSFER"),UVM_HIGH);
 
-    if(data_packet.pwrite == READ) begin
-      data_packet.prdata = prdata;
-    end
+    data_packet.pslverr = masterCb.pslverr;
 
-    data_packet.pslverr = pslverr;
-
-    // TODO(mshariff): Add logic for making it work for ACCESS to SETUP phase
     state = IDLE;
-    penable <= 1'b0;
-    pselx <= 'b0;
-    //`uvm_info("DEBUG_MSHA", $sformatf("drive_apb_access state = %0s and state = %0d",
-    //state.name(), state), UVM_NONE);
+    masterCb.penable <= 1'b0;
+    masterCb.psel <= 'b0;
+    `uvm_info("DEBUG_MSHA", $sformatf("drive_apb_access state = %0s and state = %0d",state.name(), state), UVM_NONE);
   endtask : detect_wait_state
 
 endinterface : apb_master_driver_bfm

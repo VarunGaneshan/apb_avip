@@ -85,7 +85,7 @@ task apb_slave_monitor_proxy::run_phase(uvm_phase phase);
   `uvm_info(get_type_name(), $sformatf("Inside the slave_monitor_proxy"), UVM_LOW);
   apb_slave_packet = apb_slave_tx::type_id::create("slave_packet");
   
-  apb_slave_mon_bfm_h.wait_for_preset_n();
+  //apb_slave_mon_bfm_h.wait_for_preset_n();
   
   forever begin
     apb_transfer_char_s  struct_data_packet;
@@ -96,12 +96,18 @@ task apb_slave_monitor_proxy::run_phase(uvm_phase phase);
     apb_slave_mon_bfm_h.sample_data (struct_data_packet, struct_cfg_packet);
     apb_slave_seq_item_converter :: to_class(struct_data_packet, apb_slave_packet);
 
-    `uvm_info(get_type_name(),$sformatf("Received packet from SLAVE_MONITOR_BFM: , \n %s", apb_slave_packet.sprint()),UVM_HIGH)
+ $display("SET UP STATE");
+  `uvm_info(get_type_name(),$sformatf("Received packet from SLAVE_MONITOR_BFM: , \n %s", apb_slave_packet.sprint()),UVM_MEDIUM)
 
     // Clone and publish the cloned item to the subscribers
     $cast(apb_slave_clone_packet, apb_slave_packet.clone());
-    `uvm_info(get_type_name(),$sformatf("Sending packet via analysis_port: , \n %s", apb_slave_clone_packet.sprint()),UVM_HIGH)
-    apb_slave_analysis_port.write(apb_slave_clone_packet);
+   $display("ACCESS STATE");
+    `uvm_info(get_type_name(),$sformatf("Sending packet via analysis_port: , \n %s", apb_slave_clone_packet.sprint()),UVM_MEDIUM)
+ $display("THE CHECK @%0t",$time());
+   if(struct_data_packet.penable && struct_data_packet.pready) begin 
+     apb_slave_analysis_port.write(apb_slave_clone_packet);
+      $display("THE TEST IS DONE @%0t",$time());
+   end
   end
 
 endtask : run_phase

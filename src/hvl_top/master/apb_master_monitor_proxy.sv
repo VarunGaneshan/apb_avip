@@ -84,7 +84,7 @@ task apb_master_monitor_proxy::run_phase(uvm_phase phase);
   `uvm_info(get_type_name(), $sformatf("Inside the master_monitor_proxy"), UVM_LOW);
   apb_master_packet = apb_master_tx::type_id::create("master_packet");
   
-  apb_master_mon_bfm_h.wait_for_preset_n();
+//  apb_master_mon_bfm_h.wait_for_preset_n();
 
   forever begin
     apb_transfer_char_s struct_data_packet;
@@ -94,13 +94,30 @@ task apb_master_monitor_proxy::run_phase(uvm_phase phase);
     apb_master_cfg_converter :: from_class (apb_master_agent_cfg_h, struct_cfg_packet);
     apb_master_mon_bfm_h.sample_data (struct_data_packet, struct_cfg_packet);
     apb_master_seq_item_converter :: to_class (struct_data_packet, apb_master_packet);
-
-    `uvm_info(get_type_name(),$sformatf("Received packet from master monitor bfm: , \n %s", apb_master_packet.sprint()),UVM_HIGH)
-
+  $display("MASTER SET");
+    `uvm_info(get_type_name(),$sformatf("Received packet from master monitor bfm: , \n %s", apb_master_packet.sprint()),UVM_MEDIUM)
+   $display("THE SEL IS %0d",struct_data_packet.psel);
     //Clone and publish the cloned item to the subscribers
     $cast(apb_master_clone_packet, apb_master_packet.clone());
     `uvm_info(get_type_name(),$sformatf("Sending packet via analysis_port: , \n %s", apb_master_clone_packet.sprint()),UVM_HIGH)
     apb_master_analysis_port.write(apb_master_clone_packet);
+    apb_master_mon_bfm_h.access_state(struct_data_packet, struct_cfg_packet);
+
+   apb_master_packet.penable = struct_data_packet.penable;
+  apb_master_packet.pready = struct_data_packet.pready;
+  apb_master_packet.no_of_wait_states_detected = struct_data_packet.no_of_wait_states;
+   $display("MASTER ACCESS");
+   $display("THE EN IS %0D and red is %0d no of wait states %0d",apb_master_packet.penable,apb_master_packet.pready,apb_master_packet.no_of_wait_states_detected);
+    `uvm_info(get_type_name(),$sformatf("Received packet from master monitor bfm: , \n %s", apb_master_packet.sprint()),UVM_MEDIUM)
+
+    //Clone and publish the cloned item to the subscribers
+    $cast(apb_master_clone_packet, apb_master_packet.clone());
+    `uvm_info(get_type_name(),$sformatf("Sending packet via analysis_port: , \n %s", apb_master_clone_packet.sprint()),UVM_HIGH)
+
+  $display("THE 0DD EN IS %0D and red is %0d no of wait states %0d",apb_master_clone_packet.penable,apb_master_clone_packet.pready,apb_master_clone_packet.no_of_wait_states_detected);
+
+    apb_master_analysis_port.write(apb_master_clone_packet);
+
   end
 
 endtask : run_phase

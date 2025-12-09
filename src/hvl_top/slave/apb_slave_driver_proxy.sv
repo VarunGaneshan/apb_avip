@@ -97,7 +97,7 @@ endfunction : end_of_elaboration_phase
 task apb_slave_driver_proxy::run_phase(uvm_phase phase);
   
   //wait for system reset
-  apb_slave_drv_bfm_h.wait_for_preset_n();
+//  apb_slave_drv_bfm_h.wait_for_preset_n();
 
   forever begin
     apb_transfer_char_s struct_packet;
@@ -106,16 +106,11 @@ task apb_slave_driver_proxy::run_phase(uvm_phase phase);
     apb_slave_drv_bfm_h.wait_for_setup_state(struct_packet);
     `uvm_info("DEBUG_MSHA", $sformatf("AFTER WAIT FOR SETUP STATE- STRUCT :: %p", struct_packet), UVM_HIGH); 
   
-   //-- // TODO(mshariff): access the slave memory 
-   //-- check_for_pslverr(struct_packet);
-   //-- `uvm_info("DEBUG_NA", $sformatf("AFTER PSLVERR_CHECK_5 -struct:: %p", struct_packet), UVM_MEDIUM); 
     
     seq_item_port.get_next_item(req);
     //Printing the req item
     `uvm_info(get_type_name(), $sformatf("REQ-SLAVE_TX \n %s",req.sprint),UVM_LOW);
       
-    // TODO(mshariff): 
-    // Put the data from struct_packet and req into req using choose_packet_data variable
     if(req.choose_packet_data) begin
 
       check_for_pslverr_address_range(struct_packet);
@@ -145,6 +140,11 @@ task apb_slave_driver_proxy::run_phase(uvm_phase phase);
        
       //drive the converted data packets to the slave driver bfm
       apb_slave_drv_bfm_h.wait_for_access_state(struct_packet);
+
+
+     if(struct_packet.pwrite == WRITE)begin
+      task_write(struct_packet);
+     end
 
       //`uvm_info("DEBUG_NA", $sformatf("before wait for access state- inside else :: %p", struct_packet), UVM_HIGH); 
     end
@@ -215,13 +215,9 @@ task apb_slave_driver_proxy::check_for_pslverr(inout apb_transfer_char_s struct_
   if(struct_packet.paddr inside {[apb_slave_agent_cfg_h.min_address : apb_slave_agent_cfg_h.max_address]}) begin
     struct_packet.pslverr = NO_ERROR;
    
-    if(struct_packet.pwrite == WRITE)begin
-      task_write(struct_packet);
-    end
-    else begin
+    if(!struct_packet.pwrite == WRITE)begin
       task_read(struct_packet);
-    end
-  
+    end 
   end
   else begin 
     struct_packet.pslverr = ERROR;

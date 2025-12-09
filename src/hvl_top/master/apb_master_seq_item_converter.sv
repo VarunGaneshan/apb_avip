@@ -42,9 +42,9 @@ function void apb_master_seq_item_converter::from_class(input apb_master_tx inpu
   $cast(output_conv.pprot,input_conv.pprot); 
   `uvm_info("apb_master_seq_item_conv_class",$sformatf("After randomize pprot =  %b",output_conv.pprot),UVM_HIGH);
 
-  //output_conv.pselx = input_conv.pselx; 
-  $cast(output_conv.pselx,input_conv.pselx);
-  `uvm_info("apb_master_seq_item_conv_class",$sformatf("After randomize pselx =  %b",output_conv.pselx),UVM_HIGH);
+  //output_conv.psel = input_conv.psel; 
+  $cast(output_conv.psel,input_conv.psel);
+  `uvm_info("apb_master_seq_item_conv_class",$sformatf("After randomize psel =  %b",output_conv.psel),UVM_HIGH);
 
   $cast(output_conv.pwrite,input_conv.pwrite);
   `uvm_info("apb_master_seq_item_conv_class",$sformatf("After randomizing pwrite =  %b",output_conv.pwrite),UVM_HIGH);
@@ -87,8 +87,8 @@ function void apb_master_seq_item_converter::to_class(input apb_transfer_char_s 
   $cast(output_conv_h.pprot,input_conv.pprot);
   `uvm_info("apb_master_seq_item_conv_class",$sformatf("After randomize pprot =  %b",output_conv_h.pprot),UVM_HIGH);
  
-  $cast(output_conv_h.pselx,input_conv.pselx);
-  `uvm_info("apb_master_seq_item_conv_class",$sformatf("After randomize pselx =  %b",output_conv_h.pselx),UVM_HIGH);
+  $cast(output_conv_h.psel,input_conv.psel);
+  `uvm_info("apb_master_seq_item_conv_class",$sformatf("After randomize psel =  %b",output_conv_h.psel),UVM_HIGH);
 
   $cast(output_conv_h.pwrite,input_conv.pwrite);
   `uvm_info("apb_master_seq_item_conv_class",$sformatf("After randomize pwrite =  %0h",output_conv_h.pwrite),UVM_HIGH);
@@ -107,6 +107,10 @@ function void apb_master_seq_item_converter::to_class(input apb_transfer_char_s 
 
   output_conv_h.prdata = input_conv.prdata;
   `uvm_info("apb_master_seq_item_conv_class",$sformatf("After randomize prdata =  %0h",output_conv_h.prdata),UVM_HIGH);
+
+  output_conv_h.pready = input_conv.pready;
+
+  output_conv_h.penable = input_conv.penable; 
 
   output_conv_h.no_of_wait_states_detected = input_conv.no_of_wait_states;
   `uvm_info("apb_master_seq_item_conv_class",$sformatf("After randomize no_of_wait_states =  %d",
@@ -127,7 +131,7 @@ function void apb_master_seq_item_converter::do_print(uvm_printer printer);
   printer.print_field("pwdata",apb_st.pwdata,$bits(apb_st.pwdata),UVM_DEC);
   printer.print_field("prdata",apb_st.prdata,$bits(apb_st.pwdata),UVM_DEC);
   printer.print_field("pprot",apb_st.pprot,$bits(apb_st.pprot),UVM_BIN);
-  printer.print_field("pselx",apb_st.pselx,$bits(apb_st.pselx),UVM_BIN);
+  printer.print_field("psel",apb_st.psel,$bits(apb_st.psel),UVM_BIN);
   printer.print_field("pwrite",apb_st.pwrite,$bits(apb_st.pwrite),UVM_BIN);
   printer.print_field("pstrb",apb_st.pstrb,$bits(apb_st.pstrb),UVM_BIN);
   printer.print_field("pslverr",apb_st.pslverr,$bits(apb_st.pslverr),UVM_BIN);

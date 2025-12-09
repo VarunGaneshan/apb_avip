@@ -69,26 +69,34 @@ interface apb_slave_monitor_bfm (input bit pclk,
   //  apb_cfg_packet  - Handle for apb_transfer_cfg_s class
   //-------------------------------------------------------
   task sample_data (output apb_transfer_char_s apb_data_packet, input apb_transfer_cfg_s apb_cfg_packet);
-    @(negedge pclk);
-    
+   @(posedge pclk); 
     while(psel === 1'bX) begin
-      @(negedge pclk);
+      @(posedge pclk);
       `uvm_info(name, $sformatf("Inside while loop PSEL"), UVM_HIGH)
     end
 
-    while(psel !==1 || penable !==1 || pready !==1) begin
+    while(pready !==1) begin
     `uvm_info(name, $sformatf("Inside while loop: SLAVE[%0d] penable =%0d, pready=%0d, psel=%0b ", 
                               apb_cfg_packet.slave_id, penable, pready, psel), UVM_HIGH)
-      @(negedge pclk);
+      @(posedge pclk);
+      $display("IN THIS LOOP @%0t",$time());
     end
     `uvm_info(name, $sformatf("After while loop: penable =%0d, pready=%0d, psel=%0d ", penable, pready, psel), UVM_HIGH)
 
-    apb_data_packet.pselx[0] = psel;
+
+   $display("CHECKED FOR PREADY AND PENABLE @%0t",$time());
+   if(pready ==1 && penable ==1)
+   begin 
+
+    apb_data_packet.psel= psel;
     apb_data_packet.pslverr  = pslverr;
     apb_data_packet.pprot    = pprot;
     apb_data_packet.pwrite   = pwrite;
     apb_data_packet.paddr    = paddr;
     apb_data_packet.pstrb    = pstrb;
+    apb_data_packet.pready = pready;
+    apb_data_packet.penable = penable;
+
 
     if (pwrite == WRITE) begin
       apb_data_packet.pwdata = pwdata;
@@ -96,7 +104,12 @@ interface apb_slave_monitor_bfm (input bit pclk,
     else begin
       apb_data_packet.prdata = prdata;
     end
-    `uvm_info(name, $sformatf("SLAVE_SAMPLE_DATA=%p", apb_data_packet), UVM_HIGH)
+  end
+  else begin 
+    apb_data_packet.pready = pready;
+    apb_data_packet.penable = penable;
+  end 
+    `uvm_info(name, $sformatf("\n\n\n\SLAVE_SAMPLE_DATA=%p \n\n\n", apb_data_packet), UVM_MEDIUM)
   endtask : sample_data
 
 endinterface : apb_slave_monitor_bfm
