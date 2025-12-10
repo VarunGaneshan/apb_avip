@@ -1,5 +1,7 @@
 `ifndef APB_GLOBAL_PKG_INCLUDED_
 `define APB_GLOBAL_PKG_INCLUDED_
+//Hi
+
 
 //--------------------------------------------------------------------------------------------
 // Package : apb_global_pkg
