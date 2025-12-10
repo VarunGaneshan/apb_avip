@@ -1,7 +1,6 @@
 `ifndef APB_GLOBAL_PKG_INCLUDED_
 `define APB_GLOBAL_PKG_INCLUDED_
 
-// new val
 
 //--------------------------------------------------------------------------------------------
 // Package : apb_global_pkg
