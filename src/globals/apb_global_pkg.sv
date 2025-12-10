@@ -1,9 +1,7 @@
 `ifndef APB_GLOBAL_PKG_INCLUDED_
 `define APB_GLOBAL_PKG_INCLUDED_
 
-// hi i am alex
-// checking if anything 
-  
+
 //--------------------------------------------------------------------------------------------
 // Package : apb_global_pkg
 //  Used for storing required enums, parameters and defines
