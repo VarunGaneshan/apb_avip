@@ -127,9 +127,11 @@ interface apb_slave_driver_bfm (input bit pclk,
     if(data_packet.pwrite == READ) begin
       `uvm_info(name,$sformatf("INSIDE ACCESS - PRDATA=%0h",data_packet.prdata),UVM_HIGH);
       slaveCb.prdata <= data_packet.prdata;
+      @(slaveCb); // if not present will detect the psel even if the transfer is not needed (psel made 0)
+      slaveCb.pready <=0; 
     end
     else begin  
-      @(slaveCb);
+      @(slaveCb); 
     slaveCb.pready <= 0;
     end 
 
