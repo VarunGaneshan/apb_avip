@@ -10,7 +10,7 @@ class apb_virtual_sequencer extends uvm_sequencer#(uvm_sequence_item);
 
   //Variable: master_seqr_h
   //Declaring master sequencer handle
-  apb_master_sequencer apb_master_seqr_h;
+  apb_master_sequencer apb_master_seqr_h[];
 
   //Variable: slave_seqr_h
   //Declaring slave sequencer handle
@@ -34,6 +34,7 @@ endclass : apb_virtual_sequencer
 function apb_virtual_sequencer::new(string name = "apb_virtual_sequencer",uvm_component parent = null);
   super.new(name, parent);
   apb_slave_seqr_h = new[NO_OF_SLAVES];
+  apb_master_seqr_h = new[NO_OF_MASTERS];
 endfunction : new
 
 //--------------------------------------------------------------------------------------------

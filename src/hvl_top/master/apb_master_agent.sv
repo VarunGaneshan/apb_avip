@@ -64,6 +64,7 @@ endfunction : new
 function void apb_master_agent::build_phase(uvm_phase phase);
   super.build_phase(phase);
 
+// Why this? 
   if(!uvm_config_db #(apb_master_agent_config)::get(this,"","apb_master_agent_config", apb_master_agent_cfg_h)) begin
     `uvm_fatal("FATAL_MA_CANNOT_GET_APB_MASTER_AGENT_CONFIG", "cannot get apb_master_agent_cfg_h from uvm_config_db");
   end
@@ -90,6 +91,7 @@ endfunction : build_phase
 // phase - uvm phase
 //--------------------------------------------------------------------------------------------
 function void apb_master_agent::connect_phase(uvm_phase phase);
+	super.connect_phase(phase);
   if(apb_master_agent_cfg_h.is_active == UVM_ACTIVE) begin
     apb_master_drv_proxy_h.apb_master_agent_cfg_h = apb_master_agent_cfg_h;
     apb_master_seqr_h.apb_master_agent_cfg_h = apb_master_agent_cfg_h;

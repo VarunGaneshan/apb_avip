@@ -16,13 +16,17 @@ class apb_env_config extends uvm_object;
   //Enables the virtual sequencer. Default value is 1
   bit has_virtual_seqr = 1;
 
+  //Variable: no_of_masters
+  //Number of masters connected to the SPI interface
+  int no_of_masters = 1;
+
   //Variable: no_of_slaves
   //Number of slaves connected to the SPI interface
-  int no_of_slaves;
+  int no_of_slaves = 1;
 
   //Variable: master_agent_cfg_h
   //Handle for master agent configuration
-  apb_master_agent_config apb_master_agent_cfg_h;
+  apb_master_agent_config apb_master_agent_cfg_h[];
 
   //Variable: slave_agent_cfg_h
   //Dynamic array of slave agnet configuration handles
@@ -59,6 +63,7 @@ function void apb_env_config::do_print(uvm_printer printer);
   
   printer.print_field ("has_scoreboard",   has_scoreboard,   $bits(has_scoreboard),   UVM_DEC);
   printer.print_field ("has_virtual_seqr", has_virtual_seqr, $bits(has_virtual_seqr), UVM_DEC);
+  printer.print_field ("no_of_masters",    no_of_masters,    $bits(no_of_masters),    UVM_DEC);
   printer.print_field ("no_of_slaves",     no_of_slaves,     $bits(no_of_slaves),     UVM_DEC);
 
 endfunction : do_print

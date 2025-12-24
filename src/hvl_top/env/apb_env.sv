@@ -10,7 +10,7 @@ class apb_env extends uvm_env;
 
   //Variable: apb_master_agent_h
   //Declaring apb master agent handle
-  apb_master_agent apb_master_agent_h;
+  apb_master_agent apb_master_agent_h[];
 
   //Variable: apb_slave_agent_h
   //Declaring apb slave agent handle
@@ -28,6 +28,10 @@ class apb_env extends uvm_env;
   //Declaring handle for apb_env_config_object
   apb_env_config apb_env_cfg_h;  
   
+  //Variable: apb_master_agent_cfg_h;
+  //Handle for apb_master agent configuration
+  apb_slave_agent_config apb_master_agent_cfg_h[];
+
   //Variable: apb_slave_agent_cfg_h;
   //Handle for apb_slave agent configuration
   apb_slave_agent_config apb_slave_agent_cfg_h[];
@@ -64,15 +68,25 @@ function void apb_env::build_phase(uvm_phase phase);
   if(!uvm_config_db #(apb_env_config)::get(this,"","apb_env_config",apb_env_cfg_h)) begin
    `uvm_fatal("FATAL_ENV_CONFIG", $sformatf("Couldn't get the env_config from config_db"))
   end
+  apb_master_agent_cfg_h = new[apb_env_cfg_h.no_of_masters];
   apb_slave_agent_cfg_h = new[apb_env_cfg_h.no_of_slaves];
   
+  foreach(apb_master_agent_cfg_h[i]) begin
+    if(!uvm_config_db #(apb_master_agent_config)::get(this,"",$sformatf("apb_master_agent_config[%0d]",i),apb_master_agent_cfg_h[i])) begin
+      `uvm_fatal("FATAL_MA_AGENT_CONFIG", $sformatf("Couldn't get the apb_master_agent_config[%0d] from config_db",i))
+    end
+  end
+
   foreach(apb_slave_agent_cfg_h[i]) begin
     if(!uvm_config_db #(apb_slave_agent_config)::get(this,"",$sformatf("apb_slave_agent_config[%0d]",i),apb_slave_agent_cfg_h[i])) begin
       `uvm_fatal("FATAL_SA_AGENT_CONFIG", $sformatf("Couldn't get the apb_slave_agent_config[%0d] from config_db",i))
     end
   end
   
-  apb_master_agent_h = apb_master_agent::type_id::create("apb_master_agent",this);
+  apb_master_agent_h = new[apb_env_cfg_h.no_of_masters];
+  foreach(apb_master_agent_h[i]) begin
+    apb_master_agent_h[i] = apb_master_agent::type_id::create($sformatf("apb_master_agent_h[%0d]",i),this);
+  end
   
   apb_slave_agent_h = new[apb_env_cfg_h.no_of_slaves];
   foreach(apb_slave_agent_h[i]) begin
@@ -85,6 +99,10 @@ function void apb_env::build_phase(uvm_phase phase);
 
   if(apb_env_cfg_h.has_scoreboard) begin
     apb_scoreboard_h = apb_scoreboard::type_id::create("apb_scoreboard_h",this);
+  end
+
+  foreach(apb_master_agent_h[i]) begin
+    apb_master_agent_h[i].apb_master_agent_cfg_h = apb_master_agent_cfg_h[i];
   end
 
   foreach(apb_slave_agent_h[i]) begin
@@ -102,18 +120,22 @@ endfunction : build_phase
 //--------------------------------------------------------------------------------------------
 function void apb_env::connect_phase(uvm_phase phase);
   super.connect_phase(phase);
-  if(apb_env_cfg_h.has_virtual_seqr) begin
-    apb_virtual_seqr_h.apb_master_seqr_h = apb_master_agent_h.apb_master_seqr_h;
+
+    foreach(apb_master_agent_h[i]) begin
+      apb_virtual_seqr_h.apb_master_seqr_h[i] = apb_master_agent_h[i].apb_master_seqr_h;
+    end
+
     foreach(apb_slave_agent_h[i]) begin
       apb_virtual_seqr_h.apb_slave_seqr_h[i] = apb_slave_agent_h[i].apb_slave_seqr_h;
     end
   end
   
-  apb_master_agent_h.apb_master_mon_proxy_h.apb_master_analysis_port.connect(apb_scoreboard_h.apb_master_analysis_fifo);
+  foreach(apb_master_agent_h[i]) begin
+    apb_master_agent_h[i].apb_master_mon_proxy_h.apb_master_analysis_port.connect(apb_scoreboard_h.apb_master_analysis_fifo[i].analysis_export);
+  end
   
   foreach(apb_slave_agent_h[i]) begin
-    apb_slave_agent_h[i].apb_slave_mon_proxy_h.apb_slave_analysis_port.connect(apb_scoreboard_h
-                                                                      .apb_slave_analysis_fifo[i].analysis_export);
+    apb_slave_agent_h[i].apb_slave_mon_proxy_h.apb_slave_analysis_port.connect(apb_scoreboard_h.apb_slave_analysis_fifo[i].analysis_export);
   end
   
 endfunction : connect_phase
