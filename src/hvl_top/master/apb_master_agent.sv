@@ -56,7 +56,7 @@ endfunction : new
 
 //--------------------------------------------------------------------------------------------
 // Function: build_phase
-// Creates the required ports, gets the required configuration from confif_db
+// Creates the required ports, gets the required configuration from config_db
 //
 // Parameters:
 // phase - uvm phase
@@ -64,7 +64,7 @@ endfunction : new
 function void apb_master_agent::build_phase(uvm_phase phase);
   super.build_phase(phase);
 
-// Why this? 
+// Get the configuration set in the apb_base_test 
   if(!uvm_config_db #(apb_master_agent_config)::get(this,"","apb_master_agent_config", apb_master_agent_cfg_h)) begin
     `uvm_fatal("FATAL_MA_CANNOT_GET_APB_MASTER_AGENT_CONFIG", "cannot get apb_master_agent_cfg_h from uvm_config_db");
   end
