@@ -66,8 +66,8 @@ module hdl_top;
   //-------------------------------------------------------
   // APB Master BFM Agent Instantiation
   //-------------------------------------------------------
-  apb_master_agent_bfm apb_master_agent_bfm_h(intf); 
- apb_slave_agent_bfm #(.SLAVE_ID(0)) apb_slave_agent_bfm_h(intf);
+  apb_master_agent_bfm #(.MASTER_ID(0)) apb_master_agent_bfm_h(intf); 
+  apb_slave_agent_bfm #(.SLAVE_ID(0)) apb_slave_agent_bfm_h(intf);
 
  /* 
   always_comb begin

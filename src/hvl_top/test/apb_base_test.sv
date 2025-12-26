@@ -62,6 +62,7 @@ endfunction : build_phase
 function void apb_base_test::setup_apb_env_config();
   apb_env_cfg_h = apb_env_config::type_id::create("apb_env_cfg_h");
   apb_env_cfg_h.no_of_slaves      = NO_OF_SLAVES;
+  apb_env_cfg_h.no_of_masters     = NO_OF_MASTERS;
   apb_env_cfg_h.has_scoreboard    = 1;
   apb_env_cfg_h.has_virtual_seqr  = 1;
 
