@@ -5,7 +5,7 @@
 // Module      : APB Master Agent BFM
 // Description : Instantiates driver and monitor
 //--------------------------------------------------------------------------------------------
-module apb_master_agent_bfm(apb_if intf);
+module apb_master_agent_bfm #(parameter MASTER_ID = 0)(apb_if intf);
 
   //-------------------------------------------------------
   // Importing uvm package file
@@ -13,6 +13,10 @@ module apb_master_agent_bfm(apb_if intf);
   import uvm_pkg::*;
   `include "uvm_macros.svh"
   
+	string apb_master_driver_id;
+	string apb_master_monitor_id;
+	string apb_master_id_ascii;
+
   initial begin
     `uvm_info("apb master agent bfm",$sformatf("APB MASTER AGENT BFM"),UVM_LOW);
   end
@@ -56,7 +60,10 @@ module apb_master_agent_bfm(apb_if intf);
   // setting the virtual handle of BFMs into config_db
   //-------------------------------------------------------
   initial begin
-    uvm_config_db#(virtual apb_master_driver_bfm)::set(null,"*","apb_master_driver_bfm",apb_master_drv_bfm_h);
+		apb_master_id_ascii.itoa(MASTER_ID);
+		apb_master_driver_id = {"apb_master_driver_bfm",apb_master_id_ascii};
+		apb_master_monitor_id = {"apb_master_monitor_bfm",apb_master_id_ascii};
+		uvm_config_db#(virtual apb_master_driver_bfm)::set(null,"*","apb_master_driver_bfm",apb_master_drv_bfm_h);
     uvm_config_db#(virtual apb_master_monitor_bfm)::set(null,"*","apb_master_monitor_bfm",apb_master_mon_bfm_h);
   end
 
