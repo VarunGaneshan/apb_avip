@@ -62,12 +62,14 @@ task apb_scoreboard::run_phase(uvm_phase phase);
 
    forever begin
     for(int j = 0; j < NO_OF_MASTERS; j++) begin
+      // write a display statement before the get inorder to see if the simulation gets stuck
       apb_master_analysis_fifo[j].get(apb_master_tx_h);
       apb_master_tx_count++;
       `uvm_info(get_type_name(), $sformatf("after calling master's analysis fifo get method"), UVM_HIGH);
     end
 
     for(int i = 0; i < NO_OF_SLAVES; i++) begin
+      // write a display statement before the get inorder to see if the simulation gets stuck
       apb_slave_analysis_fifo[i].get(apb_slave_tx_h);
       apb_slave_tx_count++;
       `uvm_info(get_type_name(), $sformatf("after calling slave's analysis fifo get method"), UVM_HIGH);
