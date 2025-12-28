@@ -7,10 +7,6 @@ class apb_scoreboard extends uvm_scoreboard;
   uvm_tlm_analysis_fifo #(apb_master_tx) apb_master_analysis_fifo[];
   uvm_tlm_analysis_fifo #(apb_slave_tx)  apb_slave_analysis_fifo[];
 
-  apb_master_tx apb_master_tx_h;
-
-  apb_slave_tx apb_slave_tx_h;
-
   int apb_master_tx_count = 0;
   int apb_slave_tx_count = 0;
 
@@ -65,7 +61,7 @@ endfunction
 task apb_scoreboard::run_phase(uvm_phase phase);
   super.run_phase(phase);
 
-   fork // seperates every master and slave making each thread for those
+  // seperates every master and slave making each thread for those
    foreach(apb_master_analysis_fifo[i]) begin
      automatic int master_idx = i;
    fork 
@@ -79,7 +75,7 @@ task apb_scoreboard::run_phase(uvm_phase phase);
       // routing information to check which slave its accessing 
       slave_idx = get_slave_index(m_tx.paddr);
 
-      if(target_slave_idx == -1) begin
+      if(slave_idx == -1) begin
              `uvm_error("SCB", $sformatf("Address 0x%0h does not map to any valid slave", m_tx.paddr))
           end else begin
              // Push into the specific slave's expected queue
@@ -113,8 +109,10 @@ task apb_scoreboard::run_phase(uvm_phase phase);
           end
         end
       join_none
-    end
-  join
+    end 
+
+    //wait for all the threads to complete 
+    wait fork;
 endtask
  
 //to get the specific slave IDs /customize this based on your design spec
@@ -129,18 +127,18 @@ function int apb_scoreboard::get_slave_index(bit [31:0] addr);
 
 function void apb_scoreboard::compare_trans(apb_master_tx m_tx, apb_slave_tx s_tx);
  
-  if (apb_master_tx_h.pwrite == 1 && apb_slave_tx_h.pready == 1) begin
-    if (apb_master_tx_h.psel && apb_master_tx_h.penable) begin
+  if (m_tx.pwrite == 1 && s_tx.pready == 1) begin
+    if (m_tx.psel && m_tx.penable) begin
 
     `uvm_info(get_type_name(),
       "-- -------------------------------------- APB SCOREBOARD COMPARISONS --------------------------------------",
       UVM_HIGH)
 
-      if (apb_master_tx_h.pwdata == apb_slave_tx_h.pwdata) begin
+      if (m_tx.pwdata == s_tx.pwdata) begin
         `uvm_info(get_type_name(), "APB PWDATA match", UVM_HIGH);
         `uvm_info("SB_PWDATA_MATCH",
           $sformatf("Master PWDATA = 0x%0h Slave PWDATA = 0x%0h",
-                  apb_master_tx_h.pwdata, apb_slave_tx_h.pwdata),
+                  m_tx.pwdata, s_tx.pwdata),
           UVM_HIGH);
         apb_master_pwdata_pass++;
       end
@@ -148,15 +146,15 @@ function void apb_scoreboard::compare_trans(apb_master_tx m_tx, apb_slave_tx s_t
         `uvm_info(get_type_name(), "APB PWDATA mismatch", UVM_HIGH);
         `uvm_error("SB_PWDATA_MISMATCH",
         $sformatf("Master PWDATA = 0x%0h Slave PWDATA = 0x%0h",
-                  apb_master_tx_h.pwdata, apb_slave_tx_h.pwdata));
+                  m_tx.pwdata, s_tx.pwdata));
         apb_master_pwdata_fail++;
       end
 
-      if (apb_master_tx_h.paddr == apb_slave_tx_h.paddr) begin
+      if (m_tx.paddr == s_tx.paddr) begin
         `uvm_info(get_type_name(), "APB PADDR match", UVM_HIGH);
         `uvm_info("SB_PADDR_MATCH",
         $sformatf("Master PADDR = 0x%0h Slave PADDR = 0x%0h",
-                  apb_master_tx_h.paddr, apb_slave_tx_h.paddr),
+                  m_tx.paddr, s_tx.paddr),
         UVM_HIGH);
         apb_master_paddr_pass++;
       end
@@ -164,15 +162,15 @@ function void apb_scoreboard::compare_trans(apb_master_tx m_tx, apb_slave_tx s_t
         `uvm_info(get_type_name(), "APB PADDR mismatch", UVM_HIGH);
         `uvm_error("SB_PADDR_MISMATCH",
         $sformatf("Master PADDR = 0x%0h Slave PADDR = 0x%0h",
-                  apb_master_tx_h.paddr, apb_slave_tx_h.paddr));
+                  m_tx.paddr, s_tx.paddr));
         apb_master_paddr_fail++;
       end
 
-      if (apb_master_tx_h.pwrite == apb_slave_tx_h.pwrite) begin
+      if (m_tx.pwrite == s_tx.pwrite) begin
         `uvm_info(get_type_name(), "APB PWRITE match", UVM_HIGH);
         `uvm_info("SB_PWRITE_MATCH",
         $sformatf("Master PWRITE = %0d Slave PWRITE = %0d",
-                  apb_master_tx_h.pwrite, apb_slave_tx_h.pwrite),
+                  m_tx.pwrite, s_tx.pwrite),
         UVM_HIGH);
         apb_master_pwrite_pass++;
       end
@@ -180,15 +178,15 @@ function void apb_scoreboard::compare_trans(apb_master_tx m_tx, apb_slave_tx s_t
         `uvm_info(get_type_name(), "APB PWRITE mismatch", UVM_HIGH);
         `uvm_error("SB_PWRITE_MISMATCH",
         $sformatf("Master PWRITE = %0d Slave PWRITE = %0d",
-                  apb_master_tx_h.pwrite, apb_slave_tx_h.pwrite));
+                  m_tx.pwrite, s_tx.pwrite));
         apb_master_pwrite_fail++;
       end
 
-      if (apb_master_tx_h.pstrb == apb_slave_tx_h.pstrb) begin
+      if (m_tx.pstrb == s_tx.pstrb) begin
         `uvm_info(get_type_name(), "APB PSTRB match", UVM_HIGH);
         `uvm_info("SB_PSTRB_MATCH",
         $sformatf("Master PSTRB = %0b Slave PSTRB = %0b",
-                  apb_master_tx_h.pstrb, apb_slave_tx_h.pstrb),
+                  m_tx.pstrb, s_tx.pstrb),
         UVM_HIGH);
         apb_master_pstrb_pass++;
       end
@@ -196,15 +194,15 @@ function void apb_scoreboard::compare_trans(apb_master_tx m_tx, apb_slave_tx s_t
         `uvm_info(get_type_name(), "APB PSTRB mismatch", UVM_HIGH);
         `uvm_error("SB_PSTRB_MISMATCH",
         $sformatf("Master PSTRB = %0b Slave PSTRB = %0b",
-                  apb_master_tx_h.pstrb, apb_slave_tx_h.pstrb));
+                  m_tx.pstrb, s_tx.pstrb));
         apb_master_pstrb_fail++;
       end
 
-      if (apb_master_tx_h.pprot == apb_slave_tx_h.pprot) begin
+      if (m_tx.pprot == s_tx.pprot) begin
         `uvm_info(get_type_name(), "APB PPROT match", UVM_HIGH);
         `uvm_info("SB_PPROT_MATCH",
         $sformatf("Master PPROT = %0d Slave PPROT = %0d",
-                  apb_master_tx_h.pprot, apb_slave_tx_h.pprot),
+                  m_tx.pprot, s_tx.pprot),
         UVM_HIGH);
         apb_master_pprot_pass++;
       end
@@ -212,7 +210,7 @@ function void apb_scoreboard::compare_trans(apb_master_tx m_tx, apb_slave_tx s_t
         `uvm_info(get_type_name(), "APB PPROT mismatch", UVM_HIGH);
         `uvm_error("SB_PPROT_MISMATCH",
         $sformatf("Master PPROT = %0d Slave PPROT = %0d",
-                  apb_master_tx_h.pprot, apb_slave_tx_h.pprot));
+                  m_tx.pprot, s_tx.pprot));
         apb_master_pprot_fail++;
       end
 
@@ -222,28 +220,28 @@ function void apb_scoreboard::compare_trans(apb_master_tx m_tx, apb_slave_tx s_t
   end
 end
 
-else if (apb_master_tx_h.pwrite == 0 && apb_slave_tx_h.pready == 1) begin
-  if (apb_master_tx_h.psel && apb_master_tx_h.penable) begin
+else if (m_tx.pwrite == 0 && s_tx.pready == 1) begin
+  if (m_tx.psel && m_tx.penable) begin
 
     `uvm_info(get_type_name(),
       "-- -------------------------------------- APB SCOREBOARD COMPARISONS --------------------------------------",
       UVM_HIGH)
 
-    if (apb_master_tx_h.paddr == apb_slave_tx_h.paddr) begin
+    if (m_tx.paddr == s_tx.paddr) begin
       `uvm_info("SB_PADDR_MATCH",
         $sformatf("Master PADDR = 0x%0h Slave PADDR = 0x%0h",
-                  apb_master_tx_h.paddr, apb_slave_tx_h.paddr),
+                  m_tx.paddr, s_tx.paddr),
         UVM_HIGH);
       apb_master_paddr_pass++;
     end
     else begin
       `uvm_error("SB_PADDR_MISMATCH",
         $sformatf("Master PADDR = 0x%0h Slave PADDR = 0x%0h",
-                  apb_master_tx_h.paddr, apb_slave_tx_h.paddr));
+                  m_tx.paddr, s_tx.paddr));
       apb_master_paddr_fail++;
     end
 
-    if (apb_master_tx_h.pwrite == apb_slave_tx_h.pwrite) begin
+    if (m_tx.pwrite == s_tx.pwrite) begin
       apb_master_pwrite_pass++;
     end
     else begin
@@ -251,21 +249,21 @@ else if (apb_master_tx_h.pwrite == 0 && apb_slave_tx_h.pready == 1) begin
       `uvm_error("SB_PWRITE_MISMATCH", "PWRITE mismatch in READ transaction");
     end
 
-    if (apb_master_tx_h.prdata == apb_slave_tx_h.prdata) begin
+    if (m_tx.prdata == s_tx.prdata) begin
       `uvm_info("SB_PRDATA_MATCH",
         $sformatf("Master PRDATA = 0x%0h Slave PRDATA = 0x%0h",
-                  apb_master_tx_h.prdata, apb_slave_tx_h.prdata),
+                  m_tx.prdata, s_tx.prdata),
         UVM_HIGH);
       apb_master_prdata_pass++;
     end
     else begin
       `uvm_error("SB_PRDATA_MISMATCH",
         $sformatf("Master PRDATA = 0x%0h Slave PRDATA = 0x%0h",
-                  apb_master_tx_h.prdata, apb_slave_tx_h.prdata));
+                  m_tx.prdata, s_tx.prdata));
       apb_master_prdata_fail++;
     end
 
-    if (apb_master_tx_h.pprot == apb_slave_tx_h.pprot) begin
+    if (m_tx.pprot == s_tx.pprot) begin
       apb_master_pprot_pass++;
     end
     else begin
