@@ -30,7 +30,7 @@ class apb_env extends uvm_env;
   
   //Variable: apb_master_agent_cfg_h;
   //Handle for apb_master agent configuration
-  apb_slave_agent_config apb_master_agent_cfg_h[];
+  apb_master_agent_config apb_master_agent_cfg_h[];
 
   //Variable: apb_slave_agent_cfg_h;
   //Handle for apb_slave agent configuration
@@ -119,25 +119,23 @@ endfunction : build_phase
 //  phase - uvm phase
 //--------------------------------------------------------------------------------------------
 function void apb_env::connect_phase(uvm_phase phase);
-  super.connect_phase(phase);
+	super.connect_phase(phase);
 
-    foreach(apb_master_agent_h[i]) begin
-      apb_virtual_seqr_h.apb_master_seqr_h[i] = apb_master_agent_h[i].apb_master_seqr_h;
-    end
-
-    foreach(apb_slave_agent_h[i]) begin
-      apb_virtual_seqr_h.apb_slave_seqr_h[i] = apb_slave_agent_h[i].apb_slave_seqr_h;
-    end
-  end
-  
   foreach(apb_master_agent_h[i]) begin
-    apb_master_agent_h[i].apb_master_mon_proxy_h.apb_master_analysis_port.connect(apb_scoreboard_h.apb_master_analysis_fifo[i].analysis_export);
-  end
-  
-  foreach(apb_slave_agent_h[i]) begin
-    apb_slave_agent_h[i].apb_slave_mon_proxy_h.apb_slave_analysis_port.connect(apb_scoreboard_h.apb_slave_analysis_fifo[i].analysis_export);
-  end
-  
+		apb_virtual_seqr_h.apb_master_seqr_h[i] = apb_master_agent_h[i].apb_master_seqr_h;
+	end
+	foreach(apb_slave_agent_h[i]) begin
+		apb_virtual_seqr_h.apb_slave_seqr_h[i] = apb_slave_agent_h[i].apb_slave_seqr_h;
+	end
+
+
+	foreach(apb_master_agent_h[i]) begin
+		apb_master_agent_h[i].apb_master_mon_proxy_h.apb_master_analysis_port.connect(apb_scoreboard_h.apb_master_analysis_fifo[i].analysis_export);
+	end
+	foreach(apb_slave_agent_h[i]) begin
+		apb_slave_agent_h[i].apb_slave_mon_proxy_h.apb_slave_analysis_port.connect(apb_scoreboard_h.apb_slave_analysis_fifo[i].analysis_export);
+	end
+
 endfunction : connect_phase
 
 `endif

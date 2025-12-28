@@ -123,7 +123,7 @@ function int apb_scoreboard::get_slave_index(bit [31:0] addr);
     if (addr >= 'h200 && addr < 'h300) return 2;
     // Add logic for all slaves
     return 0; // Default or return -1 for error
-  endfunction
+endfunction
 
 function void apb_scoreboard::compare_trans(apb_master_tx m_tx, apb_slave_tx s_tx);
  
@@ -277,7 +277,7 @@ else if (m_tx.pwrite == 0 && s_tx.pready == 1) begin
   end
 end
   
-endtask
+endfunction
 
 function void apb_scoreboard::check_phase(uvm_phase phase);
   super.check_phase(phase);
