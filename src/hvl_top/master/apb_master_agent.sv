@@ -65,9 +65,9 @@ function void apb_master_agent::build_phase(uvm_phase phase);
 	int master_id;
   super.build_phase(phase);
 	
-	if(!uvm_config_db #(int)::get(this,"","master_id",master_id)) begin
-	  `uvm_fatal("FATAL_MA_AGENT_INDEX", "cannot get master_id from uvm_config_db");
-	end
+	//if(!uvm_config_db #(int)::get(this,"","master_id",master_id)) begin
+	//  `uvm_fatal("FATAL_MA_AGENT_INDEX", "cannot get master_id from uvm_config_db");
+	//end
 
 // Get the configuration set in the apb_base_test 
   if(!uvm_config_db #(apb_master_agent_config)::get(this,"",$sformatf("apb_master_agent_config_%0d",master_id), apb_master_agent_cfg_h)) begin
