@@ -13,7 +13,7 @@ class apb_virtual_base_seq extends uvm_sequence;
   
   //Variable : apb_master_seqr_h
   //Declaring handle to the virtual sequencer
-  apb_master_sequencer apb_master_seqr_h;
+  apb_master_sequencer apb_master_seqr_h[];
 
   //Variable : apb_master_seqr_h
   //Declaring handle to the virtual sequencer
@@ -46,13 +46,16 @@ endfunction : new
 //--------------------------------------------------------------------------------------------
 task apb_virtual_base_seq::body();
   apb_slave_seqr_h = new[NO_OF_SLAVES];
+	apb_master_seqr_h = new[NO_OF_MASTERS];
   if(!$cast(p_sequencer,m_sequencer))begin
     `uvm_error(get_full_name(),"Virtual sequencer pointer cast failed")
   end
   foreach(apb_slave_seqr_h[i]) begin
     apb_slave_seqr_h[i]  = p_sequencer.apb_slave_seqr_h[i];
   end
-  apb_master_seqr_h = p_sequencer.apb_master_seqr_h;
+	foreach(apb_master_seqr_h[i]) begin
+  	apb_master_seqr_h[i] = p_sequencer.apb_master_seqr_h[i];
+	end
 
 endtask : body
 
