@@ -32,7 +32,7 @@ task
 apb_virtual_32b_write_multiple_master_multiple_slave_seq::body();
   super.body();
 	foreach(apb_master_32b_write_seq_master0[i]) begin
-  apb_master_32b_write_seq_master0 =
+  apb_master_32b_write_seq_master0[i] =
     apb_master_32b_write_seq::type_id::create(
       "apb_master_32b_write_seq_master0"
     );
