@@ -8,11 +8,11 @@ class apb_virtual_32b_write_multiple_master_multiple_slave_seq
     apb_virtual_32b_write_multiple_master_multiple_slave_seq
   )
 
-  apb_master_32b_write_seq apb_master_32b_write_seq_master0;
-  apb_master_32b_write_seq apb_master_32b_write_seq_master1;
+  apb_master_32b_write_seq apb_master_32b_write_seq_master0[NO_OF_MASTERS];
+  apb_master_32b_write_seq apb_master_32b_write_seq_master1[NO_OF_MASTERS];
 
-  apb_slave_32b_write_seq  apb_slave_32b_write_seq_slave0;
-  apb_slave_32b_write_seq  apb_slave_32b_write_seq_slave1;
+  apb_slave_32b_write_seq  apb_slave_32b_write_seq_slave0[NO_OF_SLAVES];
+  apb_slave_32b_write_seq  apb_slave_32b_write_seq_slave1[NO_OF_SLAVES];
 
   extern function new(
     string name="apb_virtual_32b_write_multiple_master_multiple_slave_seq"

@@ -11,11 +11,11 @@ class apb_virtual_8b_write_seq extends apb_virtual_base_seq;
 
   //Variable: apb_master_8b_seq_h
   //Instatiation of apb_master_8b_write_seq
-  apb_master_8b_write_seq apb_master_8b_write_seq_h;
+  apb_master_8b_write_seq apb_master_8b_write_seq_h[NO_OF_MASTERS];
 
   //Variable: apb_slave_8b_write_seq_h
   //Instantiation of apb_master_8b_write_seq
-  apb_slave_8b_write_seq apb_slave_8b_write_seq_h;
+  apb_slave_8b_write_seq apb_slave_8b_write_seq_h[NO_OF_SLAVES];
 
   //-------------------------------------------------------
   // Externally defined Tasks and Functions
