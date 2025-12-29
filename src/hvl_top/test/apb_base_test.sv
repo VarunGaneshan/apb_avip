@@ -70,20 +70,26 @@ function void apb_base_test::setup_apb_env_config();
 	apb_env_cfg_h.apb_master_agent_cfg_h = new[apb_env_cfg_h.no_of_masters];
 	foreach(apb_env_cfg_h.apb_master_agent_cfg_h[i]) begin
 			apb_env_cfg_h.apb_master_agent_cfg_h[i] = apb_master_agent_config::type_id::create($sformatf("apb_master_agent_config[%0d]",i));
+    apb_env_cfg_h.apb_master_agent_cfg_h[i].master_id = i;
 	end
 
   //Setting up the configuration for master agent
   setup_apb_master_agent_config();
 
   //Setting the master agent configuration into config_db
-  uvm_config_db#(apb_master_agent_config)::set(this,"*master_agent*","apb_master_agent_config",
-                                               apb_env_cfg_h.apb_master_agent_cfg_h);
+  uvm_config_db#(apb_master_agent_config)::set(this,"*","apb_master_agent_config_h",
+					                                             apb_env_cfg_h.apb_master_agent_cfg_h);
 
-  //Displaying the master agent configuration
+	foreach(apb_env_cfg_h.apb_master_agent_cfg_h[i]) begin
+		uvm_config_db#(apb_master_agent_config)::set(this,"*",$sformatf("apb_master_agent_config_%0d",i),apb_env_cfg_h.apb_master_agent_cfg_h[i]);
+	end
+
+  /* Displaying the master agent configuration
 	foreach(apb_env_cfg_h.apb_master_agent_cfg_h[i]) begin
 			uvm_config_db#(apb_master_agent_config)::set(this,"*",$sformatf("apb_master_agent_config[%0d]",i),
 											                                               apb_env_cfg_h.apb_master_agent_cfg_h[i]);
 	end
+  */
 
   setup_apb_slave_agent_config();
 
@@ -103,7 +109,7 @@ function void apb_base_test::setup_apb_master_agent_config();
   bit [63:0]local_max_address;
  
 	foreach(apb_env_cfg_h.apb_master_agent_cfg_h[i]) begin	
-  	apb_env_cfg_h.apb_master_agent_cfg_h[i] = apb_master_agent_config::type_id::create($sformatf("apb_master_agent_config[%0d]",i));
+  	// apb_env_cfg_h.apb_master_agent_cfg_h[i] = apb_master_agent_config::type_id::create($sformatf("apb_master_agent_config[%0d]",i));
   	if(MASTER_AGENT_ACTIVE === 1) begin
     	apb_env_cfg_h.apb_master_agent_cfg_h[i].is_active = uvm_active_passive_enum'(UVM_ACTIVE);
   	end
@@ -114,8 +120,8 @@ function void apb_base_test::setup_apb_master_agent_config();
 
   apb_env_cfg_h.apb_master_agent_cfg_h[0].no_of_slaves = NO_OF_SLAVES;
   apb_env_cfg_h.apb_master_agent_cfg_h[0].has_coverage = 1;
+  apb_env_cfg_h.apb_master_agent_cfg_h[0].master_id    = 0;
 
-	// corrected here
  	for(int i = 0; i < NO_OF_SLAVES; i++) begin
   	if(i == 0) begin
     	apb_env_cfg_h.apb_master_agent_cfg_h[0].master_min_addr_range(i,0);
