@@ -73,7 +73,7 @@ task apb_virtual_8b_write_read_seq::body();
                                                                     }) begin
              `uvm_error(get_type_name(), "Randomization failed : Inside apb_virtual_8b_write_read_seq")
           end
-      apb_slave_8b_read_seq_h.start[0](p_sequencer.apb_slave_seqr_h[0]);
+		apb_slave_8b_read_seq_h[0].start(p_sequencer.apb_slave_seqr_h[0]);
     end
   end
   join_none
