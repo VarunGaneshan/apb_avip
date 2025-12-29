@@ -11,6 +11,8 @@ class apb_slave_tx extends uvm_sequence_item;
   //Variable: psel
   //Used to select the slave
   bit psel;
+
+  bit [3:0] pstrb;
     
   //Variable: paddr
   //Address selected in apb_slave
