@@ -65,7 +65,7 @@ join_none
                                                                     }) begin
             `uvm_error(get_type_name(), "Randomization failed : Inside apb_virtual_8b_write_seq.sv")
         end
-        apb_master_8b_write_seq_h.start(p_sequencer.apb_master_seqr_h);
+        apb_master_8b_write_seq_h.start(p_sequencer.apb_master_seqr_h[0]);
       end
     end
 

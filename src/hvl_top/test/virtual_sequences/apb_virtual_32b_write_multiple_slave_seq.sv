@@ -56,7 +56,7 @@ task apb_virtual_32b_write_multiple_slave_seq::body();
 
     fork
       repeat(2) begin
-        apb_master_32b_write_seq_h.start(p_sequencer.apb_master_seqr_h);
+        apb_master_32b_write_seq_h.start(p_sequencer.apb_master_seqr_h[0]);
       end
     join
   join
