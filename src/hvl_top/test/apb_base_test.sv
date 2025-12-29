@@ -1,6 +1,6 @@
 `ifndef APB_BASE_TEST_INCLUDED_
 `define APB_BASE_TEST_INCLUDED_
-
+// update before compiling
 //--------------------------------------------------------------------------------------------
 // Class: apb_base_test
 //  Base test has the testcase scenarios for the tesbench
