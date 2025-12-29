@@ -30,35 +30,41 @@ endfunction
 task
 apb_virtual_32b_write_multiple_master_same_slave_seq::body();
   super.body();
-
-  apb_master_32b_write_seq_master0 =
+	
+	foreach(apb_master_32b_write_seq_master0[i]) begin
+  apb_master_32b_write_seq_master0[i] =
     apb_master_32b_write_seq::type_id::create(
       "apb_master_32b_write_seq_master0"
     );
+	end
 
-  apb_master_32b_write_seq_master1 =
+	foreach(apb_master_32b_write_seq_master1[i]) begin
+  apb_master_32b_write_seq_master1[i] =
     apb_master_32b_write_seq::type_id::create(
       "apb_master_32b_write_seq_master1"
     );
+	end
 
-  apb_slave_32b_write_seq_slave0 =
+	foreach(apb_slave_32b_write_seq_slave0[i]) begin
+  apb_slave_32b_write_seq_slave0[i] =
     apb_slave_32b_write_seq::type_id::create(
       "apb_slave_32b_write_seq_slave0"
     );
+	end
 
   fork
     begin
-      apb_slave_32b_write_seq_slave0.start(
+      apb_slave_32b_write_seq_slave0[0].start(
         p_sequencer.apb_slave_seqr_h[0]
       );
     end
     begin
-      apb_master_32b_write_seq_master0.start(
+      apb_master_32b_write_seq_master0[0].start(
         p_sequencer.apb_master_seqr_h[0]
       );
     end
     begin
-      apb_master_32b_write_seq_master1.start(
+      apb_master_32b_write_seq_master1[0].start(
         p_sequencer.apb_master_seqr_h[1]
       );
     end

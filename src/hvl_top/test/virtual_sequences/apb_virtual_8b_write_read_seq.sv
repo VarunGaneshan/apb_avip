@@ -42,29 +42,38 @@ endfunction : new
 //--------------------------------------------------------------------------------------------
 task apb_virtual_8b_write_read_seq::body();
   super.body();
-  apb_master_8b_write_seq_h=apb_master_8b_write_seq::type_id::create("apb_master_8b_write_seq_h");
-  apb_master_8b_read_seq_h=apb_master_8b_read_seq::type_id::create("apb_master_8b_read_seq_h");
-  apb_slave_8b_write_seq_h=apb_slave_8b_write_seq::type_id::create("apb_slave_8b_write_seq_h");
-  apb_slave_8b_read_seq_h=apb_slave_8b_read_seq::type_id::create("apb_slave_8b_read_seq_h");
+	foreach(apb_master_8b_write_seq_h) begin
+	  apb_master_8b_write_seq_h[i]=apb_master_8b_write_seq::type_id::create("apb_master_8b_write_seq_h");
+	end
+
+	foreach(apb_master_8b_read_seq_h) begin
+  	apb_master_8b_read_seq_h[i]=apb_master_8b_read_seq::type_id::create("apb_master_8b_read_seq_h");
+	end
+	foreach(apb_slave_8b_write_seq_h) begin
+  	apb_slave_8b_write_seq_h[i]=apb_slave_8b_write_seq::type_id::create("apb_slave_8b_write_seq_h");
+	end
+	foreach(apb_slave_8b_read_seq_h) begin
+  	apb_slave_8b_read_seq_h[i]=apb_slave_8b_read_seq::type_id::create("apb_slave_8b_read_seq_h");
+	end
   
   fork
   begin
     forever begin
-      if(!apb_slave_8b_write_seq_h.randomize() with {choose_packet_data_seq == 0; 
+      if(!apb_slave_8b_write_seq_h[0].randomize() with {choose_packet_data_seq == 0; 
                                                                     }) begin
              `uvm_error(get_type_name(), "Randomization failed : Inside apb_virtual_8b_write_read_seq")
           end
-      apb_slave_8b_write_seq_h.start(p_sequencer.apb_slave_seqr_h[0]);
+      apb_slave_8b_write_seq_h[0].start(p_sequencer.apb_slave_seqr_h[0]);
     end
   end
 
   begin
     forever begin
-      if(!apb_slave_8b_read_seq_h.randomize() with {choose_packet_data_seq == 0; 
+      if(!apb_slave_8b_read_seq_h[0].randomize() with {choose_packet_data_seq == 0; 
                                                                     }) begin
              `uvm_error(get_type_name(), "Randomization failed : Inside apb_virtual_8b_write_read_seq")
           end
-      apb_slave_8b_read_seq_h.start(p_sequencer.apb_slave_seqr_h[0]);
+      apb_slave_8b_read_seq_h.start[0](p_sequencer.apb_slave_seqr_h[0]);
     end
   end
   join_none
@@ -72,23 +81,23 @@ task apb_virtual_8b_write_read_seq::body();
   fork
     begin: MASTER_WRITE_SEQ
       repeat(1) begin
-          if(!apb_master_8b_write_seq_h.randomize() with {address_seq == 32'h990;
+          if(!apb_master_8b_write_seq_h[0].randomize() with {address_seq == 32'h990;
                                                           cont_write_read_seq == 1;
                                                                     }) begin
             `uvm_error(get_type_name(), "Randomization failed : Inside apb_virtual_8b_write_read_seq.sv")
         end
-        apb_master_8b_write_seq_h.start(p_sequencer.apb_master_seqr_h[0]);
+        apb_master_8b_write_seq_h[0].start(p_sequencer.apb_master_seqr_h[0]);
       end
     end
 
     begin: MASTER_READ_SEQ
       repeat(1) begin
-          if(!apb_master_8b_read_seq_h.randomize() with {address_seq == 32'h990;
+          if(!apb_master_8b_read_seq_h[0].randomize() with {address_seq == 32'h990;
                                                          cont_write_read_seq == 1;
                                                                     }) begin
             `uvm_error(get_type_name(), "Randomization failed : Inside apb_virtual_8b_write_read_seq.sv")
         end
-        apb_master_8b_read_seq_h.start(p_sequencer.apb_master_seqr_h[0]);
+        apb_master_8b_read_seq_h[0].start(p_sequencer.apb_master_seqr_h[0]);
       end
     end
   join
