@@ -15,7 +15,7 @@ class apb_master_agent_config extends uvm_object;
 
   //Variable: no_of_slaves
   //Used for specifying the number of slaves connected to this apb_master over APB interface
-  int no_of_slaves;
+  static int no_of_slaves;
 
   //Variable: master_id
   //Used for idenitifying the master for arbitartion and the request generation
@@ -23,7 +23,7 @@ class apb_master_agent_config extends uvm_object;
 
   //Variable: has_coverage
   //Used for enabling the master agent coverage
-  bit has_coverage;
+  static bit has_coverage;
 
   //Variable: master_memory
   //Memory decleration for master to store the data of each slave
