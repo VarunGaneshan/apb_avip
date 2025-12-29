@@ -69,7 +69,7 @@ function void apb_base_test::setup_apb_env_config();
   // Creating multiple master agents
 	apb_env_cfg_h.apb_master_agent_cfg_h = new[apb_env_cfg_h.no_of_masters];
 	foreach(apb_env_cfg_h.apb_master_agent_cfg_h[i]) begin
-			apb_env_cfg_h.apb_master_agent_cfg_h[i] = apb_master_agent_config::type_id::create($sformatf("apb_master_agent_config[%0d]",i));
+		apb_env_cfg_h.apb_master_agent_cfg_h[i] = apb_master_agent_config::type_id::create($sformatf("apb_master_agent_config[%0d]",i));
     apb_env_cfg_h.apb_master_agent_cfg_h[i].master_id = i;
 	end
 
@@ -77,8 +77,8 @@ function void apb_base_test::setup_apb_env_config();
   setup_apb_master_agent_config();
 
   //Setting the master agent configuration into config_db
-  uvm_config_db#(apb_master_agent_config)::set(this,"*","apb_master_agent_config_h",
-					                                             apb_env_cfg_h.apb_master_agent_cfg_h);
+  //uvm_config_db#(apb_master_agent_config)::set(this,"*","apb_master_agent_config_h",
+	//				                                             apb_env_cfg_h.apb_master_agent_cfg_h);
 
 	foreach(apb_env_cfg_h.apb_master_agent_cfg_h[i]) begin
 		uvm_config_db#(apb_master_agent_config)::set(this,"*",$sformatf("apb_master_agent_config_%0d",i),apb_env_cfg_h.apb_master_agent_cfg_h[i]);
