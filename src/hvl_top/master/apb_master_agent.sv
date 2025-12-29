@@ -62,9 +62,9 @@ endfunction : new
 // phase - uvm phase
 //--------------------------------------------------------------------------------------------
 function void apb_master_agent::build_phase(uvm_phase phase);
+	int master_id;
   super.build_phase(phase);
 	
-	int master_id;
 	if(!uvm_config_db #(int)::get(this,"","master_id",master_id)) begin
 	  `uvm_fatal("FATAL_MA_AGENT_INDEX", "cannot get master_id from uvm_config_db");
 	end
