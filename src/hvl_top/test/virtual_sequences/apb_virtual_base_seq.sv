@@ -13,11 +13,11 @@ class apb_virtual_base_seq extends uvm_sequence;
   
   //Variable : apb_master_seqr_h
   //Declaring handle to the virtual sequencer
-  apb_master_sequencer apb_master_seqr_h[];
+  apb_master_sequencer apb_master_seqr_h[NO_OF_MASTERS];
 
   //Variable : apb_master_seqr_h
   //Declaring handle to the virtual sequencer
-  apb_slave_sequencer apb_slave_seqr_h[];
+  apb_slave_sequencer apb_slave_seqr_h[NO_OF_SLAVES];
 
   //-------------------------------------------------------
   // Externally defined Tasks and Functions
