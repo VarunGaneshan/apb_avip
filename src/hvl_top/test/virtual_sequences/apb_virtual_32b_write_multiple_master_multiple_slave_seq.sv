@@ -61,22 +61,22 @@ apb_virtual_32b_write_multiple_master_multiple_slave_seq::body();
 
   fork
     begin
-      apb_slave_32b_write_seq_slave0.start(
+      apb_slave_32b_write_seq_slave0[0].start(
         p_sequencer.apb_slave_seqr_h[0]
       );
     end
     begin
-      apb_slave_32b_write_seq_slave1.start(
+      apb_slave_32b_write_seq_slave1[1].start(
         p_sequencer.apb_slave_seqr_h[1]
       );
     end
     begin
-      apb_master_32b_write_seq_master0.start(
+      apb_master_32b_write_seq_master0[0].start(
         p_sequencer.apb_master_seqr_h[0]
       );
     end
     begin
-      apb_master_32b_write_seq_master1.start(
+      apb_master_32b_write_seq_master1[1].start(
         p_sequencer.apb_master_seqr_h[1]
       );
     end
