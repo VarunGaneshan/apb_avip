@@ -42,17 +42,17 @@ endfunction : new
 //--------------------------------------------------------------------------------------------
 task apb_virtual_8b_write_read_seq::body();
   super.body();
-	foreach(apb_master_8b_write_seq_h) begin
+	foreach(apb_master_8b_write_seq_h[i]) begin
 	  apb_master_8b_write_seq_h[i]=apb_master_8b_write_seq::type_id::create("apb_master_8b_write_seq_h");
 	end
 
-	foreach(apb_master_8b_read_seq_h) begin
+	foreach(apb_master_8b_read_seq_h[i]) begin
   	apb_master_8b_read_seq_h[i]=apb_master_8b_read_seq::type_id::create("apb_master_8b_read_seq_h");
 	end
-	foreach(apb_slave_8b_write_seq_h) begin
+	foreach(apb_slave_8b_write_seq_h[i]) begin
   	apb_slave_8b_write_seq_h[i]=apb_slave_8b_write_seq::type_id::create("apb_slave_8b_write_seq_h");
 	end
-	foreach(apb_slave_8b_read_seq_h) begin
+	foreach(apb_slave_8b_read_seq_h[i]) begin
   	apb_slave_8b_read_seq_h[i]=apb_slave_8b_read_seq::type_id::create("apb_slave_8b_read_seq_h");
 	end
   
