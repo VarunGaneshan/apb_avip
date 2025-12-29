@@ -53,9 +53,6 @@ endfunction : new
 //--------------------------------------------------------------------------------------------
 function void apb_master_monitor_proxy::build_phase(uvm_phase phase);
   super.build_phase(phase);
-  if(!uvm_config_db #(virtual apb_master_monitor_bfm)::get(this,"","apb_master_monitor_bfm", apb_master_mon_bfm_h)) begin
-    `uvm_fatal("FATAL_MDP_CANNOT_GET_APB_MASTER_MONITOR_BFM","cannot get() apb_master_mon_bfm_h");
-  end
 endfunction : build_phase
 
 //--------------------------------------------------------------------------------------------
@@ -67,6 +64,9 @@ endfunction : build_phase
 //--------------------------------------------------------------------------------------------
 function void apb_master_monitor_proxy::end_of_elaboration_phase(uvm_phase phase);
   super.end_of_elaboration_phase(phase);
+  if(!uvm_config_db #(virtual apb_master_monitor_bfm)::get(this,"",$sformatf("apb_master_monitor_bfm_%0d",apb_master_agent_cfg_h.master_id), apb_master_mon_bfm_h)) begin
+    `uvm_fatal("FATAL_MDP_CANNOT_GET_APB_MASTER_MONITOR_BFM","cannot get() apb_master_mon_bfm_h");
+  end
   apb_master_mon_bfm_h.apb_master_mon_proxy_h = this;
 endfunction : end_of_elaboration_phase
 

@@ -55,9 +55,6 @@ endfunction : new
 //--------------------------------------------------------------------------------------------
 function void apb_master_driver_proxy::build_phase(uvm_phase phase);
   super.build_phase(phase);
-  if(!uvm_config_db #(virtual apb_master_driver_bfm)::get(this,"",$sformatf("apb_master_driver_bfm_%0d",apb_master_agent_cfg_h.master_id), apb_master_drv_bfm_h)) begin
-    `uvm_fatal("FATAL_MDP_CANNOT_GET_APB_MASTER_DRIVER_BFM","cannot get() apb_master_drv_bfm_h");
-  end
 endfunction : build_phase
 
 //--------------------------------------------------------------------------------------------
@@ -69,6 +66,9 @@ endfunction : build_phase
 //--------------------------------------------------------------------------------------------
 function void apb_master_driver_proxy::connect_phase(uvm_phase phase);
   super.connect_phase(phase);
+  if(!uvm_config_db #(virtual apb_master_driver_bfm)::get(this,"",$sformatf("apb_master_driver_bfm_%0d",apb_master_agent_cfg_h.master_id), apb_master_drv_bfm_h)) begin
+    `uvm_fatal("FATAL_MDP_CANNOT_GET_APB_MASTER_DRIVER_BFM","cannot get() apb_master_drv_bfm_h");
+  end
 endfunction : connect_phase
 
 //--------------------------------------------------------------------------------------------
