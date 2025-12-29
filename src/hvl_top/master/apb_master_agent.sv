@@ -75,6 +75,10 @@ function void apb_master_agent::build_phase(uvm_phase phase);
   end
 
   if(apb_master_agent_cfg_h.is_active == UVM_ACTIVE) begin
+		// Added
+		uvm_config_db #(apb_master_agent_config)::set(this, "apb_master_drv_proxy_h", "apb_master_agent_config", apb_master_agent_cfg_h);
+		uvm_config_db #(apb_master_agent_config)::set(this, "apb_master_seqr_h", "apb_master_agent_config", apb_master_agent_cfg_h);
+		//
     apb_master_drv_proxy_h=apb_master_driver_proxy::type_id::create("apb_master_drv_proxy_h",this);
     apb_master_seqr_h=apb_master_sequencer::type_id::create("apb_master_seqr_h",this);
   end

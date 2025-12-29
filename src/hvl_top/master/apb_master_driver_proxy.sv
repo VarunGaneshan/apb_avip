@@ -55,6 +55,11 @@ endfunction : new
 //--------------------------------------------------------------------------------------------
 function void apb_master_driver_proxy::build_phase(uvm_phase phase);
   super.build_phase(phase);
+//Added
+	if(!uvm_config_db #(apb_master_agent_config)::get(this,"","apb_master_agent_config", apb_master_agent_cfg_h)) begin
+	  `uvm_fatal("FATAL_MDP_CANNOT_GET_AGENT_CONFIG", "cannot get apb_master_agent_cfg_h from uvm_config_db");
+	end
+//
 endfunction : build_phase
 
 //--------------------------------------------------------------------------------------------

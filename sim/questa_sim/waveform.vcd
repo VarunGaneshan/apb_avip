@@ -1,5 +1,5 @@
 $date
-	Tue Dec  9 08:56:37 2025
+	Mon Dec 29 17:30:50 2025
 $end
 $version
 	QuestaSim Version 10.6c
@@ -13,10 +13,11 @@ $var reg 1 ! pclk $end
 $var reg 1 " preset_n $end
 
 $scope module apb_master_agent_bfm_h $end
+$var parameter 32 # MASTER_ID $end
 $upscope $end
 
 $scope module apb_slave_agent_bfm_h $end
-$var parameter 32 # SLAVE_ID $end
+$var parameter 32 $ SLAVE_ID $end
 $upscope $end
 $upscope $end
 $enddefinitions $end
@@ -25,6 +26,7 @@ $dumpvars
 0!
 1"
 b0 #
+b0 $
 $end
 #10
 1!
@@ -230,40 +232,4 @@ $end
 #1000
 0!
 #1010
-1!
-#1020
-0!
-#1030
-1!
-#1040
-0!
-#1050
-1!
-#1060
-0!
-#1070
-1!
-#1080
-0!
-#1090
-1!
-#1100
-0!
-#1110
-1!
-#1120
-0!
-#1130
-1!
-#1140
-0!
-#1150
-1!
-#1160
-0!
-#1170
-1!
-#1180
-0!
-#1190
 1!
