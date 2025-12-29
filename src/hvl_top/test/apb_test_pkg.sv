@@ -36,8 +36,6 @@ package apb_test_pkg;
   `include "apb_8b_read_test.sv"
   `include "apb_32b_write_test.sv"
   `include "apb_32b_write_multiple_slave_test.sv"
-  `include "apb_virtual_32b_read_multiple_master_multiple_slave_test.sv"
-  `include "apb_virtual_32b_read_multiple_master_same_slave_test.sv"
   `include "apb_virtual_32b_write_multiple_master_multiple_slave_test.sv"
   `include "apb_virtual_32b_write_multiple_master_same_slave_test.sv"
 

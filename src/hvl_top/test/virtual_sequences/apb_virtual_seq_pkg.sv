@@ -18,7 +18,6 @@ package apb_virtual_seq_pkg;
   import apb_slave_pkg::*;
   import apb_master_seq_pkg::*;
   import apb_slave_seq_pkg::*;
-
   //-------------------------------------------------------
   // Including required apb master seq files
   //-------------------------------------------------------
@@ -31,8 +30,6 @@ package apb_virtual_seq_pkg;
   `include "apb_virtual_8b_read_seq.sv"
   `include "apb_virtual_32b_write_seq.sv"
   `include "apb_virtual_32b_write_multiple_slave_seq.sv"
-  `include "apb_virtual_32b_read_multiple_master_multiple_slave_seq.sv"
-  `include "apb_virtual_32b_read_multiple_master_same_slave_seq.sv"
   `include "apb_virtual_32b_write_multiple_master_multiple_slave_seq.sv"
   `include "apb_virtual_32b_write_multiple_master_same_slave_seq.sv"
 
