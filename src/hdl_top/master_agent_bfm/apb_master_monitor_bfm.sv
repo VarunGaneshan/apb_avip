@@ -67,7 +67,8 @@ interface apb_master_monitor_bfm (input bit pclk,
   //  apb_data_packet - Handle for apb_transfer_char_s class
   //  apb_cfg_packet  - Handle for apb_transfer_cfg_s class
   //-------------------------------------------------------
-  task sample_data (output apb_transfer_char_s apb_data_packet, input apb_transfer_cfg_s apb_cfg_packet);
+ /*
+ task sample_data (output apb_transfer_char_s apb_data_packet, input apb_transfer_cfg_s apb_cfg_packet);
     @(posedge pclk);
     
      while(psel !== 1) begin
@@ -89,6 +90,40 @@ interface apb_master_monitor_bfm (input bit pclk,
       apb_data_packet.pwdata = pwdata;
     end
     `uvm_info(name, $sformatf("\n\n\nMASTER_SAMPLE_DATA=%p\n\n\n", apb_data_packet), UVM_MEDIUM)
+  endtask : sample_data
+*/
+
+task sample_data (output apb_transfer_char_s apb_data_packet, input apb_transfer_cfg_s apb_cfg_packet);
+     @(posedge pclk);
+    while(psel != 1'b1 || pready != 1'b1) begin
+      @(posedge pclk);
+      `uvm_info(name, $sformatf("Inside while loop PSEL"), UVM_HIGH)
+    end
+   $display("CHECKED FOR PREADY AND PENABLE @%0t",$time());
+   if(pready ==1 && psel ==1)
+   begin
+    apb_data_packet.psel= psel;
+    apb_data_packet.pslverr  = pslverr;
+    apb_data_packet.pprot    = pprot;
+    apb_data_packet.pwrite   = pwrite;
+    apb_data_packet.paddr    = paddr;
+    apb_data_packet.pstrb    = pstrb;
+    apb_data_packet.pready =   pready;
+    apb_data_packet.penable = penable;
+    if (pwrite == WRITE) begin
+      apb_data_packet.pwdata = pwdata;
+    end
+    else begin
+      apb_data_packet.prdata = prdata;
+    end
+  end
+  else begin
+    apb_data_packet.pready = pready;
+    apb_data_packet.penable = penable;
+  end
+
+    `uvm_info(name, $sformatf("\n\n\nMASTER_SAMPLE_DATA=%p\n\n\n", apb_data_packet), UVM_MEDIUM)
+
   endtask : sample_data
 
 task access_state(output apb_transfer_char_s apb_data_packet, input apb_transfer_cfg_s apb_cfg_packet);

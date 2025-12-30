@@ -67,7 +67,7 @@ module hdl_top;
   // APB Master BFM Agent Instantiation
   //-------------------------------------------------------
   apb_master_agent_bfm #(.MASTER_ID(0)) apb_master_agent_bfm_h(intf); 
-  apb_slave_agent_bfm #(.SLAVE_ID(0)) apb_slave_agent_bfm_h(intf);
+  //apb_slave_agent_bfm #(.SLAVE_ID(0)) apb_slave_agent_bfm_h(intf);
 
  /* 
   always_comb begin
@@ -114,14 +114,14 @@ module hdl_top;
   //-------------------------------------------------------
   // APB Slave BFM Agent Instantiation
   //-------------------------------------------------------
-/*  genvar i;
+  genvar i;
   generate
     for (i=0; i < NO_OF_SLAVES; i++) begin : apb_slave_agent_bfm
-      apb_slave_agent_bfm #(.SLAVE_ID(i)) apb_slave_agent_bfm_h(intf_s[i]);
+      apb_slave_agent_bfm #(.SLAVE_ID(i)) apb_slave_agent_bfm_h(intf);
       defparam apb_slave_agent_bfm[i].apb_slave_agent_bfm_h.SLAVE_ID = i;
     end
   endgenerate
-*/
+
 endmodule : hdl_top
 
 `endif
