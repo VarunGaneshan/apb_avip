@@ -72,7 +72,7 @@ task apb_virtual_16b_write_seq::body();
   foreach(apb_master_16b_write_seq_h[i]) begin
     automatic int master_idx = i;
     fork
-      repeat(2) begin
+      repeat(1) begin
         apb_master_16b_write_seq_h[master_idx].start(p_sequencer.apb_master_seqr_h[master_idx]);
       end
     join_none

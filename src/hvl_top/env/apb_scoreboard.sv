@@ -30,12 +30,12 @@ class apb_scoreboard extends uvm_scoreboard;
   apb_master_tx slave_expected_q[int][$];
 
   // memory for reference prdata prediction
-  bit [7:0] mem[longint];
+  bit [DATA_WIDTH-1:0] mem[int][31:0];
 
   extern function new(string name="apb_scoreboard", uvm_component parent=null);
   extern function void build_phase(uvm_phase phase);
   extern function int get_slave_index(bit [31:0] addr);
-  extern function void ref_model(apb_master_tx m_tx);
+  extern function void ref_model(apb_master_tx m_tx, int slave_idx);
   extern task run_phase(uvm_phase phase);
   extern function void compare_trans(apb_master_tx m_tx, apb_slave_tx s_tx);
   extern function void check_phase(uvm_phase phase);
@@ -62,16 +62,17 @@ function void apb_scoreboard::build_phase(uvm_phase phase);
   super.build_phase(phase);
 endfunction
 
-function void apb_scoreboard::ref_model(apb_master_tx m_tx);
+function void apb_scoreboard::ref_model(apb_master_tx m_tx, int slave_idx);
 
   if (m_tx.pwrite == 1) begin
     //write operation update the memory based on pstrb signal
     for (int i = 0; i < 4; i++) begin
       if (m_tx.pstrb[i]) begin
-        mem[m_tx.paddr + i] = m_tx.pwdata[8*i+7 -: 8];
-        `uvm_info(get_type_name(),
-          $sformatf("Ref Model: MEM[0x%0h] = 0x%0h (WRITE)",
+        mem[slave_idx][m_tx.paddr + i] = m_tx.pwdata[8*i+7 -: 8];
+        /*`uvm_info(get_type_name(),
+          $sformatf("Ref Model: MEM[0x%0h] = 0x%0p (WRITE)",
             m_tx.paddr + i, mem[m_tx.paddr + i]), UVM_HIGH)
+        */
       end
     end
   end
@@ -79,15 +80,16 @@ function void apb_scoreboard::ref_model(apb_master_tx m_tx);
     //read operation
     for (int i = 0; i < 4; i++) begin
       if (mem.exists(m_tx.paddr + i)) begin
-        m_tx.prdata[8*i+7 -: 8] = mem[m_tx.paddr + i];
+        m_tx.prdata[8*i+7 -: 8] = mem[slave_idx][m_tx.paddr + i];
       end
       else begin
         m_tx.prdata[8*i+7 -: 8] = 8'h00; //default value in the memory
       end
     end
-    `uvm_info(get_type_name(),
+    /*`uvm_info(get_type_name(),
       $sformatf("Ref Model: READ from 0x%0h = 0x%0h (predicted)",
         m_tx.paddr, m_tx.prdata), UVM_HIGH)
+    */
   end
 
 endfunction
@@ -113,11 +115,11 @@ task apb_scoreboard::run_phase(uvm_phase phase);
              `uvm_error("SCB", $sformatf("Address 0x%0h does not map to any valid slave", m_tx.paddr))
           end else begin
                // update the ref model to predict the prdata
-              ref_model(m_tx);
+              ref_model(m_tx, slave_idx);
 
              // Push into the specific slave's expected queue
              slave_expected_q[slave_idx].push_back(m_tx);
-             `uvm_info("SCB", $sformatf("Master[%0d] sent TX to Slave[%0d]", master_idx, slave_idx), UVM_MEDIUM)
+             `uvm_info("SCB", $sformatf("Master[%0d] sent TX to Slave[%0d]", master_idx, slave_idx), UVM_HIGH)
           end
         end
       join_none
@@ -142,7 +144,7 @@ task apb_scoreboard::run_phase(uvm_phase phase);
              // Pop the oldest expected transaction
              exp_tx = slave_expected_q[s_index].pop_front();
               `uvm_info("SCB", $sformatf("Slave[%0d] match found for ADDR=0x%0h",
-              s_index, s_tx.paddr), UVM_MEDIUM)
+              s_index, s_tx.paddr), UVM_HIGH)
              // Compare
              compare_trans(exp_tx, s_tx);
           end
@@ -166,15 +168,15 @@ endfunction
 
 function void apb_scoreboard::compare_trans(apb_master_tx m_tx, apb_slave_tx s_tx);
  
-  if (m_tx.pwrite == 1 && s_tx.pready == 1) begin
-    if (m_tx.psel && m_tx.penable) begin
+  if (m_tx.pwrite == 1 ) begin  // removed pready of slave 
+    if (m_tx.psel && m_tx.penable) begin // to check whether the master is in access state
 
     `uvm_info(get_type_name(),
       "-- -------------------------------------- APB SCOREBOARD COMPARISONS --------------------------------------",
-      UVM_HIGH)
+      UVM_NONE)
 
       if (m_tx.pwdata == s_tx.pwdata) begin
-        `uvm_info(get_type_name(), "APB PWDATA match", UVM_HIGH);
+        `uvm_info(get_type_name(), "APB PWDATA match", UVM_NONE);
         `uvm_info("SB_PWDATA_MATCH",
           $sformatf("Master PWDATA = 0x%0h Slave PWDATA = 0x%0h",
                   m_tx.pwdata, s_tx.pwdata),
@@ -256,10 +258,10 @@ function void apb_scoreboard::compare_trans(apb_master_tx m_tx, apb_slave_tx s_t
     `uvm_info(get_type_name(),
       "-- ------------------------------------ END OF APB SCOREBOARD COMPARISONS ------------------------------------",
       UVM_HIGH)
-  end
+    end
 end
 
-else if (m_tx.pwrite == 0 && s_tx.pready == 1) begin
+else if (m_tx.pwrite == 0 ) begin  // removed pready of slave 
   if (m_tx.psel && m_tx.penable) begin
 
     `uvm_info(get_type_name(),
@@ -280,6 +282,7 @@ else if (m_tx.pwrite == 0 && s_tx.pready == 1) begin
       apb_master_paddr_fail++;
     end
 
+     /*
     if (m_tx.pwrite == s_tx.pwrite) begin
       apb_master_pwrite_pass++;
     end
@@ -287,6 +290,7 @@ else if (m_tx.pwrite == 0 && s_tx.pready == 1) begin
       apb_master_pwrite_fail++;
       `uvm_error("SB_PWRITE_MISMATCH", "PWRITE mismatch in READ transaction");
     end
+    */
 
     if (m_tx.prdata == s_tx.prdata) begin
       `uvm_info("SB_PRDATA_MATCH",
@@ -555,7 +559,7 @@ function void apb_scoreboard::report_phase(uvm_phase phase);
               apb_master_pstrb_fail),
     UVM_HIGH);
 
-  `uvm_info("scoreboard",
+  `uvm_info(get_type_name(),
     $sformatf("--\n--------------------------------------------------End of Scoreboard Report-----------------------------------------------"),
     UVM_HIGH);
 

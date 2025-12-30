@@ -112,8 +112,16 @@ module hdl_top;
   end
 */
   //-------------------------------------------------------
-  // APB Slave BFM Agent Instantiation
+  // APB Slave and Master BFM Agent Instantiation
   //-------------------------------------------------------
+  genvar j;
+  generate 
+    for (j=0; j < NO_OF_MASTERS; j++) begin : apb_master_agent_bfm
+      apb_master_agent_bfm #(.MASTER_ID(j)) apb_master_agent_bfm_h(intf);
+      defparam apb_master_agent_bfm[j].apb_master_agent_bfm_h.MASTER_ID = j;
+    end
+  endgenerate
+
   genvar i;
   generate
     for (i=0; i < NO_OF_SLAVES; i++) begin : apb_slave_agent_bfm
