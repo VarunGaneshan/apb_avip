@@ -113,4 +113,3 @@ task apb_slave_monitor_proxy::run_phase(uvm_phase phase);
 endtask : run_phase
 
 `endif
-

@@ -42,11 +42,11 @@
     
   //Variable: prdata
   //Used to store the rdata from the slave
-  bit [DATA_WIDTH-1:0]prdata;
+  rand bit [DATA_WIDTH-1:0]prdata;		//Randomized in our version
 
   //Variable: pslverr
   //Goes high when a transfer fails
-  slave_error_e pslverr;
+	 rand slave_error_e pslverr;				 //Randomized in our version
 
   //Variable: apb_master_agent_cfg_h
   //Instantiation of apb master agent config
@@ -63,7 +63,7 @@
   //Variable : address
   bit [ADDRESS_WIDTH-1:0]address;
 
-  bit pready;
+  rand bit pready;  //Randomized in our version
   bit penable;
   //-------------------------------------------------------
   // Externally defined Tasks and Functions

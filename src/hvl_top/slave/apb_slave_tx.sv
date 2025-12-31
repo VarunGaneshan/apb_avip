@@ -16,11 +16,11 @@ class apb_slave_tx extends uvm_sequence_item;
     
   //Variable: paddr
   //Address selected in apb_slave
-   bit [ADDRESS_WIDTH-1:0]paddr;
+  bit [ADDRESS_WIDTH-1:0]paddr;
 
   //Varibale: pwrite
   //pwrite when write is 1 and read is 0
-  tx_type_e pwrite;
+  rand tx_type_e pwrite;		// Added randomization for version multimaster
 
   //Variable: pwdata
   //Used to store the wdata
@@ -52,7 +52,7 @@ class apb_slave_tx extends uvm_sequence_item;
 
   //Variable: transfer_size
   //Used to decide the transfer size of the data
-  transfer_size_e transfer_size;
+  rand transfer_size_e transfer_size;
 
   //-------------------------------------------------------
   // Constraints

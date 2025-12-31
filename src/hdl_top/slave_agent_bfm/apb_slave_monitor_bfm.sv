@@ -115,4 +115,3 @@ interface apb_slave_monitor_bfm (input bit pclk,
 endinterface : apb_slave_monitor_bfm
 
 `endif
-

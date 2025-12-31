@@ -35,7 +35,10 @@ task apb_slave_8b_write_seq::body();
   req=apb_slave_tx::type_id::create("req");
   start_item(req);
   
-  if(!req.randomize() with {req.choose_packet_data == choose_packet_data_seq;}) begin
+  if(!req.randomize() with {req.choose_packet_data == choose_packet_data_seq;
+			req.transfer_size == BIT_8;
+			req.pwrite == WRITE;	
+	}) begin
     `uvm_fatal("APB","Rand failed");
   end
   finish_item(req);

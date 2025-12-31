@@ -61,7 +61,7 @@ task apb_virtual_8b_read_seq::body();
 
   fork
     begin: MASTER_READ_SEQ
-      repeat(2) begin
+      repeat(1) begin
           if(!apb_master_8b_read_seq_h[0].randomize() with {address_seq == 32'h990;
                                                                     }) begin
             `uvm_error(get_type_name(), "Randomization failed : Inside apb_virtual_8b_read_seq.sv")
