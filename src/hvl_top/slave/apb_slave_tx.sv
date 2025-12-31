@@ -48,7 +48,7 @@ class apb_slave_tx extends uvm_sequence_item;
 
   //Variable: choose_packet_data
   //Used for driving the prdata from this packet rather than from the Slave memory
-  bit choose_packet_data;
+  rand bit choose_packet_data;
 
   //Variable: transfer_size
   //Used to decide the transfer size of the data

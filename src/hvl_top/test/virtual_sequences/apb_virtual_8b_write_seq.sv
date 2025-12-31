@@ -53,7 +53,7 @@ task apb_virtual_8b_write_seq::body();
   fork
   begin
     forever begin
-      if(!apb_slave_8b_write_seq_h[0].randomize() with {choose_packet_data_seq == 1; 
+      if(!apb_slave_8b_write_seq_h[0].randomize() with {choose_packet_data_seq == 0; 
                                                                     }) begin
              `uvm_error(get_type_name(), "Randomization failed : Inside apb_virtual_8b_write_seq")
           end
@@ -73,7 +73,6 @@ join_none
         apb_master_8b_write_seq_h[0].start(p_sequencer.apb_master_seqr_h[0]);
       end
     end
-
   join
 
  endtask : body

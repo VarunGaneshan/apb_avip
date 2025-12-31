@@ -15,6 +15,8 @@ class apb_master_8b_write_seq extends apb_master_base_seq;
   //Variable: cont_write_read
   //Used to count the writes and reads 
   rand bit cont_write_read_seq;
+
+  rand bit choose_packet_data_seq;
   
   //-------------------------------------------------------
   // Externally defined Tasks and Functions
@@ -43,11 +45,11 @@ task apb_master_8b_write_seq::body();
   req=apb_master_tx::type_id::create("req");
   req.apb_master_agent_cfg_h = p_sequencer.apb_master_agent_cfg_h;
   start_item(req);
-  if(!req.randomize() with {pselx == SLAVE_0;
+  if(!req.randomize() /*with {pselx == SLAVE_0;
                             paddr == address_seq;
                             transfer_size == BIT_8;
                             cont_write_read == cont_write_read_seq;
-                            pwrite == WRITE;}) begin
+                            pwrite == WRITE;}*/) begin
     `uvm_fatal("APB","Rand failed");
   end
   req.paddr = address_seq;

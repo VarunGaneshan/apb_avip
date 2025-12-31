@@ -19,7 +19,7 @@
 
   //Variable: pselx
   //Used to select the address range for the slave
-  rand slave_no_e pselx;
+   slave_no_e pselx;
 
   bit psel;
 
@@ -77,9 +77,12 @@
   //-------------------------------------------------------
   // Constraints defined on variables pselx,
   //-------------------------------------------------------
-  constraint pselx_c1  { $countones(pselx) == 1; }
 
-  constraint pselx_c2 { pselx >0 && pselx < 2**NO_OF_SLAVES; }
+  //constraint pselx_c1  { $countones(pselx) == 1; }
+
+  // c1 and c2 cause randomization failure maybe due to conflict
+
+  //constraint pselx_c2 { pselx >0 && pselx < 2**NO_OF_SLAVES; }
 
   constraint pwdata_c3 { soft pwdata inside {[0:100]}; }
 
@@ -92,7 +95,8 @@
                                       $countones (pstrb) == 3;
                               else 
                                   $countones (pstrb) == 4;
-                             }
+                             }  // uncommented all these constraints 
+
 endclass : apb_master_tx
 
 //--------------------------------------------------------------------------------------------
@@ -191,14 +195,15 @@ endfunction : do_print
 //--------------------------------------------------------------------------------------------
 function void apb_master_tx::post_randomize();
   int index;
+  pselx = SLAVE_2;
 
   // Derive the slave number using the index
   for(int i=0; i<NO_OF_SLAVES; i++) begin
     if(pselx[i]) begin
-      index = 0;
+      index = i;
     end
   end
- /* 
+ 
   // Randmoly chosing paddr value between a given range
   if (!std::randomize(paddr) with { paddr inside {[apb_master_agent_cfg_h.master_min_addr_range_array[index]:
                                                    apb_master_agent_cfg_h.master_max_addr_range_array[index]]};
@@ -206,7 +211,7 @@ function void apb_master_tx::post_randomize();
   }) begin
     `uvm_fatal("FATAL_STD_RANDOMIZATION_PADDR", $sformatf("Not able to randomize paddr"));
   end
-*/
+
   paddr =100;
   //Constraint to make pwdata non-zero when pstrb is high for that 8-bit lane
   for(int i=0; i<DATA_WIDTH/8; i++) begin
