@@ -1,5 +1,5 @@
 $date
-	Thu Jan  1 19:33:37 2026
+	Thu Jan  1 22:59:12 2026
 $end
 $version
 	QuestaSim Version 10.6c
@@ -57,87 +57,152 @@ $var parameter 32 - j $end
 
 $scope module apb_master_agent_bfm_h $end
 $var parameter 32 . MASTER_ID $end
-$var parameter 32 / apb_master_agent_id $end
+$var parameter 32 / apb_master_driver_id $end
+$var parameter 32 0 apb_master_monitor_id $end
+$var parameter 32 1 apb_master_agent_id $end
 $upscope $end
 $upscope $end
 
 $scope begin apb_master_agent_bfm[3] $end
-$var parameter 32 0 j $end
+$var parameter 32 2 j $end
 
 $scope module apb_master_agent_bfm_h $end
-$var parameter 32 1 MASTER_ID $end
-$var parameter 32 2 apb_master_agent_id $end
+$var parameter 32 3 MASTER_ID $end
+$var parameter 32 4 apb_master_driver_id $end
+$var parameter 32 5 apb_master_monitor_id $end
+$var parameter 32 6 apb_master_agent_id $end
 $upscope $end
 $upscope $end
 
 $scope begin apb_master_agent_bfm[2] $end
-$var parameter 32 3 j $end
+$var parameter 32 7 j $end
 
 $scope module apb_master_agent_bfm_h $end
-$var parameter 32 4 MASTER_ID $end
-$var parameter 32 5 apb_master_agent_id $end
-$upscope $end
-$upscope $end
-
-$scope begin apb_master_agent_bfm[1] $end
-$var parameter 32 6 j $end
-
-$scope module apb_master_agent_bfm_h $end
-$var parameter 32 7 MASTER_ID $end
-$var parameter 32 8 apb_master_agent_id $end
-$upscope $end
-$upscope $end
-
-$scope begin apb_master_agent_bfm[0] $end
-$var parameter 32 9 j $end
-
-$scope module apb_master_agent_bfm_h $end
-$var parameter 32 : MASTER_ID $end
+$var parameter 32 8 MASTER_ID $end
+$var parameter 32 9 apb_master_driver_id $end
+$var parameter 32 : apb_master_monitor_id $end
 $var parameter 32 ; apb_master_agent_id $end
 $upscope $end
 $upscope $end
 
-$scope begin genblk2[4] $end
+$scope begin apb_master_agent_bfm[1] $end
 $var parameter 32 < j $end
+
+$scope module apb_master_agent_bfm_h $end
+$var parameter 32 = MASTER_ID $end
+$var parameter 32 > apb_master_driver_id $end
+$var parameter 32 ? apb_master_monitor_id $end
+$var parameter 32 @ apb_master_agent_id $end
+$upscope $end
+$upscope $end
+
+$scope begin apb_master_agent_bfm[0] $end
+$var parameter 32 A j $end
+
+$scope module apb_master_agent_bfm_h $end
+$var parameter 32 B MASTER_ID $end
+$var parameter 32 C apb_master_driver_id $end
+$var parameter 32 D apb_master_monitor_id $end
+$var parameter 32 E apb_master_agent_id $end
+$upscope $end
+$upscope $end
+
+$scope begin genblk2[4] $end
+$var parameter 32 F j $end
 $upscope $end
 
 $scope begin genblk2[3] $end
-$var parameter 32 = j $end
+$var parameter 32 G j $end
 $upscope $end
 
 $scope begin genblk2[2] $end
-$var parameter 32 > j $end
+$var parameter 32 H j $end
 $upscope $end
 
 $scope begin genblk2[1] $end
-$var parameter 32 ? j $end
+$var parameter 32 I j $end
 $upscope $end
 
 $scope begin genblk2[0] $end
-$var parameter 32 @ j $end
+$var parameter 32 J j $end
 $upscope $end
 
 $scope begin genblk1[4] $end
-$var parameter 32 A i $end
+$var parameter 32 K i $end
 $upscope $end
 
 $scope begin genblk1[3] $end
-$var parameter 32 B i $end
+$var parameter 32 L i $end
 $upscope $end
 
 $scope begin genblk1[2] $end
-$var parameter 32 C i $end
+$var parameter 32 M i $end
 $upscope $end
 
 $scope begin genblk1[1] $end
-$var parameter 32 D i $end
+$var parameter 32 N i $end
 $upscope $end
 
 $scope begin genblk1[0] $end
-$var parameter 32 E i $end
+$var parameter 32 O i $end
 $upscope $end
 
 $scope begin <genblk#246573824#69#0> $end
 $upscope $end
 
 $scope begin <genblk#246573824#73#2> $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+#0
+$dumpvars
+0!
+1"
+b0 O
+b1 N
+b10 M
+b11 L
+b100 K
+b0 J
+b1 I
+b10 H
+b11 G
+b100 F
+b0 A
+b0 B
+b0 C
+b0 D
+b0 E
+b1 <
+b1 =
+b1 >
+b1 ?
+b1 @
+b10 7
+b10 8
+b10 9
+b10 :
+b10 ;
+b11 2
+b11 3
+b11 4
+b11 5
+b11 6
+b100 -
+b100 .
+b100 /
+b100 0
+b100 1
+b0 +
+b0 ,
+b1 )
+b1 *
+b10 '
+b10 (
+b11 %
+b11 &
+b100 #
+b100 $
+$end
+#10
+1!

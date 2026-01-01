@@ -63,8 +63,8 @@ function void apb_base_test::setup_apb_env_config();
   apb_env_cfg_h = apb_env_config::type_id::create("apb_env_cfg_h");
   apb_env_cfg_h.no_of_slaves      = NO_OF_SLAVES;
   apb_env_cfg_h.no_of_masters     = NO_OF_MASTERS;
-  apb_env_cfg_h.has_scoreboard    = 1;
-  apb_env_cfg_h.has_virtual_seqr  = 1;
+  apb_env_cfg_h.has_scoreboard    = HAS_SCOREBOARD;
+  apb_env_cfg_h.has_virtual_seqr  = HAS_VIRTUAL_SEQR;
 
   // Creating multiple master agents
 	apb_env_cfg_h.apb_master_agent_cfg_h = new[apb_env_cfg_h.no_of_masters];
@@ -77,19 +77,9 @@ function void apb_base_test::setup_apb_env_config();
   setup_apb_master_agent_config();
 
   //Setting the master agent configuration into config_db
-  //uvm_config_db#(apb_master_agent_config)::set(this,"*","apb_master_agent_config_h",
-	//				                                             apb_env_cfg_h.apb_master_agent_cfg_h);
-
 	foreach(apb_env_cfg_h.apb_master_agent_cfg_h[i]) begin
 		uvm_config_db#(apb_master_agent_config)::set(this,"*",$sformatf("apb_master_agent_config_%0d",i),apb_env_cfg_h.apb_master_agent_cfg_h[i]);
 	end
-
-  /* Displaying the master agent configuration
-	foreach(apb_env_cfg_h.apb_master_agent_cfg_h[i]) begin
-			uvm_config_db#(apb_master_agent_config)::set(this,"*",$sformatf("apb_master_agent_config[%0d]",i),
-											                                               apb_env_cfg_h.apb_master_agent_cfg_h[i]);
-	end
-  */
 
   setup_apb_slave_agent_config();
 
@@ -109,7 +99,6 @@ function void apb_base_test::setup_apb_master_agent_config();
   bit [63:0]local_max_address;
  
 	foreach(apb_env_cfg_h.apb_master_agent_cfg_h[i]) begin	
-  	// apb_env_cfg_h.apb_master_agent_cfg_h[i] = apb_master_agent_config::type_id::create($sformatf("apb_master_agent_config[%0d]",i));
   	if(MASTER_AGENT_ACTIVE === 1) begin
     	apb_env_cfg_h.apb_master_agent_cfg_h[i].is_active = uvm_active_passive_enum'(UVM_ACTIVE);
   	end

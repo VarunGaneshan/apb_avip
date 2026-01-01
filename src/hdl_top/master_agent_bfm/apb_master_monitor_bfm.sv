@@ -18,7 +18,7 @@ interface apb_master_monitor_bfm (input bit pclk,
                                   input logic penable,
                                   input logic pwrite,
                                   input logic [ADDRESS_WIDTH-1:0]paddr,
-                                  input logic [NO_OF_SLAVES-1:0]psel,
+                                  input bit psel,
                                   input logic [DATA_WIDTH-1:0]pwdata,
                                   input logic [(DATA_WIDTH/8)-1:0]pstrb, 
                                   input logic [DATA_WIDTH-1:0]prdata
