@@ -57,17 +57,18 @@ module hdl_top;
     $dumpfile("waveform.vcd");      // name of the VCD file
     $dumpvars(0,hdl_top);    // dump variables from the testbench top
   end
+
   //-------------------------------------------------------
-  // APB Interface Instantiation
+  // APB Interfaces Instantiation for Master and Slave agents
   //-------------------------------------------------------
-  apb_if intf_s[NO_OF_SLAVES](pclk,preset_n);
-  apb_if intf(pclk,preset_n);
+  apb_if intf_s[0:NO_OF_SLAVES-1](pclk,preset_n);
+  apb_if intf_m[0:NO_OF_MASTERS-1](pclk,preset_n);
 
   //-------------------------------------------------------
   // APB Master BFM Agent Instantiation
   //-------------------------------------------------------
   apb_master_agent_bfm #(.MASTER_ID(0)) apb_master_agent_bfm_h(intf); 
-  //apb_slave_agent_bfm #(.SLAVE_ID(0)) apb_slave_agent_bfm_h(intf);
+  apb_slave_agent_bfm #(.SLAVE_ID(0)) apb_slave_agent_bfm_h(intf);
 
  /* 
   always_comb begin
@@ -116,7 +117,7 @@ module hdl_top;
   //-------------------------------------------------------
   genvar j;
   generate 
-    for (j=0; j < NO_OF_MASTERS; j++) begin : apb_master_agent_bfm
+    for (j = 0; j < NO_OF_MASTERS; j++) begin : apb_master_agent_bfm
       apb_master_agent_bfm #(.MASTER_ID(j)) apb_master_agent_bfm_h(intf);
       defparam apb_master_agent_bfm[j].apb_master_agent_bfm_h.MASTER_ID = j;
     end
@@ -124,7 +125,7 @@ module hdl_top;
 
   genvar i;
   generate
-    for (i=0; i < NO_OF_SLAVES; i++) begin : apb_slave_agent_bfm
+    for (i = 0; i < NO_OF_SLAVES; i++) begin : apb_slave_agent_bfm
       apb_slave_agent_bfm #(.SLAVE_ID(i)) apb_slave_agent_bfm_h(intf);
       defparam apb_slave_agent_bfm[i].apb_slave_agent_bfm_h.SLAVE_ID = i;
     end

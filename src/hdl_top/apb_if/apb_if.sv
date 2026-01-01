@@ -61,6 +61,14 @@ interface apb_if (input pclk, input preset_n);
   //Used for different access
   logic [2:0]pprot; 
   
+
+  //Construct : apbMasterInterconnectMP
+  //Used for input output defenitionof the interconnect for masters
+  modport apbMasterInterconnectMP(input pready, prdata, pslverr, output psel, penable, paddr, pwrite, pstrb, pwdata, pprot);
+
+  //Construct : apbSlaveInterconnectMP
+  //Used for input output defenition of the interconnect for slaves
+	modport apbSlaveInterconnectMP(output pready, prdata, pslverr, input psel, penable, paddr, pwrite, pstrb, pwdata, pprot);
 endinterface : apb_if
  
 `endif
