@@ -1,5 +1,5 @@
 import apb_global_pkg::*;
- 
+/* 
 interface apb_interconnect #(
   parameter int NO_OF_MASTERS = 2,
   parameter int NO_OF_SLAVES  = 4
@@ -10,7 +10,23 @@ interface apb_interconnect #(
   apb_if.apbMasterInterconnectMP master_if [NO_OF_MASTERS],
   apb_if.apbSlaveInterconnectMP  slave_if  [NO_OF_SLAVES]
 );
+interface apb_interconnect 
+(
+  input  logic pclk,
+  input  logic preset_n,
  
+  apb_if.apbMasterInterconnectMP master_if [NO_OF_MASTERS],
+  apb_if.apbSlaveInterconnectMP  slave_if  [NO_OF_SLAVES]
+);
+*/
+module apb_interconnect 
+(
+  input  logic pclk,
+  input  logic preset_n,
+ 
+  apb_if.apbMasterInterconnectMP master_if [NO_OF_MASTERS],
+  apb_if.apbSlaveInterconnectMP  slave_if  [NO_OF_SLAVES]
+);
   // ----------------------------
   // Bit widths needed to index masters/slaves
   // ----------------------------
@@ -330,4 +346,4 @@ interface apb_interconnect #(
     end
   endgenerate
  
-endinterface
+endmodule

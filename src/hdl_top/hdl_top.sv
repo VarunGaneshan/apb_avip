@@ -64,11 +64,22 @@ module hdl_top;
   apb_if intf_s[0:NO_OF_SLAVES-1](pclk,preset_n);
   apb_if intf_m[0:NO_OF_MASTERS-1](pclk,preset_n);
 
+	// Assigining the pclk and preset_n to all interfaces of slave and master
+	generate
+		for(genvar i = 0; i < NO_OF_SLAVES; i++) begin
+			assign intf_s[i].pclk = pclk;
+			assign intf_s[i].preset_n = preset_n;
+		end
+		for(genvar j = 0; j < NO_OF_MASTERS; j++) begin 
+			assign intf_m[j].pclk = pclk;
+			assign intf_m[j].preset_n = preset_n;
+		end
+	endgenerate
+
   //-------------------------------------------------------
-  // APB Master BFM Agent Instantiation
+  // APB Interconnect Instantiation for Multiple Masters and Slaves
   //-------------------------------------------------------
-  apb_master_agent_bfm #(.MASTER_ID(0)) apb_master_agent_bfm_h(intf); 
-  apb_slave_agent_bfm #(.SLAVE_ID(0)) apb_slave_agent_bfm_h(intf);
+	//apb_interconnect interconnect(.pclk(pclk), .preset_n(preset_n), .master_if(intf_m), .slave_if(intf_s));
 
  /* 
   always_comb begin
@@ -117,16 +128,16 @@ module hdl_top;
   //-------------------------------------------------------
   genvar j;
   generate 
-    for (j = 0; j < NO_OF_MASTERS; j++) begin : apb_master_agent_bfm
-      apb_master_agent_bfm #(.MASTER_ID(j)) apb_master_agent_bfm_h(intf);
+    for(j = 0; j < NO_OF_MASTERS; j++) begin : apb_master_agent_bfm
+      apb_master_agent_bfm #(.MASTER_ID(j)) apb_master_agent_bfm_h(.intf(intf_m[j].apbMasterInterconnectMP));
       defparam apb_master_agent_bfm[j].apb_master_agent_bfm_h.MASTER_ID = j;
     end
   endgenerate
 
   genvar i;
   generate
-    for (i = 0; i < NO_OF_SLAVES; i++) begin : apb_slave_agent_bfm
-      apb_slave_agent_bfm #(.SLAVE_ID(i)) apb_slave_agent_bfm_h(intf);
+    for(i = 0; i < NO_OF_SLAVES; i++) begin : apb_slave_agent_bfm
+      apb_slave_agent_bfm #(.SLAVE_ID(i)) apb_slave_agent_bfm_h(.intf(intf_s[i].apbSlaveInterconnectMP));
       defparam apb_slave_agent_bfm[i].apb_slave_agent_bfm_h.SLAVE_ID = i;
     end
   endgenerate

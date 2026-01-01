@@ -64,11 +64,11 @@ interface apb_if (input pclk, input preset_n);
 
   //Construct : apbMasterInterconnectMP
   //Used for input output defenitionof the interconnect for masters
-  modport apbMasterInterconnectMP(input pready, prdata, pslverr, output psel, penable, paddr, pwrite, pstrb, pwdata, pprot);
+  modport apbMasterInterconnectMP(input pclk, preset_n, pready, prdata, pslverr, output psel, penable, paddr, pwrite, pstrb, pwdata, pprot);
 
   //Construct : apbSlaveInterconnectMP
   //Used for input output defenition of the interconnect for slaves
-	modport apbSlaveInterconnectMP(output pready, prdata, pslverr, input psel, penable, paddr, pwrite, pstrb, pwdata, pprot);
+	modport apbSlaveInterconnectMP(output pready, prdata, pslverr, input pclk, preset_n, psel, penable, paddr, pwrite, pstrb, pwdata, pprot);
 endinterface : apb_if
  
 `endif
