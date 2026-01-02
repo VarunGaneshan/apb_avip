@@ -20,7 +20,7 @@ class apb_slave_tx extends uvm_sequence_item;
 
   //Varibale: pwrite
   //pwrite when write is 1 and read is 0
-  rand tx_type_e pwrite;		// Added randomization for version multimaster
+	tx_type_e pwrite;
 
   //Variable: pwdata
   //Used to store the wdata

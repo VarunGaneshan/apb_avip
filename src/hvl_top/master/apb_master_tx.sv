@@ -19,10 +19,9 @@
 
   //Variable: pselx
   //Used to select the address range for the slave
-   slave_no_e pselx;
+  rand slave_no_e pselx;	// Should not be used in version 2.0
 
   bit psel;
-
 
   //Variable: pwrite
   //Write when pwrite is 1 and read is 0
@@ -42,11 +41,11 @@
     
   //Variable: prdata
   //Used to store the rdata from the slave
-  rand bit [DATA_WIDTH-1:0]prdata;		//Randomized in our version
+  bit [DATA_WIDTH-1:0]prdata;
 
   //Variable: pslverr
   //Goes high when a transfer fails
-	 rand slave_error_e pslverr;				 //Randomized in our version
+	slave_error_e pslverr;
 
   //Variable: apb_master_agent_cfg_h
   //Instantiation of apb master agent config
@@ -63,7 +62,7 @@
   //Variable : address
   bit [ADDRESS_WIDTH-1:0]address;
 
-  rand bit pready;  //Randomized in our version
+  bit pready;
   bit penable;
   //-------------------------------------------------------
   // Externally defined Tasks and Functions
@@ -86,16 +85,16 @@
 
   constraint pwdata_c3 { soft pwdata inside {[0:100]}; }
 
-  //This constraint is used to decide the pwdata size based om transfer size
+  //This constraint is used to decide the pwdata size based on transfer size
   constraint transfer_size_c4 {if(transfer_size == BIT_8)
-                                  $countones (pstrb) == 1;
+                                  pstrb == 1;
                               else if(transfer_size == BIT_16)
-                                      $countones (pstrb) == 2;
+                                  pstrb == 3;
                               else if(transfer_size == BIT_24)
-                                      $countones (pstrb) == 3;
+                                  pstrb == 7;
                               else 
-                                  $countones (pstrb) == 4;
-                             }  // uncommented all these constraints 
+                                  pstrb == 16;
+                             }
 
 endclass : apb_master_tx
 
@@ -204,7 +203,7 @@ function void apb_master_tx::post_randomize();
     end
   end
  
-  // Randmoly chosing paddr value between a given range
+  // Randomly chosing paddr value between a given range
   if (!std::randomize(paddr) with { paddr inside {[apb_master_agent_cfg_h.master_min_addr_range_array[index]:
                                                    apb_master_agent_cfg_h.master_max_addr_range_array[index]]};
     paddr %4 == 0;
@@ -212,12 +211,12 @@ function void apb_master_tx::post_randomize();
     `uvm_fatal("FATAL_STD_RANDOMIZATION_PADDR", $sformatf("Not able to randomize paddr"));
   end
 
-  paddr =100;
+  paddr =100;		// Why this?
   //Constraint to make pwdata non-zero when pstrb is high for that 8-bit lane
   for(int i=0; i<DATA_WIDTH/8; i++) begin
-    `uvm_info(get_type_name(),$sformatf("MASTER-TX-pstrb[%0d]=%0d",i,pstrb[i]),UVM_HIGH);
+    `uvm_info(get_type_name(),$sformatf("MASTER-TX-pstrb[%0d]=%0b",i,pstrb[i]),UVM_HIGH);
     if(pstrb[i]) begin
-      `uvm_info(get_type_name(),$sformatf("MASTER-TX-pstrb[%0d]=%0d",i,pstrb[i]),UVM_HIGH);
+      `uvm_info(get_type_name(),$sformatf("MASTER-TX-pstrb[%0d]=%0b",i,pstrb[i]),UVM_HIGH);
       if(!std::randomize(pwdata) with {pwdata[8*i+7 -: 8] != 0;}) begin
         `uvm_fatal("FATAL_STD_RANDOMIZATION_PWDATA", $sformatf("Not able to randomize pwdata"));
       end

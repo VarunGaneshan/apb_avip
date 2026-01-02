@@ -16,8 +16,6 @@ class apb_master_8b_write_seq extends apb_master_base_seq;
   //Used to count the writes and reads 
   rand bit cont_write_read_seq;
 
-  rand bit choose_packet_data_seq;
-  
   //-------------------------------------------------------
   // Externally defined Tasks and Functions
   //-------------------------------------------------------
