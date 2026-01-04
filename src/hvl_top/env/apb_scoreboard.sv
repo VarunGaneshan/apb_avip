@@ -118,15 +118,18 @@ function void apb_scoreboard::build_phase(uvm_phase phase);
     apb_slave_pslverr_fail[i] = 0;
   end
 
+// Get the Main Environment Config Object (Set by apb_base_test)
+  if(!uvm_config_db#(apb_env_config)::get(this, "", "apb_env_config", apb_env_cfg_h)) begin
+      `uvm_fatal("SCB", "Failed to get apb_env_config from Config DB")
+  end
+
   // Get slave addr ranges
   SLAVE_START_ADDR = new[NO_OF_SLAVES];
   SLAVE_END_ADDR = new[NO_OF_SLAVES];
 
   foreach(SLAVE_START_ADDR[i]) begin
-    if(!uvm_config_db#(apb_slave_agent_config)::get(this, "", $sformatf("SLAVE_START_ADDR[%0d]",i), SLAVE_START_ADDR[i]))
-      `uvm_fatal(get_type_name(), $sformatf("SLAVE%0d_START_ADDR not set", i))
-    if(!uvm_config_db#(apb_slave_agent_config)::get(this, "", $sformatf("SLAVE_END_ADDR[%0d]",i), SLAVE_END_ADDR[i]))
-      `uvm_fatal(get_type_name(), $sformatf("SLAVE%0d_END_ADDR not set", i))
+    SLAVE_START_ADDR[i] = apb_env_cfg_h.apb_slave_agent_cfg_h[i].min_address;
+    SLAVE_END_ADDR[i]   = apb_env_cfg_h.apb_slave_agent_cfg_h[i].max_address;
   end
 endfunction
 
