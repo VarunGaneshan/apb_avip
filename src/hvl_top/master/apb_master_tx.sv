@@ -77,11 +77,11 @@
   // Constraints defined on variables pselx,
   //-------------------------------------------------------
 
-  //constraint pselx_c1  { $countones(pselx) == 1; }
+  constraint pselx_c1  { $countones(pselx) == 1; }
 
   // c1 and c2 cause randomization failure maybe due to conflict
 
-  //constraint pselx_c2 { pselx >0 && pselx < 2**NO_OF_SLAVES; }
+  constraint pselx_c2 { pselx >0 && pselx < 2**NO_OF_SLAVES; }
 
   constraint pwdata_c3 { soft pwdata inside {[0:100]}; }
 
