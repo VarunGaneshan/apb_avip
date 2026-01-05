@@ -10,6 +10,8 @@ interface apb_interconnect #(
   apb_if.apbMasterInterconnectMP master_if [NO_OF_MASTERS],
   apb_if.apbSlaveInterconnectMP  slave_if  [NO_OF_SLAVES]
 );
+
+*/
 interface apb_interconnect 
 (
   input  logic pclk,
@@ -18,7 +20,7 @@ interface apb_interconnect
   apb_if.apbMasterInterconnectMP master_if [NO_OF_MASTERS],
   apb_if.apbSlaveInterconnectMP  slave_if  [NO_OF_SLAVES]
 );
-*/
+/*
 module apb_interconnect 
 (
   input  logic pclk,
@@ -27,6 +29,7 @@ module apb_interconnect
   apb_if.apbMasterInterconnectMP master_if [NO_OF_MASTERS],
   apb_if.apbSlaveInterconnectMP  slave_if  [NO_OF_SLAVES]
 );
+*/
   // ----------------------------
   // Bit widths needed to index masters/slaves
   // ----------------------------
@@ -346,4 +349,4 @@ module apb_interconnect
     end
   endgenerate
  
-endmodule
+endinterface

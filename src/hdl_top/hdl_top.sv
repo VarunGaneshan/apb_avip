@@ -1,6 +1,7 @@
 `ifndef HDL_TOP_INCLUDED
 `define HDL_TOP_INCLUDED
 
+`include "interconnect/apb_interconnect.sv"
 //--------------------------------------------------------------------------------------------
 // Module      : HDL Top
 // Description : Has a interface and slave agent bfm.
@@ -79,7 +80,7 @@ module hdl_top;
   //-------------------------------------------------------
   // APB Interconnect Instantiation for Multiple Masters and Slaves
   //-------------------------------------------------------
-	//apb_interconnect interconnect(.pclk(pclk), .preset_n(preset_n), .master_if(intf_m), .slave_if(intf_s));
+	apb_interconnect APB_interconnect(pclk, preset_n, intf_m, intf_s);
 
  /* 
   always_comb begin
