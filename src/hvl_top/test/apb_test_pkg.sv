@@ -27,6 +27,7 @@ package apb_test_pkg;
   //-------------------------------------------------------
   // Including the base_test files
   //-------------------------------------------------------
+	`include "apb_report_server.sv"
   `include "apb_base_test.sv"
   `include "apb_vd_vws_test.sv"
   `include "apb_8b_write_test.sv"

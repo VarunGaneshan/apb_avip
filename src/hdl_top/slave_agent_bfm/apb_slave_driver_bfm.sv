@@ -91,7 +91,7 @@ interface apb_slave_driver_bfm (input bit pclk,
     end
 
     `uvm_info(name,$sformatf("SETUP PHASE STARTED"),UVM_HIGH)
-    `uvm_info(name,$sformatf("PSEL=%0d",psel),UVM_HIGH)
+    `uvm_info(name,$sformatf("PSEL = %0b",psel),UVM_HIGH)
 
     $display("SLAVE SET UP STATE DONE ");
     // Sampling the signals

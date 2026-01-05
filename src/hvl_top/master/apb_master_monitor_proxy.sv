@@ -79,7 +79,7 @@ task apb_master_monitor_proxy::run_phase(uvm_phase phase);
  
   `uvm_info(get_type_name(), $sformatf("Inside the master_monitor_proxy"), UVM_LOW);
   apb_master_packet = apb_master_tx::type_id::create("master_packet");
-//  apb_master_mon_bfm_h.wait_for_preset_n();
+  apb_master_mon_bfm_h.wait_for_preset_n();
  
   forever begin
     apb_transfer_char_s struct_data_packet;

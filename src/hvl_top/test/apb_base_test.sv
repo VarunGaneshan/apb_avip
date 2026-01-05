@@ -50,7 +50,14 @@ endfunction : new
 //  phase - uvm phase
 //--------------------------------------------------------------------------------------------
 function void apb_base_test::build_phase(uvm_phase phase);
+	apb_report_server rs;
   super.build_phase(phase);
+
+	// report server instantiation
+	//rs = apb_report_server::type_id::create("apb_report_server");
+  rs = new();
+	uvm_report_server::set_server(rs);
+
   setup_apb_env_config();
   apb_env_h = apb_env::type_id::create("apb_env",this);
 endfunction : build_phase

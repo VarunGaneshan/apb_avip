@@ -85,7 +85,7 @@ task apb_slave_monitor_proxy::run_phase(uvm_phase phase);
   `uvm_info(get_type_name(), $sformatf("Inside the slave_monitor_proxy"), UVM_LOW);
   apb_slave_packet = apb_slave_tx::type_id::create("slave_packet");
   
-  //apb_slave_mon_bfm_h.wait_for_preset_n();
+  apb_slave_mon_bfm_h.wait_for_preset_n();
   
   forever begin
     apb_transfer_char_s  struct_data_packet;

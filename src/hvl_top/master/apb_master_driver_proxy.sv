@@ -55,11 +55,6 @@ endfunction : new
 //--------------------------------------------------------------------------------------------
 function void apb_master_driver_proxy::build_phase(uvm_phase phase);
   super.build_phase(phase);
-//Added
-	if(!uvm_config_db #(apb_master_agent_config)::get(this,"","apb_master_agent_config", apb_master_agent_cfg_h)) begin
-	  `uvm_fatal("FATAL_MDP_CANNOT_GET_AGENT_CONFIG", "cannot get apb_master_agent_cfg_h from uvm_config_db");
-	end
-//
 endfunction : build_phase
 
 //--------------------------------------------------------------------------------------------
@@ -71,9 +66,6 @@ endfunction : build_phase
 //--------------------------------------------------------------------------------------------
 function void apb_master_driver_proxy::connect_phase(uvm_phase phase);
   super.connect_phase(phase);
-  if(!uvm_config_db #(virtual apb_master_driver_bfm)::get(this,"",$sformatf("apb_master_driver_bfm_%0d",apb_master_agent_cfg_h.master_id), apb_master_drv_bfm_h)) begin
-    `uvm_fatal("FATAL_MDP_CANNOT_GET_APB_MASTER_DRIVER_BFM","cannot get() apb_master_drv_bfm_h");
-  end
 endfunction : connect_phase
 
 //--------------------------------------------------------------------------------------------
@@ -85,6 +77,10 @@ endfunction : connect_phase
 //--------------------------------------------------------------------------------------------
 function void apb_master_driver_proxy::end_of_elaboration_phase(uvm_phase phase);
   super.end_of_elaboration_phase(phase);
+  if(!uvm_config_db #(virtual apb_master_driver_bfm)::get(this,"",$sformatf("apb_master_driver_bfm_%0d",apb_master_agent_cfg_h.master_id),
+                                                             apb_master_drv_bfm_h)) begin
+    `uvm_fatal("FATAL_SDP_CANNOT_GET_MASTER_DRIVER_BFM","cannot get() apb_master_drv_bfm_h");
+  end
   apb_master_drv_bfm_h.apb_master_drv_proxy_h = this;
 endfunction : end_of_elaboration_phase
 
@@ -99,7 +95,7 @@ endfunction : end_of_elaboration_phase
 task apb_master_driver_proxy::run_phase(uvm_phase phase);
   
   //wait for system reset
-  //apb_master_drv_bfm_h.wait_for_preset_n();
+  apb_master_drv_bfm_h.wait_for_preset_n();
 
   //Drive the idle state for APB interface
   apb_master_drv_bfm_h.drive_idle_state();

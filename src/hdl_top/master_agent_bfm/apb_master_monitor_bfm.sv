@@ -41,16 +41,25 @@ interface apb_master_monitor_bfm (input bit pclk,
  
   // Variable: name
   // Assigning the string used in infos
-  string name = "APB_MASTER_MONITOR_BFM"; 
-  initial begin
-    `uvm_info(name, $sformatf("APB MASTER MONITOR BFM"), UVM_LOW);
-  end
+	string name;// = "APB_MASTER_MONITOR_BFM"; 
+  
+  //initial begin
+  //  `uvm_info(name, $sformatf("APB MASTER MONITOR BFM"), UVM_LOW);
+  //end
  
    clocking masterCb @(posedge pclk);
     default input #1 output #1;
      input   preset_n,pready,pslverr,prdata , pwrite ,paddr, psel,pwdata,pstrb,pprot,penable;
   endclocking   
  
+  //-------------------------------------------------------
+  // function : get_name
+  // gets the master driver id
+  //-------------------------------------------------------
+  function get_name(int id);
+		name = $sformatf("APB_MASTER_MONITOR_BFM_%0d",id);
+	endfunction
+
   //-------------------------------------------------------
   // Task: wait_for_preset_n
   //  Waiting for the system reset to be active low

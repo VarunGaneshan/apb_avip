@@ -38,7 +38,7 @@ interface apb_master_driver_bfm (input  bit   pclk,
   
   //Variable: name
   //Used to store the name of the interface
-  string name = "APB_MASTER_DRIVER_BFM"; 
+  string name; 
   
   //Variable: apb_master_drv_proxy_h
   //Creating the handle for the proxy_driver
@@ -51,9 +51,9 @@ interface apb_master_driver_bfm (input  bit   pclk,
   //-------------------------------------------------------
   // Used to display the name of the interface
   //-------------------------------------------------------
-  initial begin
-    `uvm_info(name, $sformatf(name),UVM_LOW)
-  end
+  //initial begin
+  //  `uvm_info(name, $sformatf(name),UVM_LOW)
+  //end
 
   clocking masterCb @(posedge pclk);
     default input #1 output #1;
@@ -61,6 +61,15 @@ interface apb_master_driver_bfm (input  bit   pclk,
     output pwrite ,paddr, psel,pwdata,pstrb,pprot,penable;
   endclocking   
 
+  modport get_id(import get_name);
+
+  //-------------------------------------------------------
+  // function : get_name
+  // gets the master driver id
+  //-------------------------------------------------------
+  function get_name(int id);
+		name = $sformatf("APB_MASTER_DRIVER_BFM_%0d",id);
+	endfunction
  
   //-------------------------------------------------------
   // Task: wait_for_preset_n
@@ -83,8 +92,8 @@ interface apb_master_driver_bfm (input  bit   pclk,
   // cfg_pkt     - handle for apb_transfer_cfg_s
   //--------------------------------------------------------------------------------------------
   task drive_to_bfm(inout apb_transfer_char_s data_packet, input apb_transfer_cfg_s cfg_packet);
-    `uvm_info(name,$sformatf("data_packet=\n%p",data_packet),UVM_HIGH);
-    `uvm_info(name,$sformatf("cfg_packet=\n%p",cfg_packet),UVM_HIGH);
+    `uvm_info(name,$sformatf("data_packet =\n%p",data_packet),UVM_HIGH);
+    `uvm_info(name,$sformatf("cfg_packet =\n%p",cfg_packet),UVM_HIGH);
     `uvm_info(name,$sformatf("DRIVE TO BFM TASK"),UVM_HIGH);
 
     //Driving Setup state
@@ -158,7 +167,7 @@ interface apb_master_driver_bfm (input  bit   pclk,
     
     `uvm_info("DEBUG_NADEEM",$sformatf("pready=%0d",pready), UVM_HIGH);
       detect_wait_state(data_packet);
-    `uvm_info("DEBUG_MSHA",$sformatf("wait_apb_access_state=%0d and state=%0d",state.name(),state), UVM_NONE);
+    `uvm_info("DEBUG_MSHA",$sformatf("wait_apb_access_state = %0d and state = %0d",state.name(),state), UVM_NONE);
   
   endtask : waiting_in_access_state
 

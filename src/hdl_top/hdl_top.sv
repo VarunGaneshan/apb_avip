@@ -1,7 +1,6 @@
 `ifndef HDL_TOP_INCLUDED
 `define HDL_TOP_INCLUDED
 
-`include "interconnect/apb_interconnect.sv"
 //--------------------------------------------------------------------------------------------
 // Module      : HDL Top
 // Description : Has a interface and slave agent bfm.
@@ -19,7 +18,9 @@ module hdl_top;
   //-------------------------------------------------------
   import apb_global_pkg::*;
 
-  initial begin
+  `include "interconnect/apb_interconnect.sv"
+  
+	initial begin
     `uvm_info("HDL_TOP","HDL_TOP",UVM_LOW);
   end
 

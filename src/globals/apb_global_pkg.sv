@@ -175,6 +175,7 @@ package apb_global_pkg;
     int slave_id;
   }apb_transfer_cfg_s;
 
+
 endpackage : apb_global_pkg
 
 `endif

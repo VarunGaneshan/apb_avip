@@ -12,13 +12,13 @@ module apb_master_agent_bfm #(parameter MASTER_ID = 0)(apb_if intf);
   //-------------------------------------------------------
   import uvm_pkg::*;
   `include "uvm_macros.svh"
-  
-	localparam apb_master_driver_id  = MASTER_ID;
-	localparam apb_master_monitor_id = MASTER_ID;
-	localparam apb_master_agent_id   = MASTER_ID;
+ 
+	parameter ID = MASTER_ID;	
+	
+	string apb_master_agent_id = $sformatf("APB_MASTER_AGENT_BFM_%0d",MASTER_ID);
 
   initial begin
-    `uvm_info("apb master agent bfm",$sformatf("APB MASTER AGENT BFM"),UVM_LOW);
+    `uvm_info(apb_master_agent_id,$sformatf("APB MASTER AGENT BFM"),UVM_LOW);
   end
   
   //-------------------------------------------------------
@@ -60,8 +60,10 @@ module apb_master_agent_bfm #(parameter MASTER_ID = 0)(apb_if intf);
   // setting the virtual handle of BFMs into config_db
   //-------------------------------------------------------
   initial begin
-		uvm_config_db#(virtual apb_master_driver_bfm)::set(null,"*",$sformatf("apb_master_driver_bfm_%0d",apb_master_driver_id),apb_master_drv_bfm_h);
-    uvm_config_db#(virtual apb_master_monitor_bfm)::set(null,"*",$sformatf("apb_master_monitor_bfm_%0d",apb_master_monitor_id),apb_master_mon_bfm_h);
+		apb_master_drv_bfm_h.name = $sformatf("apb_master_driver_bfm_%0d",MASTER_ID);
+		apb_master_mon_bfm_h.name = $sformatf("apb_master_monitor_bfm_%0d",MASTER_ID);
+		uvm_config_db#(virtual apb_master_driver_bfm)::set(null,"*",$sformatf("apb_master_driver_bfm_%0d",MASTER_ID),apb_master_drv_bfm_h);
+    uvm_config_db#(virtual apb_master_monitor_bfm)::set(null,"*",$sformatf("apb_master_monitor_bfm_%0d",MASTER_ID),apb_master_mon_bfm_h);
 	end
 
 endmodule : apb_master_agent_bfm
