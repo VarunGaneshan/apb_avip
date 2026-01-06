@@ -105,7 +105,6 @@ task apb_slave_monitor_proxy::run_phase(uvm_phase phase);
     `uvm_info(get_type_name(),$sformatf("Sending packet via analysis_port: , \n %s", apb_slave_clone_packet.sprint()),UVM_MEDIUM)
  $display("THE CHECK @%0t",$time());
    if(struct_data_packet.penable && struct_data_packet.pready) begin 
-     $display("pready = %0b \n\n ",struct_data_packet.pready);
      apb_slave_analysis_port.write(apb_slave_clone_packet);
       $display("THE TEST IS DONE @%0t",$time());
    end
