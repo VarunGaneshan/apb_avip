@@ -95,6 +95,11 @@ function void apb_slave_seq_item_converter::to_class(input apb_transfer_char_s i
 
   output_conv_h.prdata = input_conv_h.prdata;
  `uvm_info("apb_seq_item_conv_class",$sformatf("After randomizing the prdata=%0h",output_conv_h.prdata),UVM_HIGH);
+
+  
+  // added for checking
+  output_conv_h.pready = input_conv_h.pready;
+  `uvm_info("apb_seq_item_conv_class",$sformatf("After randomizing the pready=%0b",output_conv_h.pready),UVM_HIGH);
   
   output_conv_h.no_of_wait_states = input_conv_h.no_of_wait_states;
   `uvm_info("apb_seq_item_conv_class",$sformatf("After randomizing the no_of_wait_states=%0d",output_conv_h.no_of_wait_states),UVM_HIGH);
@@ -117,6 +122,7 @@ function void apb_slave_seq_item_converter::do_print(uvm_printer printer);
   printer.print_field("no_of_wait_states",apb_st.no_of_wait_states,UVM_DEC);
   printer.print_field($sformatf("prdata"),apb_st.prdata,DATA_WIDTH,UVM_HEX);
   printer.print_field("pslverr",apb_st.pslverr,1,UVM_BIN);
+  printer.print_field("pready",apb_st.pready,1,UVM_BIN);
 
 endfunction : do_print
 
