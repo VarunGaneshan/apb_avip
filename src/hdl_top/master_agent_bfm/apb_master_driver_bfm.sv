@@ -164,6 +164,7 @@ interface apb_master_driver_bfm (input  bit   pclk,
     $display("DRIVING THE ACCESS");
     state = ACCESS;  
     masterCb.penable <= 1'b1;
+	masterCb.psel <= 1'b1;
     
     `uvm_info("DEBUG_NADEEM",$sformatf("pready=%0d",pready), UVM_HIGH);
       detect_wait_state(data_packet);
