@@ -68,15 +68,15 @@ interface apb_slave_monitor_bfm (input bit pclk,
   //  apb_data_packet - Handle for apb_transfer_char_s class
   //  apb_cfg_packet  - Handle for apb_transfer_cfg_s class
   //-------------------------------------------------------
-  task sample_data (output apb_transfer_char_s apb_data_packet, input apb_transfer_cfg_s apb_cfg_packet);
+  task sample_data (output apb_transfer_char_s apb_data_packet, input apb_transfer_cfg_s apb_cfg_packet, int slave_id);
    @(posedge pclk); 
     while(psel === 1'bX) begin
       @(posedge pclk);
-      `uvm_info(name, $sformatf("Inside while loop PSEL"), UVM_HIGH)
+      `uvm_info(name, $sformatf("SLAVE_ID %0d Inside while loop PSEL", slave_id), UVM_HIGH)
     end
 
     while(pready !==1) begin
-    `uvm_info(name, $sformatf("Inside while loop: SLAVE[%0d] penable =%0d, pready=%0d, psel=%0b ", 
+    `uvm_info(name, $sformatf("SLAVE_ID %0d Inside while loop: SLAVE[%0d] penable =%0d, pready=%0d, psel=%0b ",slave_id,
                               apb_cfg_packet.slave_id, penable, pready, psel), UVM_HIGH)
       @(posedge pclk);
       $display("IN THIS LOOP @%0t",$time());

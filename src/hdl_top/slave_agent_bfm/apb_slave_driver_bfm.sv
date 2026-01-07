@@ -77,20 +77,20 @@ interface apb_slave_driver_bfm (input bit pclk,
   // Task: wait_for_setup_state
   // Samples the required data and sends back to the proxy
   //-------------------------------------------------------
-  task wait_for_setup_state(output apb_transfer_char_s data_packet);
+  task wait_for_setup_state(output apb_transfer_char_s data_packet, int slave_id);
     @(slaveCb);
    
     slaveCb.pready<=0; 
-    `uvm_info(name,$sformatf("WAITING FOR SETUP STATE"),UVM_HIGH)
+    `uvm_info(name,$sformatf("SLAVE_ID %0D WAITING FOR SETUP STATE",slave_id),UVM_HIGH)
     `uvm_info(name,$sformatf("PSEL=%0d",psel),UVM_HIGH)
     
     while(slaveCb.psel !==1) begin
-      `uvm_info(name, $sformatf("Inside while loop: penable =%0d, pready=%0d, psel=%0d ", penable, pready, psel), UVM_HIGH)
+      `uvm_info(name, $sformatf("SLAVE_ID %0d Inside while loop: penable =%0d, pready=%0d, psel=%0d ", slave_id, penable, pready, psel), UVM_HIGH)
       @(slaveCb);
-      $display("WAITING FOR SELECT psel is %0b",slaveCb.psel);
+      $display("SLAVE_ID %0d WAITING FOR SELECT psel is %0b",slave_id, slaveCb.psel);
     end
 
-    `uvm_info(name,$sformatf("SETUP PHASE STARTED"),UVM_HIGH)
+    `uvm_info(name,$sformatf("SLAVE_ID %0d SETUP PHASE STARTED", slave_id),UVM_HIGH)
     `uvm_info(name,$sformatf("PSEL = %0b",psel),UVM_HIGH)
 
     $display("SLAVE SET UP STATE DONE ");
@@ -111,21 +111,21 @@ interface apb_slave_driver_bfm (input bit pclk,
   // Samples the data or drives the data to master based
   // on pwrite signal
   //-------------------------------------------------------
-  task wait_for_access_state(inout apb_transfer_char_s data_packet);
-    `uvm_info(name,$sformatf("WAITING FOR ACCESS STATE - no_of_wait_states=%0d",data_packet.no_of_wait_states),UVM_HIGH);
+  task wait_for_access_state(inout apb_transfer_char_s data_packet, int slave_id);
+    `uvm_info(name,$sformatf("SLAVE_ID %0d WAITING FOR ACCESS STATE - no_of_wait_states=%0d",slave_id, data_packet.no_of_wait_states),UVM_HIGH);
 
     repeat(data_packet.no_of_wait_states)begin
-      `uvm_info(name,$sformatf("INSIDE ACCESS - DRIVING WAIT STATE"),UVM_HIGH);
+      `uvm_info(name,$sformatf("SLAVE_ID %0d INSIDE ACCESS - DRIVING WAIT STATE", slave_id),UVM_HIGH);
       @(slaveCb);
       slaveCb.pready<=0;
     end
     slaveCb.pready<=1;
 
     // This display checks whether the data from proxy is received or not
-    `uvm_info(name,$sformatf("INSIDE ACCESS - PRDATA=%0h",data_packet.prdata),UVM_HIGH);
+    `uvm_info(name,$sformatf("SLAVE_ID %0d INSIDE ACCESS - PRDATA=%0h",slave_id, data_packet.prdata),UVM_HIGH);
     
     if(data_packet.pwrite == READ) begin
-      `uvm_info(name,$sformatf("INSIDE ACCESS - PRDATA=%0h",data_packet.prdata),UVM_HIGH);
+      `uvm_info(name,$sformatf("SLAVE_ID %0d INSIDE ACCESS - PRDATA=%0h",slave_id, data_packet.prdata),UVM_HIGH);
       slaveCb.prdata <= data_packet.prdata;
       @(slaveCb); // if not present will detect the psel even if the transfer is not needed (psel made 0)
       slaveCb.pready <=0; 
