@@ -49,7 +49,8 @@ task apb_virtual_8b_write_seq::body();
 
 	foreach(apb_slave_8b_write_seq_h[i]) begin
   	apb_slave_8b_write_seq_h[i]=apb_slave_8b_write_seq::type_id::create($sformatf("apb_slave_8b_write_seq_h[%0d]",i));
-		apb_slave_8b_write_seq_h[i].randomize() with {choose_packet_data_seq == 0;};
+		if(!apb_slave_8b_write_seq_h[i].randomize() with {choose_packet_data_seq == 0;})
+       `uvm_error(get_type_name(), "Randomization failed : Inside apb_virtual_8b_write_seq")
 	end
  /* 
   fork

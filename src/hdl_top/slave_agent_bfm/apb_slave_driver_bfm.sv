@@ -124,10 +124,11 @@ interface apb_slave_driver_bfm (input bit pclk,
     // This display checks whether the data from proxy is received or not
     `uvm_info(name,$sformatf("INSIDE ACCESS - PRDATA=%0h | pready = %0b",data_packet.prdata, slaveCb.pready),UVM_HIGH);
     
-    if(data_packet.pwrite == READ) begin
+    /*if(data_packet.pwrite == READ) begin
       `uvm_info(name,$sformatf("INSIDE ACCESS - PRDATA=%0h | pready = %0b",data_packet.prdata, slaveCb.pready),UVM_HIGH);
-    `uvm_info(name,$sformatf("SLAVE_ID %0d INSIDE ACCESS - PRDATA=%0h",slave_id, data_packet.prdata),UVM_HIGH);
-    
+      `uvm_info(name,$sformatf("SLAVE_ID %0d INSIDE ACCESS - PRDATA=%0h",slave_id, data_packet.prdata),UVM_HIGH);
+		end 
+		*/
     if(data_packet.pwrite == READ) begin
       `uvm_info(name,$sformatf("SLAVE_ID %0d INSIDE ACCESS - PRDATA=%0h",slave_id, data_packet.prdata),UVM_HIGH);
       slaveCb.prdata <= data_packet.prdata;
