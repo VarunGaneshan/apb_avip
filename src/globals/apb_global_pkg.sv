@@ -10,7 +10,7 @@ package apb_global_pkg;
 
   //Parameter : NO_OF_SLAVES
   //Used to set number of slaves required
-  parameter int NO_OF_SLAVES = 2;
+  parameter int NO_OF_SLAVES = 4;
 
 	//Parameter : NO_OF_MASTERS
 	//Used to set number of masters required

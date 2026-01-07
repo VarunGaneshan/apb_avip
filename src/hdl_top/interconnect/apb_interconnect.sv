@@ -494,7 +494,7 @@ interface apb_interconnect
                               slave_min_addr[s], slave_max_addr[s]);
       end
       
-      if (slave_busy[s]) begin
+      if(slave_busy[s]) begin
         $display("  Slave[%0d] %s: BUSY serving M%0d, Pready=%0d", 
                  s, slave_type, owner[s], s_pready[s]);
       end else begin
