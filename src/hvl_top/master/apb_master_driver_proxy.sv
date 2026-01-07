@@ -10,7 +10,9 @@
 //--------------------------------------------------------------------------------------------
 class apb_master_driver_proxy extends uvm_driver #(apb_master_tx);
   `uvm_component_utils(apb_master_driver_proxy)
-  
+ 
+  string name;
+
   //Variable: apb_master_tx_h
   //Declaring handle for apb master transaction
   apb_master_tx apb_master_tx_h;
@@ -81,6 +83,7 @@ function void apb_master_driver_proxy::end_of_elaboration_phase(uvm_phase phase)
                                                              apb_master_drv_bfm_h)) begin
     `uvm_fatal("FATAL_SDP_CANNOT_GET_MASTER_DRIVER_BFM","cannot get() apb_master_drv_bfm_h");
   end
+				name = $sformatf("apb_master_driver_proxy_%0d",apb_master_agent_cfg_h.master_id);
   apb_master_drv_bfm_h.apb_master_drv_proxy_h = this;
 endfunction : end_of_elaboration_phase
 
@@ -106,7 +109,7 @@ task apb_master_driver_proxy::run_phase(uvm_phase phase);
 
     seq_item_port.get_next_item(req);
     //Printing the req item
-    `uvm_info(get_type_name(), $sformatf("REQ-MASTER_TX \n %s",req.sprint),UVM_HIGH);
+    `uvm_info(name, $sformatf("REQ-MASTER_TX \n %s",req.sprint),UVM_HIGH);
   
     //Converting transaction to struct data_packet
     apb_master_seq_item_converter::from_class(req, struct_packet); 
@@ -117,7 +120,7 @@ task apb_master_driver_proxy::run_phase(uvm_phase phase);
     //Converting struct to transaction
     apb_master_seq_item_converter::to_class(struct_packet, req);
     
-    `uvm_info(get_type_name(), $sformatf("AFTER :: received req packet \n %s", req.sprint()), UVM_NONE); 
+    `uvm_info(name, $sformatf("AFTER :: received req packet \n %s", req.sprint()), UVM_NONE); 
     seq_item_port.item_done();
   end
 

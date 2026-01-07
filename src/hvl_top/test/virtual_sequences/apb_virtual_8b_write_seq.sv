@@ -64,15 +64,33 @@ join_none
 
 
   fork
-    begin: MASTER_WRITE_SEQ
+    begin: MASTER_WRITE_SEQ_0
       repeat(1) begin
           if(!apb_master_8b_write_seq_h[0].randomize() with {address_seq == 32'h990;
                                                                     }) begin
             `uvm_error(get_type_name(), "Randomization failed : Inside apb_virtual_8b_write_seq.sv")
-        end
-        apb_master_8b_write_seq_h[0].start(p_sequencer.apb_master_seqr_h[0]);
-      end
+          end
+          if(!apb_master_8b_write_seq_h[1].randomize() with {address_seq == 32'h990;
+                                                                    }) begin
+            `uvm_error(get_type_name(), "Randomization failed : Inside apb_virtual_8b_write_seq.sv")
+          end
+          if(!apb_master_8b_write_seq_h[2].randomize() with {address_seq == 32'h990;
+                                                                    }) begin
+            `uvm_error(get_type_name(), "Randomization failed : Inside apb_virtual_8b_write_seq.sv")
+          end
+          if(!apb_master_8b_write_seq_h[3].randomize() with {address_seq == 32'h990;
+                                                                    }) begin
+            `uvm_error(get_type_name(), "Randomization failed : Inside apb_virtual_8b_write_seq.sv")
+          end
+				  fork
+        	  apb_master_8b_write_seq_h[0].start(p_sequencer.apb_master_seqr_h[0]);
+        	  apb_master_8b_write_seq_h[1].start(p_sequencer.apb_master_seqr_h[1]);
+        	  apb_master_8b_write_seq_h[2].start(p_sequencer.apb_master_seqr_h[2]);
+        	  apb_master_8b_write_seq_h[3].start(p_sequencer.apb_master_seqr_h[3]);
+          join_none
+			end
     end
+	
   join
 
  endtask : body

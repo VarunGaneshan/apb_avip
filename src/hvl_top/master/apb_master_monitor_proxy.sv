@@ -8,6 +8,9 @@
 //--------------------------------------------------------------------------------------------
 class apb_master_monitor_proxy extends uvm_monitor; 
   `uvm_component_utils(apb_master_monitor_proxy)
+
+	string name;
+
   // Variable: apb_master_mon_bfm_h
   // Declaring handle for apb monitor bfm
   virtual apb_master_monitor_bfm apb_master_mon_bfm_h;
@@ -62,7 +65,8 @@ function void apb_master_monitor_proxy::end_of_elaboration_phase(uvm_phase phase
   super.end_of_elaboration_phase(phase);
 	if(!uvm_config_db #(virtual apb_master_monitor_bfm)::get(this,"",$sformatf("apb_master_monitor_bfm_%0d",apb_master_agent_cfg_h.master_id), apb_master_mon_bfm_h)) begin
 	    `uvm_fatal("FATAL_MDP_CANNOT_GET_APB_MASTER_MONITOR_BFM","cannot get() apb_master_mon_bfm_h");
-	  end
+	end
+	name = $sformatf("apb_master_monitor_proxy_%0d",apb_master_agent_cfg_h.master_id);
   apb_master_mon_bfm_h.apb_master_mon_proxy_h = this;
 endfunction : end_of_elaboration_phase
  
@@ -77,7 +81,7 @@ endfunction : end_of_elaboration_phase
 task apb_master_monitor_proxy::run_phase(uvm_phase phase);
   apb_master_tx apb_master_packet;
  
-  `uvm_info(get_type_name(), $sformatf("Inside the master_monitor_proxy"), UVM_LOW);
+  `uvm_info(name, $sformatf("Inside the master_monitor_proxy"), UVM_LOW);
   apb_master_packet = apb_master_tx::type_id::create("master_packet");
   apb_master_mon_bfm_h.wait_for_preset_n();
  
@@ -88,10 +92,10 @@ task apb_master_monitor_proxy::run_phase(uvm_phase phase);
     apb_master_cfg_converter :: from_class (apb_master_agent_cfg_h, struct_cfg_packet);
     apb_master_mon_bfm_h.sample_data (struct_data_packet, struct_cfg_packet); // till master fsm implementation
     apb_master_seq_item_converter :: to_class (struct_data_packet, apb_master_packet);
-    `uvm_info(get_type_name(),$sformatf("Received packet from master monitor bfm: , \n %s", apb_master_packet.sprint()),UVM_MEDIUM)
+    `uvm_info(name,$sformatf("Received packet from master monitor bfm: , \n %s", apb_master_packet.sprint()),UVM_MEDIUM)
     //Clone and publish the cloned item to the subscribers
     $cast(apb_master_clone_packet, apb_master_packet.clone());
-    `uvm_info(get_type_name(),$sformatf("Sending packet via analysis_port: , \n %s", apb_master_clone_packet.sprint()),UVM_HIGH)
+    `uvm_info(name,$sformatf("Sending packet via analysis_port: , \n %s", apb_master_clone_packet.sprint()),UVM_HIGH)
     apb_master_analysis_port.write(apb_master_clone_packet);
   end
  

@@ -8,6 +8,9 @@
 //--------------------------------------------------------------------------------------------
 class apb_master_agent extends uvm_agent;
   `uvm_component_utils(apb_master_agent)
+  static int master_count = -1;
+	int master_id;
+	string name;
 
   //Variable: apb_master_agent_cfg_h
   //Declaring handle for apb_master agent configuration class 
@@ -52,6 +55,8 @@ endclass : apb_master_agent
 //--------------------------------------------------------------------------------------------
 function apb_master_agent::new(string name="apb_master_agent", uvm_component parent);
   super.new(name,parent);
+	master_count++;
+	master_id = master_count;
 endfunction : new
 
 //--------------------------------------------------------------------------------------------
@@ -62,8 +67,7 @@ endfunction : new
 // phase - uvm phase
 //--------------------------------------------------------------------------------------------
 function void apb_master_agent::build_phase(uvm_phase phase);
-
-	int master_id;
+				static int count;
   super.build_phase(phase);
 	
 	//if(!uvm_config_db #(int)::get(this,"","master_id",master_id)) begin
@@ -75,21 +79,18 @@ function void apb_master_agent::build_phase(uvm_phase phase);
     `uvm_fatal("FATAL_MA_CANNOT_GET_APB_MASTER_AGENT_CONFIG", "cannot get apb_master_agent_cfg_h from uvm_config_db");
   end
 
+  name = $sformatf("apb_master_agent_%0d",master_count);
+		
+				$display("\n\ncount = %0d | GOT ID FOR MASTER AGENT = %0d\n\n",master_count,apb_master_agent_cfg_h.master_id);
+
   if(apb_master_agent_cfg_h.is_active == UVM_ACTIVE) begin
-		// Added
-		uvm_config_db #(apb_master_agent_config)::set(this, "apb_master_drv_proxy_h",$sformatf("apb_master_agent_config_%0d",master_id), apb_master_agent_cfg_h);
-		uvm_config_db #(apb_master_agent_config)::set(this, "apb_master_seqr_h",$sformatf("apb_master_agent_config_%0d",master_id), apb_master_agent_cfg_h);
-		//
     apb_master_drv_proxy_h=apb_master_driver_proxy::type_id::create("apb_master_drv_proxy_h",this);
     apb_master_seqr_h=apb_master_sequencer::type_id::create("apb_master_seqr_h",this);
   end
-
   apb_master_mon_proxy_h=apb_master_monitor_proxy::type_id::create("apb_master_mon_proxy_h",this);
-
   if(apb_master_agent_cfg_h.has_coverage) begin
     apb_master_cov_h = apb_master_coverage::type_id::create("apb_master_cov_h",this);
   end
-
   apb_reg_adapter_h = apb_master_adapter::type_id::create("apb_reg_adapter_h"); 
 endfunction : build_phase
 

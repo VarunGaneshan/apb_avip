@@ -312,14 +312,14 @@ function void apb_scoreboard::compare_trans(apb_master_tx m_tx, apb_slave_tx s_t
     end
 
     `uvm_info(get_type_name(),
-      "-- --------------------------------- END OF WRITE COMPARISONS ---------------------------------",
+      "----------------------------------- END OF WRITE COMPARISONS ---------------------------------",
       UVM_NONE)
 
   end
   else if (m_tx.pwrite == 0) begin
     // READ Transaction Comparison
     `uvm_info(get_type_name(),
-      "-- --------------------------------- APB SCOREBOARD COMPARISONS [READ] ---------------------------------",
+      "----------------------------------- APB SCOREBOARD COMPARISONS [READ] ---------------------------------",
       UVM_HIGH)
 
     if (m_tx.paddr == s_tx.paddr) begin
