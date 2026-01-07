@@ -98,9 +98,11 @@ endfunction : end_of_elaboration_phase
 task apb_master_driver_proxy::run_phase(uvm_phase phase);
   
   //wait for system reset
+  $write("MASTER_ID %0d", apb_master_agent_cfg_h.master_id);
   apb_master_drv_bfm_h.wait_for_preset_n();
 
   //Drive the idle state for APB interface
+  $write("MASTER_ID %0d", apb_master_agent_cfg_h.master_id);
   apb_master_drv_bfm_h.drive_idle_state();
 
   forever begin

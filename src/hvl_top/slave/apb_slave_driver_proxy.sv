@@ -97,13 +97,15 @@ endfunction : end_of_elaboration_phase
 task apb_slave_driver_proxy::run_phase(uvm_phase phase);
   
   //wait for system reset
+  $write("SLAVE_ID %0d", apb_slave_agent_cfg_h.slave_id);
   apb_slave_drv_bfm_h.wait_for_preset_n();
 
   forever begin
     apb_transfer_char_s struct_packet;
     apb_transfer_cfg_s struct_cfg;
 
-    apb_slave_drv_bfm_h.wait_for_setup_state(struct_packet);
+    $write("SLAVE_ID %0d", apb_slave_agent_cfg_h.slave_id);
+    apb_slave_drv_bfm_h.wait_for_setup_state(struct_packet, apb_slave_agent_cfg_h.slave_id);
     `uvm_info("DEBUG_MSHA", $sformatf("AFTER WAIT FOR SETUP STATE- STRUCT :: %p", struct_packet), UVM_HIGH); 
   
     
@@ -126,7 +128,7 @@ task apb_slave_driver_proxy::run_phase(uvm_phase phase);
       `uvm_info("DEBUG_NA", $sformatf("before wait for access state- struct :: %p", struct_packet), UVM_HIGH); 
       
       //drive the converted data packets to the slave driver bfm
-      apb_slave_drv_bfm_h.wait_for_access_state(struct_packet);
+      apb_slave_drv_bfm_h.wait_for_access_state(struct_packet, apb_slave_agent_cfg_h.slave_id);
   
       //converting the struct data items into transcations 
       apb_slave_seq_item_converter::to_class(struct_packet, req);
@@ -139,7 +141,7 @@ task apb_slave_driver_proxy::run_phase(uvm_phase phase);
       `uvm_info("DEBUG_NA", $sformatf("before wait for access state- inside else prdata :: %0h", struct_packet.prdata), UVM_HIGH); 
        
       //drive the converted data packets to the slave driver bfm
-      apb_slave_drv_bfm_h.wait_for_access_state(struct_packet);
+      apb_slave_drv_bfm_h.wait_for_access_state(struct_packet, apb_slave_agent_cfg_h.slave_id);
 
 
      if(struct_packet.pwrite == WRITE)begin

@@ -82,7 +82,7 @@ endfunction : end_of_elaboration_phase
 task apb_slave_monitor_proxy::run_phase(uvm_phase phase);
   apb_slave_tx apb_slave_packet;
   
-  `uvm_info(get_type_name(), $sformatf("Inside the slave_monitor_proxy"), UVM_LOW);
+  `uvm_info(get_type_name(), $sformatf("SLAVE_ID %0d Inside the slave_monitor_proxy", apb_slave_agent_cfg_h.slave_id), UVM_LOW);
   apb_slave_packet = apb_slave_tx::type_id::create("slave_packet");
   
   apb_slave_mon_bfm_h.wait_for_preset_n();
@@ -93,7 +93,7 @@ task apb_slave_monitor_proxy::run_phase(uvm_phase phase);
     apb_slave_tx         apb_slave_clone_packet;
     
     apb_slave_cfg_converter :: from_class (apb_slave_agent_cfg_h, struct_cfg_packet);
-    apb_slave_mon_bfm_h.sample_data (struct_data_packet, struct_cfg_packet);
+    apb_slave_mon_bfm_h.sample_data (struct_data_packet, struct_cfg_packet, apb_slave_agent_cfg_h.slave_id);
     apb_slave_seq_item_converter :: to_class(struct_data_packet, apb_slave_packet);
 
  $display("SET UP STATE");
