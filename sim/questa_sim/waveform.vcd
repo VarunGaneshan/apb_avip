@@ -1,5 +1,5 @@
 $date
-	Tue Jan  6 01:24:41 2026
+	Wed Jan  7 01:31:57 2026
 $end
 $version
 	QuestaSim Version 10.6c
@@ -12,7 +12,7 @@ $scope module hdl_top $end
 $var reg 1 ! pclk $end
 $var reg 1 " preset_n $end
 
-$scope begin apb_slave_agent_bfm[4] $end
+$scope begin apb_slave_agent_bfm[1] $end
 $var parameter 32 # i $end
 
 $scope module apb_slave_agent_bfm_h $end
@@ -20,7 +20,7 @@ $var parameter 32 $ SLAVE_ID $end
 $upscope $end
 $upscope $end
 
-$scope begin apb_slave_agent_bfm[3] $end
+$scope begin apb_slave_agent_bfm[0] $end
 $var parameter 32 % i $end
 
 $scope module apb_slave_agent_bfm_h $end
@@ -28,113 +28,38 @@ $var parameter 32 & SLAVE_ID $end
 $upscope $end
 $upscope $end
 
-$scope begin apb_slave_agent_bfm[2] $end
-$var parameter 32 ' i $end
-
-$scope module apb_slave_agent_bfm_h $end
-$var parameter 32 ( SLAVE_ID $end
-$upscope $end
-$upscope $end
-
-$scope begin apb_slave_agent_bfm[1] $end
-$var parameter 32 ) i $end
-
-$scope module apb_slave_agent_bfm_h $end
-$var parameter 32 * SLAVE_ID $end
-$upscope $end
-$upscope $end
-
-$scope begin apb_slave_agent_bfm[0] $end
-$var parameter 32 + i $end
-
-$scope module apb_slave_agent_bfm_h $end
-$var parameter 32 , SLAVE_ID $end
-$upscope $end
-$upscope $end
-
-$scope begin apb_master_agent_bfm[4] $end
-$var parameter 32 - j $end
-
-$scope module apb_master_agent_bfm_h $end
-$var parameter 32 . MASTER_ID $end
-$var parameter 32 / ID $end
-$upscope $end
-$upscope $end
-
-$scope begin apb_master_agent_bfm[3] $end
-$var parameter 32 0 j $end
-
-$scope module apb_master_agent_bfm_h $end
-$var parameter 32 1 MASTER_ID $end
-$var parameter 32 2 ID $end
-$upscope $end
-$upscope $end
-
-$scope begin apb_master_agent_bfm[2] $end
-$var parameter 32 3 j $end
-
-$scope module apb_master_agent_bfm_h $end
-$var parameter 32 4 MASTER_ID $end
-$var parameter 32 5 ID $end
-$upscope $end
-$upscope $end
-
 $scope begin apb_master_agent_bfm[1] $end
-$var parameter 32 6 j $end
+$var parameter 32 ' j $end
 
 $scope module apb_master_agent_bfm_h $end
-$var parameter 32 7 MASTER_ID $end
-$var parameter 32 8 ID $end
+$var parameter 32 ( MASTER_ID $end
+$var parameter 32 ) ID $end
 $upscope $end
 $upscope $end
 
 $scope begin apb_master_agent_bfm[0] $end
-$var parameter 32 9 j $end
+$var parameter 32 * j $end
 
 $scope module apb_master_agent_bfm_h $end
-$var parameter 32 : MASTER_ID $end
-$var parameter 32 ; ID $end
+$var parameter 32 + MASTER_ID $end
+$var parameter 32 , ID $end
 $upscope $end
-$upscope $end
-
-$scope begin genblk2[4] $end
-$var parameter 32 < j $end
-$upscope $end
-
-$scope begin genblk2[3] $end
-$var parameter 32 = j $end
-$upscope $end
-
-$scope begin genblk2[2] $end
-$var parameter 32 > j $end
 $upscope $end
 
 $scope begin genblk2[1] $end
-$var parameter 32 ? j $end
+$var parameter 32 - j $end
 $upscope $end
 
 $scope begin genblk2[0] $end
-$var parameter 32 @ j $end
-$upscope $end
-
-$scope begin genblk1[4] $end
-$var parameter 32 A i $end
-$upscope $end
-
-$scope begin genblk1[3] $end
-$var parameter 32 B i $end
-$upscope $end
-
-$scope begin genblk1[2] $end
-$var parameter 32 C i $end
+$var parameter 32 . j $end
 $upscope $end
 
 $scope begin genblk1[1] $end
-$var parameter 32 D i $end
+$var parameter 32 / i $end
 $upscope $end
 
 $scope begin genblk1[0] $end
-$var parameter 32 E i $end
+$var parameter 32 0 i $end
 $upscope $end
 
 $scope begin <genblk#246573824#71#7> $end
@@ -148,41 +73,20 @@ $enddefinitions $end
 $dumpvars
 0!
 1"
-b0 E
-b1 D
-b10 C
-b11 B
-b100 A
-b0 @
-b1 ?
-b10 >
-b11 =
-b100 <
-b0 9
-b0 :
-b0 ;
-b1 6
-b1 7
-b1 8
-b10 3
-b10 4
-b10 5
-b11 0
-b11 1
-b11 2
-b100 -
-b100 .
-b100 /
+b0 0
+b1 /
+b0 .
+b1 -
+b0 *
 b0 +
 b0 ,
+b1 '
+b1 (
 b1 )
-b1 *
-b10 '
-b10 (
-b11 %
-b11 &
-b100 #
-b100 $
+b0 %
+b0 &
+b1 #
+b1 $
 $end
 #10
 1!

@@ -98,6 +98,7 @@ task apb_slave_monitor_proxy::run_phase(uvm_phase phase);
 
  $display("SET UP STATE");
   `uvm_info(get_type_name(),$sformatf("Received packet from SLAVE_MONITOR_BFM: , \n %s", apb_slave_packet.sprint()),UVM_MEDIUM)
+  $display("strb value = %0d", apb_slave_packet.pstrb);
 
     // Clone and publish the cloned item to the subscribers
     $cast(apb_slave_clone_packet, apb_slave_packet.clone());

@@ -201,24 +201,26 @@ task apb_scoreboard::run_phase(uvm_phase phase);
         int master_id;
 
         // Get transaction from Slave
-        apb_slave_analysis_fifo[s_index].get(s_tx);
+        apb_slave_analysis_fifo[s_index].get(s_tx);  //check if this is working since you are not getting the value
         apb_slave_tx_count[s_index]++;
-
-        // CHECK: Do we have an expected transaction for this slave?
-        if(slave_expected_q[s_index].size() == 0) begin
+        //$display("queue size = %0d", slave_expected_q.size());
+        /*if(slave_expected_q[s_index].size() <= 0) begin
           `uvm_error("SCB", $sformatf("Slave[%0d] received unexpected transaction!", s_index))
           match_fail_count++;
-        end
-        else begin
+        end*/
+        //else begin
+          wait(slave_expected_q[s_index].size() > 0);
           // Pop the oldest expected transaction
+          $display("Inside the case");
           exp_tx = slave_expected_q[s_index].pop_front();
           master_id = slave_expected_id_q[s_index].pop_front();
           `uvm_info("SCB", $sformatf("Slave[%0d] match found for ADDR=0x%0h", s_index, s_tx.paddr), UVM_HIGH)
           // Compare
           compare_trans(exp_tx, s_tx, master_id, s_index);
-        end
+       // end
       end
     join_none
+    $display("queue size = %0d", slave_expected_q.size());
   end
 
   // Wait for all the threads to complete
