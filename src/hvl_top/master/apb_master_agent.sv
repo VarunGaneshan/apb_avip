@@ -70,19 +70,13 @@ function void apb_master_agent::build_phase(uvm_phase phase);
 				static int count;
   super.build_phase(phase);
 	
-	//if(!uvm_config_db #(int)::get(this,"","master_id",master_id)) begin
-	//  `uvm_fatal("FATAL_MA_AGENT_INDEX", "cannot get master_id from uvm_config_db");
-	//end
-
-// Get the configuration set in the apb_base_test 
+   // Get the configuration set in the apb_base_test 
   if(!uvm_config_db #(apb_master_agent_config)::get(this,"",$sformatf("apb_master_agent_config_%0d",master_id), apb_master_agent_cfg_h)) begin
     `uvm_fatal("FATAL_MA_CANNOT_GET_APB_MASTER_AGENT_CONFIG", "cannot get apb_master_agent_cfg_h from uvm_config_db");
   end
 
   name = $sformatf("apb_master_agent_%0d",master_count);
 		
-				$display("\n\ncount = %0d | GOT ID FOR MASTER AGENT = %0d\n\n",master_count,apb_master_agent_cfg_h.master_id);
-
   if(apb_master_agent_cfg_h.is_active == UVM_ACTIVE) begin
     apb_master_drv_proxy_h=apb_master_driver_proxy::type_id::create("apb_master_drv_proxy_h",this);
     apb_master_seqr_h=apb_master_sequencer::type_id::create("apb_master_seqr_h",this);

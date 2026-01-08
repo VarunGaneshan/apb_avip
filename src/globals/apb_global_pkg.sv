@@ -175,7 +175,17 @@ package apb_global_pkg;
     int slave_id;
   }apb_transfer_cfg_s;
 
+	
+  //-------------------------------------------------------
+  // Struct : slave addr
+	// This struct stores the min and max address for the slaves 
+  //-------------------------------------------------------
+  typedef struct{
+    int min_addr[NO_OF_SLAVES];
+	  int max_addr[NO_OF_SLAVES];
+	}slave_addr_s;
 
+	static slave_addr_s slave_addr;
 endpackage : apb_global_pkg
 
 `endif

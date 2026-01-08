@@ -15,7 +15,6 @@ class apb_master_base_seq extends uvm_sequence#(apb_master_tx);
   //-------------------------------------------------------
   extern function new(string name = "apb_master_base_seq");
   extern task body();
-
 endclass : apb_master_base_seq
 
 //--------------------------------------------------------------------------------------------
