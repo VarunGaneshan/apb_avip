@@ -184,8 +184,18 @@ package apb_global_pkg;
     int min_addr[NO_OF_SLAVES];
 	  int max_addr[NO_OF_SLAVES];
 	}slave_addr_s;
-
 	static slave_addr_s slave_addr;
+
+  //-------------------------------------------------------
+  // Struct : master_addr
+	// This struct stores the min and max address for the masters 
+  //-------------------------------------------------------
+  typedef struct{
+    int min_addr[NO_OF_MASTERS];
+	  int max_addr[NO_OF_MASTERS];
+	}master_addr_s;
+	static master_addr_s master_addr;
+
 endpackage : apb_global_pkg
 
 `endif

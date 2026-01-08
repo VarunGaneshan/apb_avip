@@ -65,8 +65,7 @@ task apb_virtual_8b_write_seq::body();
   fork
     begin
       foreach(apb_master_8b_write_seq_h[i]) begin
-				if(!apb_master_8b_write_seq_h[i].randomize() with { address_seq inside {[slave_addr.min_addr[i]:slave_addr.max_addr[i]]};}) begin
-				//if(!apb_master_8b_write_seq_h[i].randomize() with { address_seq == 32'd1000;}) begin
+				if(!apb_master_8b_write_seq_h[i].randomize() with { address_seq inside {[master_addr.min_addr[i]:master_addr.max_addr[i]]};}) begin
           `uvm_error(get_type_name(), $sformatf("Randomization failed for master %0d", i))
         end
       end
