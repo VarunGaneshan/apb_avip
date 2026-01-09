@@ -17,7 +17,7 @@ class apb_8b_write_test extends apb_base_test;
   //-------------------------------------------------------
   extern function new(string name = "apb_8b_write_test", uvm_component parent = null);
   extern virtual task run_phase(uvm_phase phase);
-
+  
 endclass : apb_8b_write_test
 
 //--------------------------------------------------------------------------------------------
@@ -31,6 +31,8 @@ function apb_8b_write_test::new(string name = "apb_8b_write_test", uvm_component
   super.new(name, parent);
 endfunction : new
 
+
+
 //--------------------------------------------------------------------------------------------
 // Task: run_phase
 //  Creates the apb_virtual_8b_seq sequnce and starts the 8b virtual sequences
@@ -39,13 +41,6 @@ endfunction : new
 //  phase - uvm phase
 //--------------------------------------------------------------------------------------------
 task apb_8b_write_test::run_phase(uvm_phase phase);
-
-  int num_of_master_sm_slave = $urandom_range(0,NO_OF_MASTERS);
-	$display("Number of masters trying to access the same slave is = %0d", num_of_master_sm_slave);
-	if(num_of_master_sm_slave <= NO_OF_MASTERS && num_of_master_sm_slave != 0) begin
-    
-
-	end
 
   apb_virtual_8b_seq_h = apb_virtual_8b_write_seq::type_id::create("apb_virtual_8b_seq_h");
   `uvm_info(get_type_name(),$sformatf("apb_8b_write_test"),UVM_LOW);

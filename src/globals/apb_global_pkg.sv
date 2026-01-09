@@ -10,11 +10,15 @@ package apb_global_pkg;
 
   //Parameter : NO_OF_SLAVES
   //Used to set number of slaves required
-  parameter int NO_OF_SLAVES = 4;
+  parameter int NO_OF_SLAVES = 13;
 
 	//Parameter : NO_OF_MASTERS
 	//Used to set number of masters required
-	parameter int NO_OF_MASTERS = 4;
+	parameter int NO_OF_MASTERS = 13;
+
+	//Parameter : MULTIPLE_MASTER_TO_SAME_SLAVE
+	//Used to set number of masters access the same slave
+	parameter bit MULTIPLE_MASTER_TO_SAME_SLAVE = 1;
 
 	//Parameter : HAS_SCOREBOARD
 	//Used to set the scoreboard if required
