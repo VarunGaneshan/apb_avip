@@ -1,0 +1,6 @@
+# apb_stream_8_8_8_test list for APB AVIP
+
+# Write-Read Tests
+apb_8b_write_read_test
+apb_8b_write_read_test
+apb_8b_write_read_test
