@@ -45,7 +45,7 @@ task apb_master_32b_write_seq::body();
   start_item(req);
   if(!req.randomize() with {pselx == SLAVE_0;
                             paddr == address_seq;
-                            //transfer_size == BIT_32;
+                            transfer_size == BIT_32;
                             cont_write_read == cont_write_read_seq;
                             pwrite == WRITE;}) begin
     `uvm_fatal("APB","Rand failed in master sequence");

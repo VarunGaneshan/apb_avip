@@ -93,7 +93,7 @@
                               else if(transfer_size == BIT_24)
                                   pstrb == 7;
                               else 
-                                  pstrb == 16;
+                                  pstrb == 15;
                              }
 
 endclass : apb_master_tx
