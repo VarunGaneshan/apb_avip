@@ -43,7 +43,7 @@ task apb_master_8b_write_seq::body();
   req=apb_master_tx::type_id::create("req");
   req.apb_master_agent_cfg_h = p_sequencer.apb_master_agent_cfg_h;
   start_item(req);
-  if(!req.randomize() with {pselx == SLAVE_0;	// If uncommented gives randomization failure
+  if(!req.randomize() with {pselx == SLAVE_0;
                             paddr == address_seq;
                             transfer_size == BIT_8;
                             cont_write_read == cont_write_read_seq;
@@ -53,8 +53,6 @@ task apb_master_8b_write_seq::body();
   req.paddr = address_seq;
   req.print();
   finish_item(req);
- 
 endtask : body
 
 `endif
-

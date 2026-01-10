@@ -30,15 +30,28 @@ package apb_test_pkg;
 	`include "apb_report_server.sv"
   `include "apb_base_test.sv"
   `include "apb_vd_vws_test.sv"
+
   `include "apb_8b_write_test.sv"
-  `include "apb_8b_write_read_test.sv"
-  `include "apb_16b_write_test.sv"
-  `include "apb_24b_write_test.sv"
   `include "apb_8b_read_test.sv"
+  `include "apb_8b_write_read_test.sv"
+
+  `include "apb_16b_write_test.sv"
+  //`include "apb_16b_read_test.sv"
+  //`include "apb_16b_write_read_test.sv"
+
+  `include "apb_24b_write_test.sv"
+  //`include "apb_24b_read_test.sv"
+  //`include "apb_24b_write_read_test.sv"
+
   `include "apb_32b_write_test.sv"
+  `include "apb_32b_read_test.sv"
+  //`include "apb_32b_write_read_test.sv"
+	
+
+	// To be deleted as not in use
   //`include "apb_32b_write_multiple_slave_test.sv"
- // `include "apb_virtual_32b_write_multiple_master_multiple_slave_test.sv"
-//  `include "apb_virtual_32b_write_multiple_master_same_slave_test.sv"
+ 	//`include "apb_virtual_32b_write_multiple_master_multiple_slave_test.sv"
+	//`include "apb_virtual_32b_write_multiple_master_same_slave_test.sv"
 
 endpackage : apb_test_pkg
 

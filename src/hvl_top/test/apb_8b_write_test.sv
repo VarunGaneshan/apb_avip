@@ -51,4 +51,3 @@ task apb_8b_write_test::run_phase(uvm_phase phase);
 endtask : run_phase
 
 `endif
-

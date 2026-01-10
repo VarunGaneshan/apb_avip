@@ -19,12 +19,20 @@ package apb_slave_seq_pkg;
   // Including required apb slave seq files
   //-------------------------------------------------------
   `include "apb_slave_base_seq.sv"
-  `include "apb_slave_16b_write_seq.sv"
-  `include "apb_slave_24b_write_seq.sv"
-  `include "apb_slave_32b_write_seq.sv"
-  `include "apb_slave_8b_read_seq.sv"
-  `include "apb_slave_8b_write_read_seq.sv"
+
   `include "apb_slave_8b_write_seq.sv"
+  `include "apb_slave_8b_read_seq.sv"
+  //`include "apb_slave_8b_write_read_seq.sv"			Not being used
+
+  `include "apb_slave_16b_write_seq.sv"
+ 	//`include "apb_slave_16b_read_seq.sv"
+
+  `include "apb_slave_24b_write_seq.sv"
+ 	//`include "apb_slave_24b_read_seq.sv"
+
+  `include "apb_slave_32b_write_seq.sv"
+ 	`include "apb_slave_32b_read_seq.sv"
+
   `include "apb_slave_vd_vws_seq.sv"
 
 endpackage : apb_slave_seq_pkg
