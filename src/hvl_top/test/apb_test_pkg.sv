@@ -46,6 +46,7 @@ package apb_test_pkg;
   `include "apb_32b_write_test.sv"
   `include "apb_32b_read_test.sv"
   `include "apb_32b_write_read_test.sv"
+  `include "apb_error_test.sv"
 
 endpackage : apb_test_pkg
 
