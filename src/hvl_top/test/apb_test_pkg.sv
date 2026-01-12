@@ -40,7 +40,7 @@ package apb_test_pkg;
   //`include "apb_16b_write_read_test.sv"
 
   `include "apb_24b_write_test.sv"
-  //`include "apb_24b_read_test.sv"
+  `include "apb_24b_read_test.sv"
   //`include "apb_24b_write_read_test.sv"
 
   `include "apb_32b_write_test.sv"

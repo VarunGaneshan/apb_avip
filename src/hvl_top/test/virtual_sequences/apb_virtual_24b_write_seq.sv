@@ -10,7 +10,7 @@ class apb_virtual_24b_write_seq extends apb_virtual_base_seq;
 
   //Variable : apb_master_24b_seq_h
   //Instatiation of apb_master_24b_seq handle
-  apb_master_24b_write_seq apb_master_24b_seq_h[];
+  apb_master_24b_write_seq apb_master_24b_write_seq_h[];
 
   //Variable : apb_slave_24b_write_seq_h
   //Instantiation of apb_slave_24b_write_seq handle
@@ -42,11 +42,11 @@ endfunction : new
 task apb_virtual_24b_write_seq::body();
   super.body();
 
-  apb_master_24b_seq_h = new[NO_OF_MASTERS];
+  apb_master_24b_write_seq_h = new[NO_OF_MASTERS];
   apb_slave_24b_write_seq_h = new[NO_OF_SLAVES];
 
-  foreach(apb_master_24b_seq_h[i]) begin
-    apb_master_24b_seq_h[i] = apb_master_24b_write_seq::type_id::create(
+  foreach(apb_master_24b_write_seq_h[i]) begin
+    apb_master_24b_write_seq_h[i] = apb_master_24b_write_seq::type_id::create(
       $sformatf("apb_master_24b_write_seq_h[%0d]", i));
   end
 
@@ -58,23 +58,33 @@ task apb_virtual_24b_write_seq::body();
 
   // Start slave sequences on all slaves in parallel
   foreach(apb_slave_24b_write_seq_h[i]) begin
-    automatic int slave_idx = i;
+    automatic int j = i;
     fork
       forever begin
-        apb_slave_24b_write_seq_h[slave_idx].start(p_sequencer.apb_slave_seqr_h[slave_idx]);
+        apb_slave_24b_write_seq_h[j].start(p_sequencer.apb_slave_seqr_h[j]);
       end
     join_none
   end
 
   // Start master sequences on all masters in parallel
-  foreach(apb_master_24b_seq_h[i]) begin
-    automatic int master_idx = i;
-    fork
-      repeat(2) begin
-        apb_master_24b_seq_h[master_idx].start(p_sequencer.apb_master_seqr_h[master_idx]);
+  fork 
+   begin
+     foreach(apb_master_24b_write_seq_h[i]) begin
+       if(!apb_master_24b_write_seq_h[i].randomize() with { address_seq inside {[master_addr.min_addr[i]:master_addr.max_addr[i]]};}) begin
+            `uvm_error(get_type_name(), $sformatf("Randomization failed for master %0d", i))
+       end 
+     end
+
+    fork 
+      foreach(apb_master_24b_write_seq_h[i]) begin
+        automatic int j = i;
+        apb_master_24b_write_seq_h[j].start(p_sequencer.apb_master_seqr_h[j]);
       end
     join_none
+  wait fork;
   end 
+join
+
  endtask : body
 
 `endif

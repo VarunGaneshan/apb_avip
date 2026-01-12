@@ -29,6 +29,7 @@ package apb_master_seq_pkg;
   `include "apb_master_16b_read_seq.sv"
 
   `include "apb_master_24b_write_seq.sv"
+  `include "apb_master_24b_read_seq.sv"
   `include "apb_master_32b_read_seq.sv"
 
   `include "apb_master_32b_write_seq.sv"
