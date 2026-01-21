@@ -28,7 +28,7 @@ class apb_slave_coverage extends uvm_subscriber#(apb_slave_tx);
 
   PSELX_CP : coverpoint packet.psel {
     option.comment = "no.of slaves used ";
-    bins NO_OF_SLAVES[] = {1};
+    bins TOTAL_SLAVES[] = {1};
   }
 
   PADDR_CP : coverpoint cfg.paddr {
@@ -86,7 +86,6 @@ endfunction : new
 //  t - apb_slave_tx handle
 //-------------------------------------------------------
 function void apb_slave_coverage::write(apb_slave_tx t);
-  `uvm_info(get_type_name(),"APB SLAVE COVERAGE",UVM_LOW);
   apb_slave_covergroup.sample(apb_slave_agent_cfg_h,t);
 endfunction: write
 

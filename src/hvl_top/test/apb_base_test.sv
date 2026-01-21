@@ -22,6 +22,8 @@ class apb_base_test extends uvm_test;
   //Declaring a handle for env_cfg_h
   apb_env_config apb_env_cfg_h;
 
+  string name = "apb_base_test";
+
   //-------------------------------------------------------
   // Externally defined Tasks and Functions
   //-------------------------------------------------------
@@ -73,7 +75,7 @@ endfunction : build_phase
 //--------------------------------------------------------------------------------------------
 function void apb_base_test::setup_apb_env_config();
   apb_env_cfg_h = apb_env_config::type_id::create("apb_env_cfg_h");
-  apb_env_cfg_h.no_of_slaves      = NO_OF_SLAVES;
+  apb_env_cfg_h.no_of_slaves      = TOTAL_SLAVES;
   apb_env_cfg_h.no_of_masters     = NO_OF_MASTERS;
   apb_env_cfg_h.has_scoreboard    = HAS_SCOREBOARD;
   apb_env_cfg_h.has_virtual_seqr  = HAS_VIRTUAL_SEQR;
@@ -96,7 +98,7 @@ function void apb_base_test::setup_apb_env_config();
   setup_apb_slave_agent_config();
 
   uvm_config_db#(apb_env_config)::set(this,"*","apb_env_config",apb_env_cfg_h);
-  `uvm_info(get_type_name(),$sformatf("\nAPB_ENV_CONFIG\n%s",apb_env_cfg_h.sprint()),UVM_LOW);
+  `uvm_info(name,$sformatf("\nAPB_ENV_CONFIG\n%s",apb_env_cfg_h.sprint()),UVM_LOW);
 
 endfunction : setup_apb_env_config
 
@@ -119,11 +121,11 @@ function void apb_base_test::setup_apb_master_agent_config();
   	end
 	end
 
-  apb_env_cfg_h.apb_master_agent_cfg_h[0].no_of_slaves = NO_OF_SLAVES;
+  apb_env_cfg_h.apb_master_agent_cfg_h[0].no_of_slaves = TOTAL_SLAVES;
   apb_env_cfg_h.apb_master_agent_cfg_h[0].has_coverage = 1;
   apb_env_cfg_h.apb_master_agent_cfg_h[0].master_id    = 0;
 
- 	for(int i = 0; i < NO_OF_SLAVES; i++) begin
+ 	for(int i = 0; i < TOTAL_SLAVES; i++) begin
   	if(i == 0) begin
     	apb_env_cfg_h.apb_master_agent_cfg_h[0].master_min_addr_range(i,0);
     	local_min_address = apb_master_agent_config::master_min_addr_range_array[i];
@@ -144,10 +146,8 @@ function void apb_base_test::setup_apb_master_agent_config();
   	end
 	end
 
-  foreach(slave_addr.min_addr[i]) $display("array min = %0d | max = %0d",slave_addr.min_addr[i],slave_addr.max_addr[i]);
-	
-	for(int i = 0; i < NO_OF_SLAVES; i++) begin
-    `uvm_info(get_type_name(),$sformatf("SLAVE[%0d] : min addr = %0d | max_addr = %0d",i,apb_master_agent_config::master_min_addr_range_array[i],apb_master_agent_config::master_max_addr_range_array[i]), UVM_MEDIUM)
+	for(int i = 0; i < TOTAL_SLAVES; i++) begin
+    `uvm_info(name,$sformatf("SLAVE[%0d] : min addr = %0d | max_addr = %0d",i,apb_master_agent_config::master_min_addr_range_array[i],apb_master_agent_config::master_max_addr_range_array[i]), UVM_MEDIUM)
 	end
 
   map_master_to_slave();
@@ -176,7 +176,7 @@ function void apb_base_test::setup_apb_slave_agent_config();
     end
     apb_env_cfg_h.apb_slave_agent_cfg_h[i].has_coverage = 1; 
     uvm_config_db #(apb_slave_agent_config)::set(this,$sformatf("*env*"),$sformatf("apb_slave_agent_config_%0d",i),apb_env_cfg_h.apb_slave_agent_cfg_h[i]);
-   `uvm_info(get_type_name(),$sformatf("\nAPB_SLAVE_CONFIG[%0d]\n%s",i,apb_env_cfg_h.apb_slave_agent_cfg_h[i].sprint()),UVM_LOW);
+   `uvm_info(name,$sformatf("\nAPB_SLAVE_CONFIG[%0d]\n%s",i,apb_env_cfg_h.apb_slave_agent_cfg_h[i].sprint()),UVM_LOW);
   end
 
 endfunction : setup_apb_slave_agent_config
@@ -189,35 +189,49 @@ function void apb_base_test::map_master_to_slave();
   int i, m, slave_idx, target_slave, num, max, masters_to_assign;
   bit master_assigned[NO_OF_MASTERS];
   
+  `uvm_info(name, $sformatf("Mapping %0d master(s) to %0d valid slave(s)", 
+            NO_OF_MASTERS, NO_OF_SLAVES), UVM_LOW)
+
   for(i = 0; i < NO_OF_MASTERS; i++) begin
     master_assigned[i] = 0;
   end
-  
+
   if(!MULTIPLE_MASTER_TO_SAME_SLAVE) begin
+    `uvm_info(name, "Using one-to-one mapping", UVM_LOW)
     for(i = 0; i < NO_OF_MASTERS; i++) begin
       slave_idx = i % NO_OF_SLAVES;
       master_addr.min_addr[i] = slave_addr.min_addr[slave_idx];
       master_addr.max_addr[i] = slave_addr.max_addr[slave_idx];
+      `uvm_info(name, $sformatf("Master[%0d] -> Slave[%0d] (%0d-%0d)",
+                i, slave_idx, slave_addr.min_addr[slave_idx], slave_addr.max_addr[slave_idx]), UVM_LOW)
     end
     return;
   end
+
+  `uvm_info(name, "Using multiple-master-to-same-slave mapping", UVM_LOW)
   
-  max = (NO_OF_MASTERS < NO_OF_SLAVES + 1) ? NO_OF_MASTERS : NO_OF_SLAVES + 1;
+  max = (NO_OF_MASTERS < NO_OF_SLAVES) ? NO_OF_MASTERS : NO_OF_SLAVES;
   num = $urandom_range(2, max);
   target_slave = $urandom_range(0, NO_OF_SLAVES - 1);
   masters_to_assign = NO_OF_MASTERS;
-  
+
+  `uvm_info(name, $sformatf("%0d master(s) will target Slave[%0d]", 
+            num, target_slave), UVM_LOW)
+
   for(i = 0; i < num && masters_to_assign > 0; i++) begin
     do begin
       m = $urandom_range(0, NO_OF_MASTERS - 1);
     end while(master_assigned[m]);
-    
+
     master_addr.min_addr[m] = slave_addr.min_addr[target_slave];
     master_addr.max_addr[m] = slave_addr.max_addr[target_slave];
     master_assigned[m] = 1;
     masters_to_assign--;
+    
+    `uvm_info(name, $sformatf("Master[%0d] -> Slave[%0d] (%0d-%0d)",
+              m, target_slave, slave_addr.min_addr[target_slave], slave_addr.max_addr[target_slave]), UVM_LOW)
   end
-  
+
   for(m = 0; m < NO_OF_MASTERS; m++) begin
     if(!master_assigned[m]) begin
       if(NO_OF_SLAVES > 1) begin
@@ -225,15 +239,26 @@ function void apb_base_test::map_master_to_slave();
           slave_idx = $urandom_range(0, NO_OF_SLAVES - 1);
         end while(slave_idx == target_slave);
       end else begin
-        slave_idx = 0; 
+        slave_idx = 0;
       end
-      
+
       master_addr.min_addr[m] = slave_addr.min_addr[slave_idx];
       master_addr.max_addr[m] = slave_addr.max_addr[slave_idx];
+      master_assigned[m] = 1;
+      
+      `uvm_info(name, $sformatf("Master[%0d] -> Slave[%0d] (%0d-%0d)",
+                m, slave_idx, slave_addr.min_addr[slave_idx], slave_addr.max_addr[slave_idx]), UVM_LOW)
     end
   end
-	
+
+  for(m = 0; m < NO_OF_MASTERS; m++) begin
+    if(master_addr.min_addr[m] == '1 && master_addr.max_addr[m] == '0) begin
+      `uvm_error(name, $sformatf("Master[%0d] mapped to invalid slave!", m))
+    end
+  end
+
 endfunction
+
 
 //--------------------------------------------------------------------------------------------
 // Function: end_of_elaboration_phase

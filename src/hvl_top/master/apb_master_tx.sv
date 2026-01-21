@@ -81,7 +81,7 @@
 
   // c1 and c2 cause randomization failure maybe due to conflict
 
-  constraint pselx_c2 { pselx >0 && pselx < 2**NO_OF_SLAVES; }
+  constraint pselx_c2 { pselx >0 && pselx < 2**TOTAL_SLAVES; }
 
   constraint pwdata_c3 { soft pwdata inside {[0:100]}; }
 
@@ -197,7 +197,7 @@ function void apb_master_tx::post_randomize();
   pselx = SLAVE_2;
 
   // Derive the slave number using the index
-  for(int i=0; i<NO_OF_SLAVES; i++) begin
+  for(int i=0; i<TOTAL_SLAVES; i++) begin
     if(pselx[i]) begin
       index = i;
     end
@@ -214,9 +214,7 @@ function void apb_master_tx::post_randomize();
   paddr =100;		// Why this?
   //Constraint to make pwdata non-zero when pstrb is high for that 8-bit lane
   for(int i=0; i<DATA_WIDTH/8; i++) begin
-    `uvm_info(get_type_name(),$sformatf("MASTER-TX-pstrb[%0d]=%0b",i,pstrb[i]),UVM_HIGH);
     if(pstrb[i]) begin
-      `uvm_info(get_type_name(),$sformatf("MASTER-TX-pstrb[%0d]=%0b",i,pstrb[i]),UVM_HIGH);
       if(!std::randomize(pwdata) with {pwdata[8*i+7 -: 8] != 0;}) begin
         `uvm_fatal("FATAL_STD_RANDOMIZATION_PWDATA", $sformatf("Not able to randomize pwdata"));
       end

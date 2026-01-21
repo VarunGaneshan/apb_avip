@@ -44,7 +44,15 @@ task apb_error_test::run_phase(uvm_phase phase);
   apb_virtual_error_seq_h = apb_virtual_error_seq::type_id::create("apb_virtual_error_seq_h");
   `uvm_info(get_type_name(),$sformatf("apb_error_test"),UVM_LOW);
   
-	num = $urandom_range(0,NO_OF_SLAVES-1);
+  //num = $urandom_range(0,TOTAL_SLAVES-2);
+
+	num = $urandom_range(1, NO_OF_MASTERS);  
+
+	if (NO_OF_SLAVES > 0) begin
+  	num = $urandom_range(1, NO_OF_SLAVES);  
+	end else begin
+	  num = 1;  
+	end
 
 	repeat(num) begin
 	  k = $urandom_range(0,NO_OF_MASTERS);
@@ -53,7 +61,10 @@ task apb_error_test::run_phase(uvm_phase phase);
 	
 	foreach(q[i]) begin
 		master_addr.min_addr[i] = master_addr.max_addr[i];
-		master_addr.min_addr[i] = master_addr.max_addr[i] + SLAVE_MEMORY_GAP;
+		master_addr.max_addr[i] = master_addr.max_addr[i] + SLAVE_MEMORY_GAP;
+	end
+	foreach(master_addr.min_addr[i]) begin
+					$display("ERROR test : master[%0d] to send to slave addr min : %0d | max : %0d",i,master_addr.min_addr[i],master_addr.max_addr[i]);
 	end
 
   phase.raise_objection(this);

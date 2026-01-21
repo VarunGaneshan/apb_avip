@@ -80,6 +80,7 @@ compile:
 	+acc \
 	+cover \
 	+fcover \
+	+nowarnSVCHK \
 	-l apb_compile.log \
 	-f ../apb_compile.f 
 

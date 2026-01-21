@@ -14,7 +14,7 @@ class apb_virtual_32b_read_seq extends apb_virtual_base_seq;
 
   //Variable : apb_slave_32b_write_seq_h
   //Instantiation of apb_master_32b_seq
-  apb_slave_32b_read_seq apb_slave_32b_read_seq_h[NO_OF_SLAVES];
+  apb_slave_32b_read_seq apb_slave_32b_read_seq_h[TOTAL_SLAVES];
 
   //-------------------------------------------------------
   // Externally defined Tasks and Functions

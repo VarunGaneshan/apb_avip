@@ -45,7 +45,7 @@ task apb_virtual_16b_write_seq::body();
   super.body();
   
   apb_master_16b_write_seq_h = new[NO_OF_MASTERS];
-  apb_slave_16b_write_seq_h = new[NO_OF_SLAVES];
+  apb_slave_16b_write_seq_h = new[TOTAL_SLAVES];
 
   foreach(apb_master_16b_write_seq_h[i]) begin
     apb_master_16b_write_seq_h[i] = apb_master_16b_write_seq::type_id::create(

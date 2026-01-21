@@ -56,7 +56,7 @@ interface apb_master_monitor_bfm (input bit pclk,
   // function : get_name
   // gets the master driver id
   //-------------------------------------------------------
-  function get_name(int id);
+  function void get_name(int id);
 		name = $sformatf("APB_MASTER_MONITOR_BFM_%0d",id);
 	endfunction
 

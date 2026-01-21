@@ -6,24 +6,24 @@ interface apb_interconnect
   input  logic preset_n,
 
   apb_if.apbMasterInterconnectMP master_if [NO_OF_MASTERS],
-  apb_if.apbSlaveInterconnectMP  slave_if  [NO_OF_SLAVES]
+  apb_if.apbSlaveInterconnectMP  slave_if  [TOTAL_SLAVES]
 );
   // ----------------------------
   // Bit widths needed to index masters/slaves
   // ----------------------------
   localparam int MID_W = (NO_OF_MASTERS <= 1) ? 1 : $clog2(NO_OF_MASTERS);
-  localparam int SID_W = (NO_OF_SLAVES  <= 1) ? 1 : $clog2(NO_OF_SLAVES);
+  localparam int SID_W = (TOTAL_SLAVES  <= 1) ? 1 : $clog2(TOTAL_SLAVES);
 
   // ----------------------------
   // Extended width to represent invalid slave index
   // ----------------------------
-  localparam int SID_W_EXT = $clog2(NO_OF_SLAVES + 1);
+  localparam int SID_W_EXT = $clog2(TOTAL_SLAVES + 1);
 
   // ----------------------------
   // Invalid slave index - this slave will be used to drive pslverr for invalid addresses
-  // The last slave (index NO_OF_SLAVES-1) is expected to be the "invalid slave agent"
+  // The last slave (index TOTAL_SLAVES-1) is expected to be the "invalid slave agent"
   // ----------------------------
-  localparam int INVALID_SLAVE_IDX = NO_OF_SLAVES - 1;
+  localparam int INVALID_SLAVE_IDX = TOTAL_SLAVES - 1;
 
   // ----------------------------
   // Arbitration scheme selection via plusargs
@@ -69,12 +69,12 @@ interface apb_interconnect
   // ----------------------------
   // Collect slave response signals
   // ----------------------------
-  logic s_pready  [NO_OF_SLAVES];
-  logic [DATA_WIDTH-1:0] s_prdata [NO_OF_SLAVES];
-  logic s_pslverr [NO_OF_SLAVES];
+  logic s_pready  [TOTAL_SLAVES];
+  logic [DATA_WIDTH-1:0] s_prdata [TOTAL_SLAVES];
+  logic s_pslverr [TOTAL_SLAVES];
 
   generate
-    for (s = 0; s < NO_OF_SLAVES; s++) begin
+    for (s = 0; s < TOTAL_SLAVES; s++) begin
       always_comb begin
         s_pready[s]  = slave_if[s].pready;
         s_prdata[s]  = slave_if[s].prdata;
@@ -85,33 +85,31 @@ interface apb_interconnect
 
   // ----------------------------
   // Slave Address Range Calculation
-  // Valid Slaves (0 to NO_OF_SLAVES-2):
+  // Valid Slaves (0 to TOTAL_SLAVES-2):
   //   Slave 0: min = 0, max = 2^SLAVE_MEMORY_SIZE - 1
   //   Slave i: min = prev_max + SLAVE_MEMORY_GAP
   //            max = min + 2^SLAVE_MEMORY_SIZE - 1
-  // Invalid Slave (NO_OF_SLAVES-1): Handles invalid address accesses, drives pslverr
+  // Invalid Slave (TOTAL_SLAVES-1): Handles invalid address accesses, drives pslverr
   // ----------------------------
   localparam longint SLAVE_SIZE = 2**SLAVE_MEMORY_SIZE;
   localparam longint SLAVE_BLOCK = SLAVE_SIZE + SLAVE_MEMORY_GAP;
 
   // Calculate min/max address for each valid slave (invalid slave has no address range)
-  logic [ADDRESS_WIDTH-1:0] slave_min_addr [NO_OF_SLAVES];
-  logic [ADDRESS_WIDTH-1:0] slave_max_addr [NO_OF_SLAVES];
+  logic [ADDRESS_WIDTH-1:0] slave_min_addr [TOTAL_SLAVES];
+  logic [ADDRESS_WIDTH-1:0] slave_max_addr [TOTAL_SLAVES];
 
   initial begin
-    // Configure address ranges for valid slaves only (0 to NO_OF_SLAVES-2)
-    for (int i = 0; i < NO_OF_SLAVES - 1; i++) begin
+    for (int i = 0; i < TOTAL_SLAVES - 1; i++) begin
       if (i == 0) begin
         slave_min_addr[i] = '0;
         slave_max_addr[i] = SLAVE_SIZE - 1;
       end else begin
-        slave_min_addr[i] = slave_max_addr[i-1] + SLAVE_MEMORY_GAP + 1;
+        slave_min_addr[i] = slave_max_addr[i-1] + SLAVE_MEMORY_GAP;
         slave_max_addr[i] = slave_min_addr[i] + SLAVE_SIZE - 1;
       end
-      $display("[APB_INTERCONNECT] Slave[%0d] Address Range: 0x%0h - 0x%0h",
+      $display("[APB_INTERCONNECT] Slave[%0d] Address Range: %0d - %0d",
                i, slave_min_addr[i], slave_max_addr[i]);
     end
-    // Invalid slave has no valid address range
     slave_min_addr[INVALID_SLAVE_IDX] = '1; // Set to max value (will never match)
     slave_max_addr[INVALID_SLAVE_IDX] = '0; // Set to 0 (invalid range)
     $display("[APB_INTERCONNECT] Slave[%0d] is INVALID SLAVE (handles address decode errors, drives pslverr)",
@@ -120,13 +118,13 @@ interface apb_interconnect
 
   // ----------------------------
   // Address decode: Returns slave index based on address range
-  // Returns NO_OF_SLAVES (invalid marker) if address doesn't match any valid slave
+  // Returns TOTAL_SLAVES (invalid marker) if address doesn't match any valid slave
   // Uses extended width (SID_W_EXT) to avoid truncation of invalid index
   // ----------------------------
   function automatic logic [SID_W_EXT-1:0] decode_slave(input logic [ADDRESS_WIDTH-1:0] addr);
-    decode_slave = SID_W_EXT'(NO_OF_SLAVES); // Default: no match (invalid - maps to invalid slave)
-    // Only check valid slaves (0 to NO_OF_SLAVES-2), slave NO_OF_SLAVES-1 is the invalid slave
-    for (int i = 0; i < NO_OF_SLAVES - 1; i++) begin
+    decode_slave = SID_W_EXT'(TOTAL_SLAVES); // Default: no match (invalid - maps to invalid slave)
+    // Only check valid slaves (0 to TOTAL_SLAVES-2), slave TOTAL_SLAVES-1 is the invalid slave
+    for (int i = 0; i < TOTAL_SLAVES - 1; i++) begin
       if (addr >= slave_min_addr[i] && addr <= slave_max_addr[i]) begin
         decode_slave = SID_W_EXT'(i);
         break;
@@ -136,7 +134,7 @@ interface apb_interconnect
 
   // Check if address is invalid (doesn't match any valid slave)
   function automatic logic is_invalid_addr(input logic [ADDRESS_WIDTH-1:0] addr);
-    is_invalid_addr = (decode_slave(addr) == SID_W_EXT'(NO_OF_SLAVES));
+    is_invalid_addr = (decode_slave(addr) == SID_W_EXT'(TOTAL_SLAVES));
   endfunction
 
   // ----------------------------
@@ -144,18 +142,16 @@ interface apb_interconnect
   // Valid slaves get requests based on address decode
   // Invalid slave (INVALID_SLAVE_IDX) gets requests for invalid addresses
   // ----------------------------
-  logic [NO_OF_MASTERS-1:0] req [NO_OF_SLAVES];
-  logic [NO_OF_MASTERS-1:0] req_d1 [NO_OF_SLAVES]; // For edge detection
+  logic [NO_OF_MASTERS-1:0] req [TOTAL_SLAVES];
+  logic [NO_OF_MASTERS-1:0] req_d1 [TOTAL_SLAVES]; // For detection
 
   generate
-    for (s = 0; s < NO_OF_SLAVES; s++) begin : G_REQ
+    for (s = 0; s < TOTAL_SLAVES; s++) begin : G_REQ
       for (m = 0; m < NO_OF_MASTERS; m++) begin : G_REQM
         always_comb begin
           if (s == INVALID_SLAVE_IDX) begin
-            // Invalid slave receives requests for addresses that don't match any valid slave
             req[s][m] = (m_psel[m] && !m_penable[m]) && is_invalid_addr(m_paddr[m]);
           end else begin
-            // Valid slaves receive requests based on address decode
             req[s][m] = (m_psel[m] && !m_penable[m]) && (decode_slave(m_paddr[m]) == SID_W_EXT'(s));
           end
         end
@@ -163,28 +159,25 @@ interface apb_interconnect
     end
   endgenerate
 
-  // Edge detection for request changes
   always_ff @(posedge pclk or negedge preset_n) begin
     if (!preset_n) begin
-      for (int s = 0; s < NO_OF_SLAVES; s++) begin
+      for (int s = 0; s < TOTAL_SLAVES; s++) begin
         req_d1[s] <= '0;
       end
     end else begin
-      for (int s = 0; s < NO_OF_SLAVES; s++) begin
+      for (int s = 0; s < TOTAL_SLAVES; s++) begin
         req_d1[s] <= req[s];
         
         for (int m = 0; m < NO_OF_MASTERS; m++) begin
-          // Rising edge detection
           if (req[s][m] && !req_d1[s][m]) begin
             if (s == INVALID_SLAVE_IDX) begin
-              $display("[%0t] APB_INTERCONNECT: M%0d requests INVALID_SLAVE[%0d] (Invalid Addr=0x%0h)", 
+              $display("[%0t] APB_INTERCONNECT: M%0d requests INVALID_SLAVE[%0d] (Invalid Addr=%0d)", 
                        $time, m, s, m_paddr[m]);
             end else begin
-              $display("[%0t] APB_INTERCONNECT: M%0d requests Slave[%0d] (Addr=0x%0h, Write=%0d)", 
+              $display("[%0t] APB_INTERCONNECT: M%0d requests Slave[%0d] (Addr=%0d, Write=%0d)", 
                        $time, m, s, m_paddr[m], m_pwrite[m]);
             end
           end
-          // Falling edge detection
           else if (!req[s][m] && req_d1[s][m]) begin
             $display("[%0t] APB_INTERCONNECT: M%0d cancels request to Slave[%0d]", 
                      $time, m, s);
@@ -197,10 +190,10 @@ interface apb_interconnect
   // ----------------------------
   // Per-slave ownership + RR pointer
   // ----------------------------
-  logic                 slave_busy   [NO_OF_SLAVES];
-  logic [MID_W-1:0]     owner        [NO_OF_SLAVES];
-  logic [MID_W-1:0]     rr_ptr       [NO_OF_SLAVES];
-  logic [NO_OF_MASTERS-1:0] grant    [NO_OF_SLAVES];
+  logic                 slave_busy   [TOTAL_SLAVES];
+  logic [MID_W-1:0]     owner        [TOTAL_SLAVES];
+  logic [MID_W-1:0]     rr_ptr       [TOTAL_SLAVES];
+  logic [NO_OF_MASTERS-1:0] grant    [TOTAL_SLAVES];
 
   // A transfer completes when owner has ACCESS and slave is ready
   function automatic logic xfer_done(input int sid);
@@ -213,7 +206,7 @@ interface apb_interconnect
 
   // RR pointer update + busy/owner update
   generate
-    for (s = 0; s < NO_OF_SLAVES; s++) begin : G_OWN
+    for (s = 0; s < TOTAL_SLAVES; s++) begin : G_OWN
       always_ff @(posedge pclk or negedge preset_n) begin
         if (!preset_n) begin
           rr_ptr[s]     <= '0;
@@ -221,21 +214,19 @@ interface apb_interconnect
           slave_busy[s] <= 1'b0;
           $display("[%0t] APB_INTERCONNECT: RESET - Slave[%0d] idle", $time, s);
         end else begin
-          // release when transfer completes
           if (xfer_done(s)) begin
             slave_busy[s] <= 1'b0;
             $display("[%0t] APB_INTERCONNECT: Slave[%0d] transfer COMPLETE with M%0d, now IDLE", 
                      $time, s, owner[s]);
           end
 
-          // latch new owner when granting and slave not busy
           if (!slave_busy[s] && (|grant[s])) begin
             for (int i = 0; i < NO_OF_MASTERS; i++) begin
               if (grant[s][i]) begin
                 owner[s]      <= MID_W'(i);
                 slave_busy[s] <= 1'b1;
                 rr_ptr[s]     <= MID_W'((i + 1) % NO_OF_MASTERS);
-                $display("[%0t] APB_INTERCONNECT: Slave[%0d] new OWNER=M%0d, Address=0x%0h, Write=%0d", 
+                $display("[%0t] APB_INTERCONNECT: Slave[%0d] new OWNER=M%0d, Address=%0d, Write=%0d", 
                          $time, s, i, m_paddr[i], m_pwrite[i]);
                 $display("[%0t] APB_INTERCONNECT: Slave[%0d] rr_ptr updated to %0d", 
                          $time, s, (i + 1) % NO_OF_MASTERS);
@@ -275,16 +266,13 @@ interface apb_interconnect
     end
   endgenerate
 
-  // Additional display for grant decisions and free slave status
   always_ff @(posedge pclk) begin
-    for (int s = 0; s < NO_OF_SLAVES; s++) begin
-      // Display free slave status with pending requests
+    for (int s = 0; s < TOTAL_SLAVES; s++) begin
       if (!slave_busy[s] && (|req[s])) begin
         $display("[%0t] APB_INTERCONNECT: Slave[%0d] free, Requests: M0=%0d, M1=%0d, M2=%0d, M3=%0d", 
                  $time, s, req[s][0], req[s][1], req[s][2], req[s][3]);
       end
       
-      // Display grant decisions
       for (int m = 0; m < NO_OF_MASTERS; m++) begin
         if (grant[s][m] && !slave_busy[s]) begin
           if (use_fixed_priority) begin
@@ -303,7 +291,7 @@ interface apb_interconnect
   // Drive SLAVE side from current owner
   // ----------------------------
   generate
-    for (s = 0; s < NO_OF_SLAVES; s++) begin : G_SDRV
+    for (s = 0; s < TOTAL_SLAVES; s++) begin : G_SDRV
       logic [MID_W-1:0] sel_m;
 
       always_comb begin
@@ -358,7 +346,7 @@ interface apb_interconnect
         hit = 1'b0;
         sid = '0;
 
-        for (int ss = 0; ss < NO_OF_SLAVES; ss++) begin
+        for (int ss = 0; ss < TOTAL_SLAVES; ss++) begin
           if (slave_busy[ss] && (owner[ss] == MID_W'(m))) begin
             hit = 1'b1;
             sid = SID_W'(ss);
@@ -380,24 +368,21 @@ interface apb_interconnect
       
       // Display master access status
       always_ff @(posedge pclk) begin
-        // Display when master gets access
         if (hit && !hit_d1) begin
           $display("[%0t] APB_INTERCONNECT: M%0d now ACCESSING Slave[%0d]", 
                    $time, m, sid);
         end
         
-        // Display transfer completion
         if (hit && s_pready[sid] && m_penable[m]) begin
           if (m_pwrite[m]) begin
-            $display("[%0t] APB_INTERCONNECT: M%0d WRITE COMPLETE to Slave[%0d] Data=0x%0h", 
+            $display("[%0t] APB_INTERCONNECT: M%0d WRITE COMPLETE to Slave[%0d] Data=%0d", 
                      $time, m, sid, m_pwdata[m]);
           end else begin
-            $display("[%0t] APB_INTERCONNECT: M%0d READ COMPLETE from Slave[%0d] Data=0x%0h", 
+            $display("[%0t] APB_INTERCONNECT: M%0d READ COMPLETE from Slave[%0d] Data=%0d", 
                      $time, m, sid, s_prdata[sid]);
           end
         end
         
-        // Display when master is stalled (waiting)
         if (m_psel[m] && !m_penable[m] && !hit) begin
           $display("[%0t] APB_INTERCONNECT: M%0d STALLED waiting for slave access", 
                    $time, m);
@@ -416,12 +401,12 @@ interface apb_interconnect
     end else begin
       display_counter <= display_counter + 1;
       
-      if (display_counter % 20 == 0) begin  // Display every 20 cycles
+      if (display_counter % 10 == 0) begin  // Display every 20 cycles
         $write("[%0t] APB_INTERCONNECT WAITING STATUS: ", $time);
         for (int m = 0; m < NO_OF_MASTERS; m++) begin
           logic accessing;
           accessing = 1'b0;
-          for (int s = 0; s < NO_OF_SLAVES; s++) begin
+          for (int s = 0; s < TOTAL_SLAVES; s++) begin
             if (slave_busy[s] && (owner[s] == MID_W'(m))) begin
               accessing = 1'b1;
               break;
@@ -439,9 +424,8 @@ interface apb_interconnect
         end
         $display("");
         
-        // Also show slave status
         $write("[%0t] APB_INTERCONNECT SLAVE STATUS: ", $time);
-        for (int s = 0; s < NO_OF_SLAVES; s++) begin
+        for (int s = 0; s < TOTAL_SLAVES; s++) begin
           if (slave_busy[s]) begin
             $write("S%0d[OWNER=M%0d] ", s, owner[s]);
           end else begin
@@ -459,13 +443,12 @@ interface apb_interconnect
   function void display_transaction_status();
     $display("\n[%0t] === APB INTERCONNECT TRANSACTION STATUS ===", $time);
     
-    // Display masters
     $display("MASTERS:");
     for (int m = 0; m < NO_OF_MASTERS; m++) begin
       string state;
       logic accessing;
       accessing = 1'b0;
-      for (int s = 0; s < NO_OF_SLAVES; s++) begin
+      for (int s = 0; s < TOTAL_SLAVES; s++) begin
         if (slave_busy[s] && (owner[s] == MID_W'(m))) begin
           accessing = 1'b1;
           state = $sformatf("ACCESSING Slave[%0d]", s);
@@ -479,18 +462,17 @@ interface apb_interconnect
           state = "IDLE";
         end
       end
-      $display("  M%0d: %s (Addr=0x%0h, Psel=%0d, Penable=%0d)", 
+      $display("  M%0d: %s (Addr=%0d, Psel=%0d, Penable=%0d)", 
                m, state, m_paddr[m], m_psel[m], m_penable[m]);
     end
     
-    // Display slaves
     $display("\nSLAVES:");
-    for (int s = 0; s < NO_OF_SLAVES; s++) begin
+    for (int s = 0; s < TOTAL_SLAVES; s++) begin
       string slave_type;
       if (s == INVALID_SLAVE_IDX) begin
         slave_type = "(INVALID/ERROR)";
       end else begin
-        slave_type = $sformatf("(Valid: 0x%0h-0x%0h)", 
+        slave_type = $sformatf("(Valid: %0d-%0d)", 
                               slave_min_addr[s], slave_max_addr[s]);
       end
       
@@ -500,7 +482,6 @@ interface apb_interconnect
       end else begin
         $display("  Slave[%0d] %s: FREE, rr_ptr=%0d", 
                  s, slave_type, rr_ptr[s]);
-        // Show pending requests
         if (|req[s]) begin
           $write("    Pending requests from: ");
           for (int m = 0; m < NO_OF_MASTERS; m++) begin

@@ -65,7 +65,7 @@ function void apb_scoreboard::build_phase(uvm_phase phase);
   super.build_phase(phase);
 
   apb_master_analysis_fifo = new[NO_OF_MASTERS];
-  apb_slave_analysis_fifo = new[NO_OF_SLAVES];
+  apb_slave_analysis_fifo = new[TOTAL_SLAVES];
 
   foreach (apb_master_analysis_fifo[i]) begin
     apb_master_analysis_fifo[i] = new($sformatf("apb_master_analysis_fifo[%0d]", i), this);
@@ -89,11 +89,11 @@ function void apb_scoreboard::build_phase(uvm_phase phase);
   apb_master_pstrb_fail      = new[NO_OF_MASTERS];
 
   // Allocate per slave arrays
-  apb_slave_tx_count         = new[NO_OF_SLAVES];
-  apb_slave_prdata_pass      = new[NO_OF_SLAVES];
-  apb_slave_prdata_fail      = new[NO_OF_SLAVES];
-  apb_slave_pslverr_pass     = new[NO_OF_SLAVES];
-  apb_slave_pslverr_fail     = new[NO_OF_SLAVES];
+  apb_slave_tx_count         = new[TOTAL_SLAVES];
+  apb_slave_prdata_pass      = new[TOTAL_SLAVES];
+  apb_slave_prdata_fail      = new[TOTAL_SLAVES];
+  apb_slave_pslverr_pass     = new[TOTAL_SLAVES];
+  apb_slave_pslverr_fail     = new[TOTAL_SLAVES];
 
   // Initialize the values
   foreach(apb_master_tx_count[i]) begin
@@ -124,8 +124,8 @@ function void apb_scoreboard::build_phase(uvm_phase phase);
   end
 
   // Get slave addr ranges
-  SLAVE_START_ADDR = new[NO_OF_SLAVES];
-  SLAVE_END_ADDR = new[NO_OF_SLAVES];
+  SLAVE_START_ADDR = new[TOTAL_SLAVES];
+  SLAVE_END_ADDR = new[TOTAL_SLAVES];
 
   foreach(SLAVE_START_ADDR[i]) begin
     SLAVE_START_ADDR[i] = apb_env_cfg_h.apb_slave_agent_cfg_h[i].min_address;
@@ -140,7 +140,7 @@ function void apb_scoreboard::ref_model(apb_master_tx m_tx, int slave_idx);
     for (int i = 0; i < DATA_WIDTH/8; i++) begin
       if (m_tx.pstrb[i]) begin
         mem[slave_idx][m_tx.paddr + i] = m_tx.pwdata[8*i+7 -: 8];
-        $display("DATA IS WRITTEN INTO MEM[SLAVE%0d] at address 0x%0h", slave_idx, m_tx.paddr + i);
+        $display("DATA IS WRITTEN INTO MEM[SLAVE%0d] at address %0d", slave_idx, m_tx.paddr + i);
       end
     end
   end
@@ -175,11 +175,13 @@ task apb_scoreboard::run_phase(uvm_phase phase);
         slave_idx = get_slave_index(m_tx.paddr);
 
         if(slave_idx == -1) begin
-          `uvm_error("SCB", $sformatf("Address 0x%0h does not map to any valid slave", m_tx.paddr))
+          `uvm_error("SCB", $sformatf("Address %0d does not map to any valid slave", m_tx.paddr))
         end
         else begin
           // Update the ref model to predict the prdata
           ref_model(m_tx, slave_idx);
+          $display("SCB_MASTER_TX_PRINT");
+					m_tx.print();
 
           // Push into the specific slave's expected queue
           slave_expected_q[slave_idx].push_back(m_tx);
@@ -214,13 +216,15 @@ task apb_scoreboard::run_phase(uvm_phase phase);
           $display("Inside the case");
           exp_tx = slave_expected_q[s_index].pop_front();
           master_id = slave_expected_id_q[s_index].pop_front();
-          `uvm_info("SCB", $sformatf("Slave[%0d] match found for ADDR=0x%0h", s_index, s_tx.paddr), UVM_HIGH)
+          `uvm_info("SCB", $sformatf("Slave[%0d] match found for ADDR=%0d", s_index, s_tx.paddr), UVM_HIGH)
           // Compare
+					
+          $display("SCB_SLAVE_TX_PRINT");
+					s_tx.print();
           compare_trans(exp_tx, s_tx, master_id, s_index);
        // end
       end
     join_none
-    $display("queue size = %0d", slave_expected_q.size());
   end
 
   // Wait for all the threads to complete
@@ -228,13 +232,13 @@ task apb_scoreboard::run_phase(uvm_phase phase);
 endtask
 
 // Get the specific slave IDs / customize this based on your design spec
-function int apb_scoreboard::get_slave_index(bit [31:0] addr);
-  for(int i = 0; i < NO_OF_SLAVES; i++) begin
+function int apb_scoreboard::get_slave_index(bit [ADDRESS_WIDTH-1:0] addr);
+  for(int i = 0; i < TOTAL_SLAVES; i++) begin
     if(addr >= SLAVE_START_ADDR[i] && addr <= SLAVE_END_ADDR[i]) begin
       return i;
     end
   end
-  `uvm_error(get_type_name(), $sformatf("Address 0x%8h does not map to any slave", addr))
+  `uvm_error(get_type_name(), $sformatf("Address %0d does not map to any slave", addr))
   return -1;
 endfunction
 
@@ -249,26 +253,26 @@ function void apb_scoreboard::compare_trans(apb_master_tx m_tx, apb_slave_tx s_t
     if (m_tx.pwdata == s_tx.pwdata) begin
       `uvm_info(get_type_name(), "APB PWDATA match", UVM_NONE);
       `uvm_info("SB_PWDATA_MATCH",
-        $sformatf("Master PWDATA = 0x%0h Slave PWDATA = 0x%0h", m_tx.pwdata, s_tx.pwdata),
-        UVM_HIGH);
+       $sformatf("Master PWDATA = %0d Slave PWDATA = %0d", m_tx.pwdata, s_tx.pwdata),
+       UVM_HIGH);
       apb_master_pwdata_pass[master_idx]++;
     end
     else begin
       `uvm_error("SB_PWDATA_MISMATCH",
-        $sformatf("Master PWDATA = 0x%0h Slave PWDATA = 0x%0h", m_tx.pwdata, s_tx.pwdata));
+        $sformatf("Master PWDATA = %0d Slave PWDATA = %0d", m_tx.pwdata, s_tx.pwdata));
       apb_master_pwdata_fail[master_idx]++;
     end
 
     if (m_tx.paddr == s_tx.paddr) begin
       `uvm_info(get_type_name(), "APB PADDR match", UVM_HIGH);
       `uvm_info("SB_PADDR_MATCH",
-        $sformatf("Master PADDR = 0x%0h Slave PADDR = 0x%0h", m_tx.paddr, s_tx.paddr),
+        $sformatf("Master PADDR = %0d Slave PADDR = %0d", m_tx.paddr, s_tx.paddr),
         UVM_HIGH);
       apb_master_paddr_pass[master_idx]++;
     end
     else begin
       `uvm_error("SB_PADDR_MISMATCH",
-        $sformatf("Master PADDR = 0x%0h Slave PADDR = 0x%0h", m_tx.paddr, s_tx.paddr));
+        $sformatf("Master PADDR = %0d Slave PADDR = %0d", m_tx.paddr, s_tx.paddr));
       apb_master_paddr_fail[master_idx]++;
     end
 
@@ -324,13 +328,13 @@ function void apb_scoreboard::compare_trans(apb_master_tx m_tx, apb_slave_tx s_t
 
     if (m_tx.paddr == s_tx.paddr) begin
       `uvm_info("SB_PADDR_MATCH",
-        $sformatf("Master PADDR = 0x%0h Slave PADDR = 0x%0h", m_tx.paddr, s_tx.paddr),
+        $sformatf("Master PADDR = %0d Slave PADDR = %0d", m_tx.paddr, s_tx.paddr),
         UVM_HIGH);
       apb_master_paddr_pass[master_idx]++;
     end
     else begin
       `uvm_error("SB_PADDR_MISMATCH",
-        $sformatf("Master PADDR = 0x%0h Slave PADDR = 0x%0h", m_tx.paddr, s_tx.paddr));
+        $sformatf("Master PADDR = %0d Slave PADDR = %0d", m_tx.paddr, s_tx.paddr));
       apb_master_paddr_fail[master_idx]++;
     end
 
@@ -345,13 +349,13 @@ function void apb_scoreboard::compare_trans(apb_master_tx m_tx, apb_slave_tx s_t
 
     if (m_tx.prdata == s_tx.prdata) begin
       `uvm_info("SB_PRDATA_MATCH",
-        $sformatf("Master PRDATA = 0x%0h Slave PRDATA = 0x%0h", m_tx.prdata, s_tx.prdata),
+        $sformatf("Master PRDATA = %0d Slave PRDATA = %0d", m_tx.prdata, s_tx.prdata),
         UVM_HIGH);
       apb_slave_prdata_pass[slave_idx]++;
     end
     else begin
       `uvm_error("SB_PRDATA_MISMATCH",
-        $sformatf("Master PRDATA = 0x%0h Slave PRDATA = 0x%0h", m_tx.prdata, s_tx.prdata));
+        $sformatf("Master PRDATA = %0d Slave PRDATA = %0d", m_tx.prdata, s_tx.prdata));
       apb_slave_prdata_fail[slave_idx]++;
     end
 
@@ -460,7 +464,7 @@ function void apb_scoreboard::check_phase(uvm_phase phase);
   end
 
   // Check per slave comparisons
-  for (int n = 0; n < NO_OF_SLAVES; n++) begin
+  for (int n = 0; n < TOTAL_SLAVES; n++) begin
     `uvm_info(get_type_name(), $sformatf("\n--- Slave[%0d] Checks ---", n), UVM_LOW)
 
     if ((apb_slave_prdata_pass[n] != 0) && (apb_slave_prdata_fail[n] == 0)) begin
@@ -554,7 +558,7 @@ function void apb_scoreboard::report_phase(uvm_phase phase);
   end
 
   // Report per slave statistics
-  for (int j = 0; j < NO_OF_SLAVES; j++) begin
+  for (int j = 0; j < TOTAL_SLAVES; j++) begin
     `uvm_info(get_type_name(),
       $sformatf("\n========== Slave[%0d] Statistics ==========", j),
       UVM_HIGH);

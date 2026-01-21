@@ -16,10 +16,6 @@ module apb_master_agent_bfm #(parameter MASTER_ID = 0)(apb_if intf);
 	parameter ID = MASTER_ID;	
 	
 	string apb_master_agent_id = $sformatf("APB_MASTER_AGENT_BFM_%0d",MASTER_ID);
-
-  initial begin
-    `uvm_info(apb_master_agent_id,$sformatf("APB MASTER AGENT BFM"),UVM_LOW);
-  end
   
   //-------------------------------------------------------
   // master driver bfm instantiation

@@ -21,6 +21,8 @@ class apb_slave_driver_proxy extends uvm_driver#(apb_slave_tx);
   // Handle for apb_slave agent configuration
   apb_slave_agent_config apb_slave_agent_cfg_h;
 
+	string name;
+
   //-------------------------------------------------------
   // Externally defined Tasks and Functions
   //-------------------------------------------------------
@@ -83,6 +85,7 @@ function void apb_slave_driver_proxy::end_of_elaboration_phase(uvm_phase phase);
                                                              apb_slave_drv_bfm_h)) begin
     `uvm_fatal("FATAL_SDP_CANNOT_GET_SLAVE_DRIVER_BFM","cannot get() apb_slave_drv_bfm_h");
   end
+	name = $sformatf("apb_slave_driver_bfm_%0d",apb_slave_agent_cfg_h.slave_id);
   apb_slave_drv_bfm_h.apb_slave_drv_proxy_h = this;
 endfunction : end_of_elaboration_phase
 
@@ -97,27 +100,25 @@ endfunction : end_of_elaboration_phase
 task apb_slave_driver_proxy::run_phase(uvm_phase phase);
   
   //wait for system reset
-  $write("SLAVE_ID %0d", apb_slave_agent_cfg_h.slave_id);
   apb_slave_drv_bfm_h.wait_for_preset_n();
 
   forever begin
     apb_transfer_char_s struct_packet;
     apb_transfer_cfg_s struct_cfg;
 
-    $write("SLAVE_ID %0d", apb_slave_agent_cfg_h.slave_id);
     apb_slave_drv_bfm_h.wait_for_setup_state(struct_packet, apb_slave_agent_cfg_h.slave_id);
-    `uvm_info("DEBUG_MSHA", $sformatf("AFTER WAIT FOR SETUP STATE- STRUCT :: %p", struct_packet), UVM_HIGH); 
+    `uvm_info(name, $sformatf("AFTER WAIT FOR SETUP STATE- STRUCT :: %p", struct_packet), UVM_HIGH); 
   
     
     seq_item_port.get_next_item(req);
     //Printing the req item
-    `uvm_info(get_type_name(), $sformatf("REQ-SLAVE_TX \n %s",req.sprint),UVM_LOW);
+    `uvm_info(name, $sformatf("REQ-SLAVE_TX \n %s",req.sprint),UVM_LOW);
       
     if(req.choose_packet_data) begin
 
-      check_for_pslverr_address_range(struct_packet);
+      //check_for_pslverr_address_range(struct_packet);
       //Printing the req item
-      //`uvm_info(get_type_name(), $sformatf("REQ-SLAVE_TX \n %s",req.sprint),UVM_LOW);
+      //`uvm_info(name, $sformatf("REQ-SLAVE_TX \n %s",req.sprint),UVM_LOW);
   
       //Converting transaction to struct data_packet
       apb_slave_seq_item_converter::from_class(req, struct_packet); 
@@ -125,7 +126,7 @@ task apb_slave_driver_proxy::run_phase(uvm_phase phase);
       //Converting configurations to struct cfg_packet
       apb_slave_cfg_converter::from_class(apb_slave_agent_cfg_h, struct_cfg);
 
-      `uvm_info("DEBUG_NA", $sformatf("before wait for access state- struct :: %p", struct_packet), UVM_HIGH); 
+      `uvm_info(name, $sformatf("before wait for access state- struct :: %p", struct_packet), UVM_HIGH); 
       
       //drive the converted data packets to the slave driver bfm
       apb_slave_drv_bfm_h.wait_for_access_state(struct_packet, apb_slave_agent_cfg_h.slave_id);
@@ -135,10 +136,10 @@ task apb_slave_driver_proxy::run_phase(uvm_phase phase);
 
     end
     else begin
-      check_for_pslverr(struct_packet);
+      // check_for_pslverr(struct_packet);
 
-      `uvm_info("DEBUG_NA", $sformatf("before wait for access state- inside else :: %p", struct_packet), UVM_HIGH); 
-      `uvm_info("DEBUG_NA", $sformatf("before wait for access state- inside else prdata :: %0h", struct_packet.prdata), UVM_HIGH); 
+      `uvm_info(name, $sformatf("before wait for access state- inside else :: %p", struct_packet), UVM_HIGH); 
+      `uvm_info(name, $sformatf("before wait for access state- inside else prdata :: %0h", struct_packet.prdata), UVM_HIGH); 
        
       //drive the converted data packets to the slave driver bfm
       apb_slave_drv_bfm_h.wait_for_access_state(struct_packet, apb_slave_agent_cfg_h.slave_id);
@@ -148,7 +149,7 @@ task apb_slave_driver_proxy::run_phase(uvm_phase phase);
       task_write(struct_packet);
      end
 
-      //`uvm_info("DEBUG_NA", $sformatf("before wait for access state- inside else :: %p", struct_packet), UVM_HIGH); 
+      //`uvm_info(name, $sformatf("before wait for access state- inside else :: %p", struct_packet), UVM_HIGH); 
     end
   
     seq_item_port.item_done();
@@ -164,13 +165,13 @@ endtask : run_phase
 //--------------------------------------------------------------------------------------------
 task apb_slave_driver_proxy::task_write(inout apb_transfer_char_s struct_packet);
   
-  `uvm_info("DEBUG_NA", $sformatf("task_write"), UVM_HIGH); 
+  `uvm_info(name, $sformatf("task_write"), UVM_HIGH); 
   for(int i=0; i<(DATA_WIDTH/8); i++)begin
-    `uvm_info("DEBUG_NA", $sformatf("task_write inside for loop :: %0d", i), UVM_HIGH);
-    `uvm_info("DEBUG_NA", $sformatf("task_write inside for loop pstrb = %0b", struct_packet.pstrb[i]), UVM_HIGH);
+    `uvm_info(name, $sformatf("task_write inside for loop :: %0d", i), UVM_HIGH);
+    `uvm_info(name, $sformatf("task_write inside for loop pstrb = %0b", struct_packet.pstrb[i]), UVM_HIGH);
     if(struct_packet.pstrb[i] == 1)begin
       apb_slave_agent_cfg_h.slave_memory_task(struct_packet.paddr+i,struct_packet.pwdata[8*i+7 -: 8]);
-      `uvm_info("DEBUG_NA", $sformatf("task_write inside for loop data = %0h", 
+      `uvm_info(name, $sformatf("task_write inside for loop data = %0h", 
                                       apb_slave_agent_cfg_h.slave_memory[struct_packet.paddr+i]), UVM_HIGH);
     end
   end
@@ -188,7 +189,7 @@ task apb_slave_driver_proxy::task_read(inout apb_transfer_char_s struct_packet);
   bit memory_exist;
   bit [7:0]local_rdata;
 
-  `uvm_info("DEBUG_NA", $sformatf("task_read"), UVM_HIGH);
+  `uvm_info(name, $sformatf("task_read"), UVM_HIGH);
   for(int i=0; i<(DATA_WIDTH/8); i++)begin
     if(apb_slave_agent_cfg_h.slave_memory.exists(struct_packet.paddr+i))begin
       struct_packet.prdata[8*i+7 -: 8] = apb_slave_agent_cfg_h.slave_memory[struct_packet.paddr + i];
@@ -196,7 +197,7 @@ task apb_slave_driver_proxy::task_read(inout apb_transfer_char_s struct_packet);
     end
   end
    if(memory_exist == 0) begin
-      `uvm_error(get_type_name(), $sformatf("Selected address has no data"));
+      `uvm_error(name, $sformatf("Selected address has no data"));
       struct_packet.pslverr = ERROR;
       struct_packet.prdata  = 'h0;
     end
@@ -213,7 +214,7 @@ endtask : task_read
 //--------------------------------------------------------------------------------------------
 task apb_slave_driver_proxy::check_for_pslverr(inout apb_transfer_char_s struct_packet);
 
-  `uvm_info("DEBUG_NA", $sformatf("AFTER PSLVERR_CHECK_1 struct :: %p", struct_packet), UVM_HIGH);
+  `uvm_info(name, $sformatf("AFTER PSLVERR_CHECK_1 struct :: %p", struct_packet), UVM_HIGH);
   if(struct_packet.paddr inside {[apb_slave_agent_cfg_h.min_address : apb_slave_agent_cfg_h.max_address]}) begin
     struct_packet.pslverr = NO_ERROR;
    
@@ -225,22 +226,22 @@ task apb_slave_driver_proxy::check_for_pslverr(inout apb_transfer_char_s struct_
     struct_packet.pslverr = ERROR;
     struct_packet.prdata  = 'h0;
   end
-  `uvm_info("DEBUG_NA", $sformatf("AFTER PSLVERR_CHECK_2 min_address = %0h, max_address=%0h ",
+  `uvm_info(name, $sformatf("AFTER PSLVERR_CHECK_2 min_address = %0h, max_address=%0h ",
                                   apb_slave_agent_cfg_h.min_address, apb_slave_agent_cfg_h.max_address), UVM_HIGH);
 
-  `uvm_info("DEBUG_NA", $sformatf("AFTER PSLVERR_CHECK_3 struct-paddr :: %0h", struct_packet.paddr), UVM_HIGH);
-  `uvm_info("DEBUG_NA-pslverr", $sformatf("AFTER PSLVERR_CHECK_4 struct :: %p", struct_packet), UVM_HIGH);
+  `uvm_info(name, $sformatf("AFTER PSLVERR_CHECK_3 struct-paddr :: %0h", struct_packet.paddr), UVM_HIGH);
+  `uvm_info(name, $sformatf("AFTER PSLVERR_CHECK_4 struct :: %p", struct_packet), UVM_HIGH);
 
   for(int i=0; i<4; i++) begin
-    `uvm_info("DEBUG_NA", $sformatf("AFTER PSLVERR_CHECK_4A inside for loop :: %0d", i), UVM_HIGH);
+    `uvm_info(name, $sformatf("AFTER PSLVERR_CHECK_4A inside for loop :: %0d", i), UVM_HIGH);
     if(apb_slave_agent_cfg_h.slave_memory.exists(struct_packet.paddr+i)) begin
-      `uvm_info("DEBUG_NA", $sformatf("AFTER PSLVERR_CHECK_4B memory[%0h]=%0h ",struct_packet.paddr,
+      `uvm_info(name, $sformatf("AFTER PSLVERR_CHECK_4B memory[%0h]=%0h ",struct_packet.paddr,
                                       apb_slave_agent_cfg_h.slave_memory[struct_packet.paddr+i]), UVM_HIGH);
     end
 
   //Adding dummy data to check whether read is working or not
   //struct_packet.prdata = 32'hDEADBEEF;
-  `uvm_info("DEBUG_NA-pslverr", $sformatf("AFTER PSLVERR_CHECK_4C struct :: %p", struct_packet), UVM_MEDIUM);
+  `uvm_info(name, $sformatf("AFTER PSLVERR_CHECK_4C struct :: %p", struct_packet), UVM_MEDIUM);
   end
 
 endtask : check_for_pslverr 
@@ -255,7 +256,7 @@ endtask : check_for_pslverr
 //--------------------------------------------------------------------------------------------
 task apb_slave_driver_proxy::check_for_pslverr_address_range(inout apb_transfer_char_s struct_packet);
 
-  `uvm_info("DEBUG_NA", $sformatf("AFTER PSLVERR_CHECK_1 struct :: %p", struct_packet), UVM_HIGH);
+  `uvm_info(name, $sformatf("AFTER PSLVERR_CHECK_1 struct :: %p", struct_packet), UVM_HIGH);
   if(struct_packet.paddr inside {[apb_slave_agent_cfg_h.min_address : apb_slave_agent_cfg_h.max_address]}) begin
     struct_packet.pslverr = NO_ERROR;
    
@@ -267,22 +268,22 @@ task apb_slave_driver_proxy::check_for_pslverr_address_range(inout apb_transfer_
   else begin 
     struct_packet.pslverr = ERROR;
   end
-  `uvm_info("DEBUG_NA", $sformatf("AFTER PSLVERR_CHECK_2 min_address = %0h, max_address=%0h ",
+  `uvm_info(name, $sformatf("AFTER PSLVERR_CHECK_2 min_address = %0h, max_address=%0h ",
                                   apb_slave_agent_cfg_h.min_address, apb_slave_agent_cfg_h.max_address), UVM_HIGH);
 
-  `uvm_info("DEBUG_NA", $sformatf("AFTER PSLVERR_CHECK_3 struct-paddr :: %0h", struct_packet.paddr), UVM_HIGH);
-  `uvm_info("DEBUG_NA-pslverr", $sformatf("AFTER PSLVERR_CHECK_4 struct :: %p", struct_packet), UVM_HIGH);
+  `uvm_info(name, $sformatf("AFTER PSLVERR_CHECK_3 struct-paddr :: %0h", struct_packet.paddr), UVM_HIGH);
+  `uvm_info(name, $sformatf("AFTER PSLVERR_CHECK_4 struct :: %p", struct_packet), UVM_HIGH);
 
   for(int i=0; i<4; i++) begin
-    `uvm_info("DEBUG_NA", $sformatf("AFTER PSLVERR_CHECK_4A inside for loop :: %0d", i), UVM_HIGH);
+    `uvm_info(name, $sformatf("AFTER PSLVERR_CHECK_4A inside for loop :: %0d", i), UVM_HIGH);
     if(apb_slave_agent_cfg_h.slave_memory.exists(struct_packet.paddr+i)) begin
-      `uvm_info("DEBUG_NA", $sformatf("AFTER PSLVERR_CHECK_4B memory[%0h]=%0h ",struct_packet.paddr,
+      `uvm_info(name, $sformatf("AFTER PSLVERR_CHECK_4B memory[%0h]=%0h ",struct_packet.paddr,
                                       apb_slave_agent_cfg_h.slave_memory[struct_packet.paddr+i]), UVM_HIGH);
     end
 
   //Adding dummy data to check whether read is working or not
   //struct_packet.prdata = 32'hDEADBEEF;
-  `uvm_info("DEBUG_NA-pslverr", $sformatf("AFTER PSLVERR_CHECK_4C struct :: %p", struct_packet), UVM_MEDIUM);
+  `uvm_info(name, $sformatf("AFTER PSLVERR_CHECK_4C struct :: %p", struct_packet), UVM_MEDIUM);
   end
 
 endtask : check_for_pslverr_address_range

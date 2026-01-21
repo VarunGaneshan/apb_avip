@@ -22,6 +22,8 @@ class apb_slave_monitor_proxy extends uvm_monitor;
   //Handle for apb slave agent configuration
   apb_slave_agent_config apb_slave_agent_cfg_h;
 
+	string name;
+
   //-------------------------------------------------------
   // Externally defined Tasks and Functions
   //-------------------------------------------------------
@@ -68,6 +70,7 @@ function void apb_slave_monitor_proxy::end_of_elaboration_phase(uvm_phase phase)
   if(!uvm_config_db #(virtual apb_slave_monitor_bfm)::get(this,"",$sformatf("apb_slave_monitor_bfm_%0d",apb_slave_agent_cfg_h.slave_id),apb_slave_mon_bfm_h)) begin
     `uvm_fatal("FATAL_SMP_MON_BFM",$sformatf("Couldn't get SLAVE_MON_BFM_H in apb_slave_monitor_proxy"));  
   end 
+  name = $sformatf("apb_slave_monitor_bfm_%0d",apb_slave_agent_cfg_h.slave_id);
   apb_slave_mon_bfm_h.apb_slave_mon_proxy_h = this;
 endfunction : end_of_elaboration_phase
 
@@ -82,7 +85,6 @@ endfunction : end_of_elaboration_phase
 task apb_slave_monitor_proxy::run_phase(uvm_phase phase);
   apb_slave_tx apb_slave_packet;
   
-  `uvm_info(get_type_name(), $sformatf("SLAVE_ID %0d Inside the slave_monitor_proxy", apb_slave_agent_cfg_h.slave_id), UVM_LOW);
   apb_slave_packet = apb_slave_tx::type_id::create("slave_packet");
   
   apb_slave_mon_bfm_h.wait_for_preset_n();
@@ -96,19 +98,16 @@ task apb_slave_monitor_proxy::run_phase(uvm_phase phase);
     apb_slave_mon_bfm_h.sample_data (struct_data_packet, struct_cfg_packet, apb_slave_agent_cfg_h.slave_id);
     apb_slave_seq_item_converter :: to_class(struct_data_packet, apb_slave_packet);
 
- $display("SET UP STATE");
-  `uvm_info(get_type_name(),$sformatf("Received packet from SLAVE_MONITOR_BFM: , \n %s", apb_slave_packet.sprint()),UVM_MEDIUM)
-  $display("strb value = %0d", apb_slave_packet.pstrb);
+  `uvm_info(name,$sformatf("Received packet from SLAVE_MONITOR_BFM: , \n %s", apb_slave_packet.sprint()),UVM_MEDIUM)
 
     // Clone and publish the cloned item to the subscribers
     $cast(apb_slave_clone_packet, apb_slave_packet.clone());
-   $display("ACCESS STATE");
-    `uvm_info(get_type_name(),$sformatf("Sending packet via analysis_port: , \n %s", apb_slave_clone_packet.sprint()),UVM_MEDIUM)
- $display("THE CHECK @%0t",$time());
+    `uvm_info(name,$sformatf("Sending packet via analysis_port: , \n %s", apb_slave_clone_packet.sprint()),UVM_MEDIUM)
    if(struct_data_packet.penable && struct_data_packet.pready) begin 
      apb_slave_analysis_port.write(apb_slave_clone_packet);
-      $display("THE TEST IS DONE @%0t",$time());
    end
+	 if(apb_slave_clone_packet.pslverr == 1)
+      `uvm_info(name,$sformatf("SENT PSLVERR == 1"),UVM_HIGH)
   end
 
 endtask : run_phase

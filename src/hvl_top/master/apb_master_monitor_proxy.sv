@@ -95,6 +95,8 @@ task apb_master_monitor_proxy::run_phase(uvm_phase phase);
     //Clone and publish the cloned item to the subscribers
     $cast(apb_master_clone_packet, apb_master_packet.clone());
     `uvm_info(name,$sformatf("Sending packet via analysis_port: , \n %s", apb_master_clone_packet.sprint()),UVM_HIGH)
+		if(apb_master_clone_packet.pslverr == 1)
+      `uvm_info(name,$sformatf("RECIEVED PSLVERR == 1"),UVM_HIGH)
     apb_master_analysis_port.write(apb_master_clone_packet);
   end
 

@@ -67,7 +67,7 @@ interface apb_master_driver_bfm (input  bit   pclk,
   // function : get_name
   // gets the master driver id
   //-------------------------------------------------------
-  function get_name(int id);
+  function void get_name(int id);
 		name = $sformatf("APB_MASTER_DRIVER_BFM_%0d",id);
 	endfunction
  
@@ -77,10 +77,10 @@ interface apb_master_driver_bfm (input  bit   pclk,
   //-------------------------------------------------------
   task wait_for_preset_n();
     @(negedge preset_n);
-    `uvm_info(name ,$sformatf("SYSTEM RESET DETECTED"),UVM_HIGH)
+    //`uvm_info(name ,$sformatf("SYSTEM RESET DETECTED"),UVM_HIGH)
  
     @(posedge preset_n);
-    `uvm_info(name ,$sformatf("SYSTEM RESET DEACTIVATED"),UVM_HIGH)
+    //`uvm_info(name ,$sformatf("SYSTEM RESET DEACTIVATED"),UVM_HIGH)
   endtask: wait_for_preset_n
   
   //--------------------------------------------------------------------------------------------

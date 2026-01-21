@@ -42,14 +42,7 @@ interface apb_slave_driver_bfm (input bit pclk,
   
   //Variable : name
   //Used to store the name of the interface
-  string name = "APB_SLAVE_DRIVER_BFM";
-
-  //-------------------------------------------------------
-  // Used to display the name of the interface
-  //-------------------------------------------------------
-  initial begin
-    `uvm_info(name,$sformatf(name),UVM_LOW);
-  end
+  string name;
 
   //-------------------------------------------------------
   // Task: wait_for_preset_n
@@ -58,9 +51,9 @@ interface apb_slave_driver_bfm (input bit pclk,
   task wait_for_preset_n();
 
     @(negedge preset_n);
-    `uvm_info(name,$sformatf("SYSTEM RESET DETECTED"),UVM_HIGH)
+    //`uvm_info(name,$sformatf("SYSTEM RESET DETECTED"),UVM_HIGH)
     @(posedge preset_n);
-    `uvm_info(name,$sformatf("SYSTEM RESET DEACTIVATED"),UVM_HIGH)
+    //`uvm_info(name,$sformatf("SYSTEM RESET DEACTIVATED"),UVM_HIGH)
   
   endtask: wait_for_preset_n
  
@@ -78,6 +71,7 @@ interface apb_slave_driver_bfm (input bit pclk,
   // Samples the required data and sends back to the proxy
   //-------------------------------------------------------
   task wait_for_setup_state(output apb_transfer_char_s data_packet, int slave_id);
+	  name = $sformatf("APB_SLAVE_DRIVER_BFM_%0d",slave_id);
     @(slaveCb);
    
     slaveCb.pready<=0; 
@@ -85,15 +79,15 @@ interface apb_slave_driver_bfm (input bit pclk,
     `uvm_info(name,$sformatf("PSEL=%0d",psel),UVM_HIGH)
     
     while(slaveCb.psel !==1) begin
-      `uvm_info(name, $sformatf("SLAVE_ID %0d Inside while loop: penable =%0d, pready=%0d, psel=%0d ", slave_id, penable, pready, psel), UVM_HIGH)
+      //`uvm_info(name, $sformatf("SLAVE_ID %0d Inside while loop: penable =%0d, pready=%0d, psel=%0d ", slave_id, penable, pready, psel), UVM_HIGH)
       @(slaveCb);
       $display("SLAVE_ID %0d WAITING FOR SELECT psel is %0b",slave_id, slaveCb.psel);
     end
 
     `uvm_info(name,$sformatf("SLAVE_ID %0d SETUP PHASE STARTED", slave_id),UVM_HIGH)
     `uvm_info(name,$sformatf("PSEL = %0b",psel),UVM_HIGH)
+    `uvm_info(name,$sformatf("SLAVE SETUP STATE DONE"),UVM_HIGH)
 
-    $display("SLAVE SET UP STATE DONE ");
     // Sampling the signals
     data_packet.psel  = slaveCb.psel;
     data_packet.paddr  = slaveCb.paddr;

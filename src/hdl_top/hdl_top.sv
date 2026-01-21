@@ -63,12 +63,12 @@ module hdl_top;
   //-------------------------------------------------------
   // APB Interfaces Instantiation for Master and Slave agents
   //-------------------------------------------------------
-  apb_if intf_s[0:NO_OF_SLAVES-1](pclk,preset_n);
+  apb_if intf_s[0:TOTAL_SLAVES-1](pclk,preset_n);
   apb_if intf_m[0:NO_OF_MASTERS-1](pclk,preset_n);
 
 	// Assigining the pclk and preset_n to all interfaces of slave and master
 	generate
-		for(genvar i = 0; i < NO_OF_SLAVES; i++) begin
+		for(genvar i = 0; i < TOTAL_SLAVES; i++) begin
 			assign intf_s[i].pclk = pclk;
 			assign intf_s[i].preset_n = preset_n;
 		end
@@ -102,7 +102,7 @@ module hdl_top;
      //whenever you require multiple slaves like 2 slave then uncomment below case
      //So if you uncomment then case 1 and case 2 will select particular slave
      //As of now using single slave and connected using case 1
-     //Change NO_OF_SLAVES 1 to 2 inside the global pkg then you will get 2 slave interface handle
+     //Change TOTAL_SLAVES 1 to 2 inside the global pkg then you will get 2 slave interface handle
      //-------------------------------------------------------------------------------------------
      // 2'b10: begin
      //          intf_s[1].pselx = intf.pselx[1];
@@ -138,7 +138,7 @@ module hdl_top;
 
   genvar i;
   generate
-    for(i = 0; i < NO_OF_SLAVES; i++) begin : apb_slave_agent_bfm
+    for(i = 0; i < TOTAL_SLAVES; i++) begin : apb_slave_agent_bfm
       apb_slave_agent_bfm #(.SLAVE_ID(i)) apb_slave_agent_bfm_h(.intf(intf_s[i].apbSlaveInterconnectMP));
       defparam apb_slave_agent_bfm[i].apb_slave_agent_bfm_h.SLAVE_ID = i;
     end

@@ -33,7 +33,7 @@ endclass : apb_virtual_sequencer
 //--------------------------------------------------------------------------------------------
 function apb_virtual_sequencer::new(string name = "apb_virtual_sequencer",uvm_component parent = null);
   super.new(name, parent);
-  apb_slave_seqr_h = new[NO_OF_SLAVES];
+  apb_slave_seqr_h = new[TOTAL_SLAVES];
   apb_master_seqr_h = new[NO_OF_MASTERS];
 endfunction : new
 

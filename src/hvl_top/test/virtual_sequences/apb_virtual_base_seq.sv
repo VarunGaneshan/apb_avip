@@ -17,7 +17,7 @@ class apb_virtual_base_seq extends uvm_sequence;
 
   //Variable : apb_master_seqr_h
   //Declaring handle to the virtual sequencer
-  apb_slave_sequencer apb_slave_seqr_h[NO_OF_SLAVES];
+  apb_slave_sequencer apb_slave_seqr_h[TOTAL_SLAVES];
 
   //-------------------------------------------------------
   // Externally defined Tasks and Functions
@@ -45,7 +45,7 @@ endfunction : new
 //  name - apb_virtual_base_seq
 //--------------------------------------------------------------------------------------------
 task apb_virtual_base_seq::body();
-  //apb_slave_seqr_h = new[NO_OF_SLAVES];
+  //apb_slave_seqr_h = new[TOTAL_SLAVES];
 	//apb_master_seqr_h = new[NO_OF_MASTERS];
   if(!$cast(p_sequencer,m_sequencer))begin
     `uvm_error(get_full_name(),"Virtual sequencer pointer cast failed")

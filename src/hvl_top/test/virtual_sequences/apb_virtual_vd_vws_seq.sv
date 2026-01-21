@@ -15,7 +15,7 @@ class apb_virtual_vd_vws_seq extends apb_virtual_base_seq;
 
   //Variable : apb_slave_vd_vws_seq_h
   //Instantiation of apb_slave_vd_vws_seq sequence
-  apb_slave_vd_vws_seq apb_slave_vd_vws_seq_h[NO_OF_SLAVES];
+  apb_slave_vd_vws_seq apb_slave_vd_vws_seq_h[TOTAL_SLAVES];
 
   //-------------------------------------------------------
   // Externally defined Tasks and Functions

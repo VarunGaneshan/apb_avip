@@ -8,13 +8,13 @@
 //--------------------------------------------------------------------------------------------
 package apb_global_pkg;
 
-  //Parameter : NO_OF_SLAVES
-  //Used to set number of slaves required
-  parameter int NO_OF_SLAVES = 3;
+  //Parameter : NO_OF_SLAVES 
+  //Used to set the number of slaves required
+  parameter int NO_OF_SLAVES = 1;
 
 	//Parameter : NO_OF_MASTERS
 	//Used to set number of masters required
-	parameter int NO_OF_MASTERS = 3;
+	parameter int NO_OF_MASTERS = 1;
 
 	//Parameter : MULTIPLE_MASTER_TO_SAME_SLAVE
 	//Used to set number of masters access the same slave
@@ -57,6 +57,11 @@ package apb_global_pkg;
   //Parameter : MEMORY_WIDTH
   //Sets the width it can store in each loaction
   parameter int MEMORY_WIDTH = 8;
+
+  //Parameter : TOTAL_SLAVES
+  //Used in the code to determine the number of slaves required
+	// along with the addition of the invalid slave
+  parameter int TOTAL_SLAVES = NO_OF_SLAVES + 1;
 
   //-------------------------------------------------------
   // Enum : transfer_size_e
@@ -185,8 +190,8 @@ package apb_global_pkg;
 	// This struct stores the min and max address for the slaves 
   //-------------------------------------------------------
   typedef struct{
-    int min_addr[NO_OF_SLAVES];
-	  int max_addr[NO_OF_SLAVES];
+    bit [ADDRESS_WIDTH-1:0] min_addr[TOTAL_SLAVES];
+	  bit [ADDRESS_WIDTH-1:0] max_addr[TOTAL_SLAVES];
 	}slave_addr_s;
 	static slave_addr_s slave_addr;
 
@@ -195,8 +200,8 @@ package apb_global_pkg;
 	// This struct stores the min and max address for the masters 
   //-------------------------------------------------------
   typedef struct{
-    int min_addr[NO_OF_MASTERS];
-	  int max_addr[NO_OF_MASTERS];
+    bit [ADDRESS_WIDTH-1:0] min_addr[NO_OF_MASTERS];
+	  bit [ADDRESS_WIDTH-1:0] max_addr[NO_OF_MASTERS];
 	}master_addr_s;
 	static master_addr_s master_addr;
 
