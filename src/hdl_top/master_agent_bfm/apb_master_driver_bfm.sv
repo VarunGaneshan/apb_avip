@@ -116,8 +116,6 @@ interface apb_master_driver_bfm (input  bit   pclk,
     state = IDLE;
     `uvm_info(name,$sformatf("DROVE THE IDLE STATE"),UVM_HIGH)
 
-    `uvm_info("DEBUG_MSHA", $sformatf("drive_apb_idle state = %0s and state = %0d",state.name(), state), UVM_NONE);
-    
   endtask : drive_idle_state
 
   //--------------------------------------------------------------------------------------------
@@ -130,7 +128,7 @@ interface apb_master_driver_bfm (input  bit   pclk,
   task drive_setup_state(inout apb_transfer_char_s data_packet);
     //@(posedge pclk);
     `uvm_info(name,$sformatf("DRIVING THE SETUP STATE"),UVM_HIGH)
-   $display("DRIVING THE SELECT"); 
+
     masterCb.psel   <= 1'b 1;
     masterCb.penable <= 1'b0;
     masterCb.paddr   <= data_packet.paddr;
@@ -146,7 +144,6 @@ interface apb_master_driver_bfm (input  bit   pclk,
     
     masterCb.pprot <= data_packet.pprot;
     state=SETUP;
-    `uvm_info("DEBUG_MSHA", $sformatf("drive_apb_setup state = %0s and state = %0d", state.name(), state), UVM_NONE);
     
   endtask : drive_setup_state
  
@@ -160,16 +157,13 @@ interface apb_master_driver_bfm (input  bit   pclk,
   //-------------------------------------------------------
   task waiting_in_access_state(inout apb_transfer_char_s data_packet);
     @(masterCb);
-    `uvm_info(name,$sformatf("INSIDE ACCESS STATE"),UVM_HIGH);
-    $display("DRIVING THE ACCESS");
+	`uvm_info(name,$sformatf("DRIVING THE ACCESS STATE"),UVM_HIGH);
     state = ACCESS;  
     masterCb.penable <= 1'b1;
 	masterCb.psel <= 1'b1;
     
-    `uvm_info("DEBUG_NADEEM",$sformatf("pready=%0d",pready), UVM_HIGH);
-      detect_wait_state(data_packet);
-    `uvm_info("DEBUG_MSHA",$sformatf("wait_apb_access_state = %0d and state = %0d",state.name(),state), UVM_NONE);
-  
+    detect_wait_state(data_packet);
+    
   endtask : waiting_in_access_state
 
   //--------------------------------------------------------------------------------------------
@@ -196,7 +190,7 @@ interface apb_master_driver_bfm (input  bit   pclk,
     state = IDLE;
     masterCb.penable <= 1'b0;
     masterCb.psel <= 'b0;
-    `uvm_info("DEBUG_MSHA", $sformatf("drive_apb_access state = %0s and state = %0d",state.name(), state), UVM_NONE);
+	  `uvm_info(name, $sformatf("drive_apb_access state = %0s",state.name()), UVM_NONE);
   endtask : detect_wait_state
 
 endinterface : apb_master_driver_bfm
