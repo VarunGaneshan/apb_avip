@@ -134,27 +134,31 @@ function void apb_scoreboard::build_phase(uvm_phase phase);
 endfunction
 
 function void apb_scoreboard::ref_model(apb_master_tx m_tx, int slave_idx);
-
-  if (m_tx.pwrite == 1) begin
-    // Write operation: update memory based on pstrb signal
-    for (int i = 0; i < DATA_WIDTH/8; i++) begin
-      if (m_tx.pstrb[i]) begin
-        mem[slave_idx][m_tx.paddr + i] = m_tx.pwdata[8*i+7 -: 8];
-        $display("DATA IS WRITTEN INTO MEM[SLAVE%0d] at address %0d", slave_idx, m_tx.paddr + i);
-      end
-    end
-  end
-  else begin
-    // Read operation: predict prdata from memory
-    for (int i = 0; i < DATA_WIDTH/8; i++) begin
-      if (mem[slave_idx].exists(m_tx.paddr + i)) begin
-        m_tx.prdata[8*i+7 -: 8] = mem[slave_idx][m_tx.paddr + i];
-      end
-      else begin
-        m_tx.prdata[8*i+7 -: 8] = 8'h00; // default value in memory
-      end
-    end
-  end
+	if(slave_idx == TOTAL_SLAVES-1) begin
+    m_tx.pslverr = ERROR;
+	end
+	else begin
+  	if (m_tx.pwrite == 1) begin
+    	// Write operation: update memory based on pstrb signal
+    	for (int i = 0; i < DATA_WIDTH/8; i++) begin
+      	if (m_tx.pstrb[i]) begin
+        	mem[slave_idx][m_tx.paddr + i] = m_tx.pwdata[8*i+7 -: 8];
+        	$display("DATA IS WRITTEN INTO MEM[SLAVE%0d] at address %0d", slave_idx, m_tx.paddr + i);
+      	end
+    	end
+  	end
+  	else begin
+    	// Read operation: predict prdata from memory
+    	for (int i = 0; i < DATA_WIDTH/8; i++) begin
+      	if (mem[slave_idx].exists(m_tx.paddr + i)) begin
+        	m_tx.prdata[8*i+7 -: 8] = mem[slave_idx][m_tx.paddr + i];
+      	end
+     	  else begin
+        	m_tx.prdata[8*i+7 -: 8] = 8'h00; // default value in memory
+      	end
+    	end
+  	end
+	end
 
 endfunction
 
@@ -203,6 +207,8 @@ task apb_scoreboard::run_phase(uvm_phase phase);
         int master_id;
 
         // Get transaction from Slave
+
+        $display("s_index = %0d",s_index);
         apb_slave_analysis_fifo[s_index].get(s_tx);  //check if this is working since you are not getting the value
         apb_slave_tx_count[s_index]++;
         //$display("queue size = %0d", slave_expected_q.size());
@@ -213,7 +219,6 @@ task apb_scoreboard::run_phase(uvm_phase phase);
         //else begin
           wait(slave_expected_q[s_index].size() > 0);
           // Pop the oldest expected transaction
-          $display("Inside the case");
           exp_tx = slave_expected_q[s_index].pop_front();
           master_id = slave_expected_id_q[s_index].pop_front();
           `uvm_info("SCB", $sformatf("Slave[%0d] match found for ADDR=%0d", s_index, s_tx.paddr), UVM_HIGH)
@@ -221,6 +226,7 @@ task apb_scoreboard::run_phase(uvm_phase phase);
 					
           $display("SCB_SLAVE_TX_PRINT");
 					s_tx.print();
+					exp_tx.print();
           compare_trans(exp_tx, s_tx, master_id, s_index);
        // end
       end
@@ -238,8 +244,8 @@ function int apb_scoreboard::get_slave_index(bit [ADDRESS_WIDTH-1:0] addr);
       return i;
     end
   end
-  `uvm_error(get_type_name(), $sformatf("Address %0d does not map to any slave", addr))
-  return -1;
+  `uvm_error(get_type_name(), $sformatf("Address %0d mapped to invalid slave", addr))
+  return TOTAL_SLAVES-1;
 endfunction
 
 function void apb_scoreboard::compare_trans(apb_master_tx m_tx, apb_slave_tx s_tx, int master_idx, int slave_idx);
@@ -315,6 +321,16 @@ function void apb_scoreboard::compare_trans(apb_master_tx m_tx, apb_slave_tx s_t
       apb_master_pprot_fail[master_idx]++;
     end
 
+    if (m_tx.pslverr == s_tx.pslverr) begin
+      `uvm_info(get_type_name(), "APB PSLVERR match", UVM_HIGH);
+      apb_slave_pslverr_pass[slave_idx]++;
+    end
+    else begin
+      `uvm_error("SB_PSLVERR_MISMATCH",
+			 $sformatf("Master PSLVERR = %s Slave PSLVERR = %s", m_tx.pslverr, s_tx.pslverr));
+      apb_slave_pslverr_fail[slave_idx]++;
+    end
+
     `uvm_info(get_type_name(),
       "----------------------------------- END OF WRITE COMPARISONS ---------------------------------",
       UVM_NONE)
@@ -366,6 +382,16 @@ function void apb_scoreboard::compare_trans(apb_master_tx m_tx, apb_slave_tx s_t
     else begin
       `uvm_error("SB_PPROT_MISMATCH", "PPROT mismatch in READ transaction");
       apb_master_pprot_fail[master_idx]++;
+    end
+
+    if (m_tx.pslverr == s_tx.pslverr) begin
+      `uvm_info(get_type_name(), "APB PSLVERR match", UVM_HIGH);
+      apb_slave_pslverr_pass[slave_idx]++;
+    end
+    else begin
+      `uvm_error("SB_PSLVERR_MISMATCH",
+			 $sformatf("Master PSLVERR = %s Slave PSLVERR = %s", m_tx.pslverr, s_tx.pslverr));
+      apb_slave_pslverr_fail[slave_idx]++;
     end
 
     `uvm_info(get_type_name(),
@@ -477,7 +503,7 @@ function void apb_scoreboard::check_phase(uvm_phase phase);
         $sformatf("Slave[%0d] PRDATA failed: %0d", n, apb_slave_prdata_fail[n]));
     end
 
-   /* if ((apb_slave_pslverr_pass[n] != 0) && (apb_slave_pslverr_fail[n] == 0)) begin
+    if ((apb_slave_pslverr_pass[n] != 0) && (apb_slave_pslverr_fail[n] == 0)) begin
       `uvm_info(get_type_name(),
         $sformatf("Slave[%0d] PSLVERR comparisons all passed: %0d", n, apb_slave_pslverr_pass[n]),
         UVM_HIGH);
@@ -485,7 +511,7 @@ function void apb_scoreboard::check_phase(uvm_phase phase);
     else if (apb_slave_pslverr_fail[n] != 0) begin
       `uvm_error("SC_CheckPhase",
         $sformatf("Slave[%0d] PSLVERR failed: %0d", n, apb_slave_pslverr_fail[n]));
-    end */
+    end
   end
 
   // Check if all slave analysis FIFOs are empty

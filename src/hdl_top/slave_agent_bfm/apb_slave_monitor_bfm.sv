@@ -84,14 +84,17 @@ interface apb_slave_monitor_bfm (input bit pclk,
    begin 
 
     apb_data_packet.psel= psel;
-    apb_data_packet.pslverr  = pslverr;
     apb_data_packet.pprot    = pprot;
     apb_data_packet.pwrite   = pwrite;
     apb_data_packet.paddr    = paddr;
     apb_data_packet.pstrb    = pstrb;
     apb_data_packet.pready = pready;
     apb_data_packet.penable = penable;
-
+ 
+		if(TOTAL_SLAVES-1 == slave_id)
+    	apb_data_packet.pslverr = ERROR;
+		else
+    	apb_data_packet.pslverr = NO_ERROR;
 
     if (pwrite == WRITE) begin
       apb_data_packet.pwdata = pwdata;

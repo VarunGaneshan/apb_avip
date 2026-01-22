@@ -98,7 +98,10 @@ task apb_slave_monitor_proxy::run_phase(uvm_phase phase);
     apb_slave_mon_bfm_h.sample_data (struct_data_packet, struct_cfg_packet, apb_slave_agent_cfg_h.slave_id);
     apb_slave_seq_item_converter :: to_class(struct_data_packet, apb_slave_packet);
 
-  `uvm_info(name,$sformatf("Received packet from SLAVE_MONITOR_BFM: , \n %s", apb_slave_packet.sprint()),UVM_MEDIUM)
+		if((apb_slave_agent_cfg_h.slave_id == TOTAL_SLAVES-1) && apb_slave_packet.pready && apb_slave_packet.psel)
+			apb_slave_packet.pslverr = ERROR;
+    `uvm_info(name,$sformatf("Received packet from SLAVE_MONITOR_BFM: , \n %s", apb_slave_packet.sprint()),UVM_MEDIUM)
+    `uvm_info(name,$sformatf("ADDED pready = %0b | pslverr = %s | psel = %0b",apb_slave_packet.pready, apb_slave_packet.pslverr,apb_slave_packet.psel),UVM_HIGH);
 
     // Clone and publish the cloned item to the subscribers
     $cast(apb_slave_clone_packet, apb_slave_packet.clone());

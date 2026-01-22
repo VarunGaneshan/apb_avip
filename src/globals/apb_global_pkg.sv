@@ -10,15 +10,15 @@ package apb_global_pkg;
 
   //Parameter : NO_OF_SLAVES 
   //Used to set the number of slaves required
-  parameter int NO_OF_SLAVES = 2;
+  parameter int NO_OF_SLAVES = 3;
 
 	//Parameter : NO_OF_MASTERS
 	//Used to set number of masters required
-	parameter int NO_OF_MASTERS = 2;
+	parameter int NO_OF_MASTERS = 3;
 
 	//Parameter : MULTIPLE_MASTER_TO_SAME_SLAVE
 	//Used to set number of masters access the same slave
-	parameter bit MULTIPLE_MASTER_TO_SAME_SLAVE = 1;
+	parameter bit MULTIPLE_MASTER_TO_SAME_SLAVE = 0;
 
 	//Parameter : HAS_SCOREBOARD
 	//Used to set the scoreboard if required
@@ -160,6 +160,7 @@ package apb_global_pkg;
   //-------------------------------------------------------
   typedef struct{
     bit pwrite;
+    bit preset_n;
     bit pslverr;
     bit [2:0]pprot;
     bit psel;

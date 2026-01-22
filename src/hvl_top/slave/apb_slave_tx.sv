@@ -12,8 +12,18 @@ class apb_slave_tx extends uvm_sequence_item;
   //Used to select the slave
   bit psel;
 
-  bit [3:0] pstrb;
+  //Variable: pstrb
+  //Used to select the data valid lane
+  bit [(DATA_WIDTH/8)-1:0] pstrb;
     
+  //Variable: penable
+  //Used to determone the state of the slave
+  bit penable;
+
+  //Variable: preset_n
+  //Used to reset the slave
+  bit preset_n;
+
   //Variable: paddr
   //Address selected in apb_slave
   bit [ADDRESS_WIDTH-1:0]paddr;
@@ -109,6 +119,9 @@ function void apb_slave_tx::do_copy (uvm_object rhs);
   prdata  = apb_slave_tx_copy_obj.prdata;
   pslverr = apb_slave_tx_copy_obj.pslverr;
   pprot   = apb_slave_tx_copy_obj.pprot;
+  pstrb   = apb_slave_tx_copy_obj.pstrb;
+  penable = apb_slave_tx_copy_obj.penable;
+  preset_n= apb_slave_tx_copy_obj.preset_n;
 
 endfunction:do_copy
 
@@ -148,6 +161,8 @@ endfunction : do_compare
 //--------------------------------------------------------------------------------------------
 function void apb_slave_tx::do_print(uvm_printer printer);
 
+  printer.print_field("preset_n",preset_n,1,UVM_DEC);
+  printer.print_field("penable",penable,1,UVM_DEC);
   printer.print_field("psel",psel,1,UVM_DEC);
   printer.print_field("paddr",paddr,$bits(paddr),UVM_HEX);
   printer.print_string("pwrite",pwrite.name());

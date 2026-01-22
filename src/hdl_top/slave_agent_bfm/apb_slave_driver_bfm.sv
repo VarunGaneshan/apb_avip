@@ -92,9 +92,11 @@ interface apb_slave_driver_bfm (input bit pclk,
     data_packet.psel  = slaveCb.psel;
     data_packet.paddr  = slaveCb.paddr;
     data_packet.pwrite = slaveCb.pwrite;
+    data_packet.pstrb  = slaveCb.pstrb;
+    data_packet.preset_n  = slaveCb.preset_n;
+    data_packet.penable  = slaveCb.penable;
     if(slaveCb.pwrite == WRITE) begin
       data_packet.pwdata = slaveCb.pwdata;
-      data_packet.pstrb  = slaveCb.pstrb;
     end
     data_packet.pprot = slaveCb.pprot;
    
@@ -118,6 +120,7 @@ interface apb_slave_driver_bfm (input bit pclk,
     if(data_packet.pwrite == READ) begin
       `uvm_info(name,$sformatf("SLAVE_ID %0d INSIDE ACCESS - PRDATA = %0d | pready = %0b | pslverr = %0b",slave_id, data_packet.prdata, slaveCb.pready, slaveCb.pslverr),UVM_HIGH);
       slaveCb.prdata <= data_packet.prdata;
+    `uvm_info(name,$sformatf("INSIDE ACCESS - PRDATA=%0h | pready = %0b | pslverr = %0b | psel = %0b | penable = %0b",data_packet.prdata, slaveCb.pready, slaveCb.pslverr,data_packet.psel,data_packet.penable),UVM_HIGH);
       @(slaveCb); // if not present will detect the psel even if the transfer is not needed (psel made 0)
       slaveCb.pready <=0; 
     end
@@ -125,12 +128,14 @@ interface apb_slave_driver_bfm (input bit pclk,
       @(slaveCb); 
     slaveCb.pready <= 0;
     end 
+    `uvm_info(name,$sformatf("TOTAL_SLAVES - 1 = %0d | pready = %0d",TOTAL_SLAVES-1,slaveCb.pready),UVM_HIGH);
 
-		if( slaveCb.pready && (slave_id == TOTAL_SLAVES - 1))
-    	slaveCb.pslverr <= 1;
+		if( slaveCb.pready && (slave_id == TOTAL_SLAVES - 1)) begin
+    	slaveCb.pslverr <= ERROR;
+		end
 		else
-    	slaveCb.pslverr <= data_packet.pslverr;
-    `uvm_info(name,$sformatf("INSIDE ACCESS - PRDATA=%0h | pready = %0b | pslverr = %0b",data_packet.prdata, slaveCb.pready, slaveCb.pslverr),UVM_HIGH);
+    	slaveCb.pslverr <= NO_ERROR;
+    `uvm_info(name,$sformatf("INSIDE ACCESS - PRDATA=%0h | pready = %0b | pslverr = %0b | psel = %0b | penable = %0b",data_packet.prdata, slaveCb.pready, slaveCb.pslverr,data_packet.psel,data_packet.penable),UVM_HIGH);
 
   endtask: wait_for_access_state
 

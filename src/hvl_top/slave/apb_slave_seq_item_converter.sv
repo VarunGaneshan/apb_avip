@@ -51,7 +51,7 @@ function void apb_slave_seq_item_converter::from_class(input apb_slave_tx input_
   `uvm_info("apb_seq_item_conv_class",$sformatf("After randomizing the pready=%0b",output_conv_h.pready),UVM_HIGH);
 
   $cast(output_conv_h.pslverr,input_conv_h.pslverr);
-  `uvm_info("apb_slave_seq_item_conv_class",$sformatf("After ramdomizing pslverr=%0b",output_conv_h.pslverr),UVM_HIGH);
+  `uvm_info("apb_slave_seq_item_conv_class",$sformatf("After ramdomizing pslverr=%s",output_conv_h.pslverr),UVM_HIGH);
   
   output_conv_h.prdata = input_conv_h.prdata;
   `uvm_info("apb_slave_seq_item_conv_class",$sformatf("After ramdomizing prdata=%0h",output_conv_h.prdata),UVM_HIGH);
@@ -91,13 +91,19 @@ function void apb_slave_seq_item_converter::to_class(input apb_transfer_char_s i
   `uvm_info("apb_seq_item_conv_class",$sformatf("After randomizing the pprot=%0b",output_conv_h.pprot),UVM_HIGH);
 
   $cast(output_conv_h.pslverr,input_conv_h.pslverr);
-  `uvm_info("apb_seq_item_conv_class",$sformatf("After randomizing the pslverr=%0b",output_conv_h.pslverr),UVM_HIGH);
+  `uvm_info("apb_seq_item_conv_class",$sformatf("After randomizing the pslverr=%s",output_conv_h.pslverr),UVM_HIGH);
 
   $cast(output_conv_h.pwrite,input_conv_h.pwrite);
   `uvm_info("apb_seq_item_conv_class",$sformatf("After randomizing the pwrite=%0b",output_conv_h.pwrite),UVM_HIGH);
 
-  output_conv_h.prdata = input_conv_h.prdata;
- `uvm_info("apb_seq_item_conv_class",$sformatf("After randomizing the prdata=%0b",output_conv_h.prdata),UVM_HIGH);
+  output_conv_h.preset_n = input_conv_h.preset_n;
+ `uvm_info("apb_seq_item_conv_class",$sformatf("After randomizing the preset_n=%0b",output_conv_h.preset_n),UVM_HIGH);
+
+  output_conv_h.penable = input_conv_h.penable;
+ `uvm_info("apb_seq_item_conv_class",$sformatf("After randomizing the penable=%0b",output_conv_h.penable),UVM_HIGH);
+ 
+	output_conv_h.prdata = input_conv_h.prdata;
+ `uvm_info("apb_seq_item_conv_class",$sformatf("After randomizing the prdata=%0d",output_conv_h.prdata),UVM_HIGH);
   
   // added for checking
   output_conv_h.pready = input_conv_h.pready;
