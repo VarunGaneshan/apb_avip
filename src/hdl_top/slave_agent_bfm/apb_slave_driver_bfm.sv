@@ -114,17 +114,9 @@ interface apb_slave_driver_bfm (input bit pclk,
       slaveCb.pready<=0;
     end
     slaveCb.pready<=1;
-
-    // This display checks whether the data from proxy is received or not
-    `uvm_info(name,$sformatf("INSIDE ACCESS - PRDATA=%0h | pready = %0b",data_packet.prdata, slaveCb.pready),UVM_HIGH);
     
-    /*if(data_packet.pwrite == READ) begin
-      `uvm_info(name,$sformatf("INSIDE ACCESS - PRDATA=%0h | pready = %0b",data_packet.prdata, slaveCb.pready),UVM_HIGH);
-      `uvm_info(name,$sformatf("SLAVE_ID %0d INSIDE ACCESS - PRDATA=%0h",slave_id, data_packet.prdata),UVM_HIGH);
-		end 
-		*/
     if(data_packet.pwrite == READ) begin
-      `uvm_info(name,$sformatf("SLAVE_ID %0d INSIDE ACCESS - PRDATA=%0h",slave_id, data_packet.prdata),UVM_HIGH);
+      `uvm_info(name,$sformatf("SLAVE_ID %0d INSIDE ACCESS - PRDATA = %0d | pready = %0b | pslverr = %0b",slave_id, data_packet.prdata, slaveCb.pready, slaveCb.pslverr),UVM_HIGH);
       slaveCb.prdata <= data_packet.prdata;
       @(slaveCb); // if not present will detect the psel even if the transfer is not needed (psel made 0)
       slaveCb.pready <=0; 
@@ -134,8 +126,11 @@ interface apb_slave_driver_bfm (input bit pclk,
     slaveCb.pready <= 0;
     end 
 
-    `uvm_info(name,$sformatf("INSIDE ACCESS - PRDATA=%0h | pready = %0b",data_packet.prdata, slaveCb.pready),UVM_HIGH);
-    slaveCb.pslverr <= data_packet.pslverr;
+		if( slaveCb.pready && (slave_id == TOTAL_SLAVES - 1))
+    	slaveCb.pslverr <= 1;
+		else
+    	slaveCb.pslverr <= data_packet.pslverr;
+    `uvm_info(name,$sformatf("INSIDE ACCESS - PRDATA=%0h | pready = %0b | pslverr = %0b",data_packet.prdata, slaveCb.pready, slaveCb.pslverr),UVM_HIGH);
 
   endtask: wait_for_access_state
 

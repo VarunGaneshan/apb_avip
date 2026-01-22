@@ -116,10 +116,6 @@ task apb_slave_driver_proxy::run_phase(uvm_phase phase);
       
     if(req.choose_packet_data) begin
 
-      //check_for_pslverr_address_range(struct_packet);
-      //Printing the req item
-      //`uvm_info(name, $sformatf("REQ-SLAVE_TX \n %s",req.sprint),UVM_LOW);
-  
       //Converting transaction to struct data_packet
       apb_slave_seq_item_converter::from_class(req, struct_packet); 
 
@@ -136,7 +132,6 @@ task apb_slave_driver_proxy::run_phase(uvm_phase phase);
 
     end
     else begin
-      // check_for_pslverr(struct_packet);
 
       `uvm_info(name, $sformatf("before wait for access state- inside else :: %p", struct_packet), UVM_HIGH); 
       `uvm_info(name, $sformatf("before wait for access state- inside else prdata :: %0h", struct_packet.prdata), UVM_HIGH); 
