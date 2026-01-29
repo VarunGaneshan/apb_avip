@@ -66,9 +66,7 @@ interface apb_master_monitor_bfm (input bit pclk,
   //-------------------------------------------------------
   task wait_for_preset_n();
     @(negedge preset_n);
-    `uvm_info(name, $sformatf("system reset detected"), UVM_HIGH)
     @(posedge preset_n);
-    `uvm_info(name, $sformatf("system reset deactivated"), UVM_HIGH)
   endtask : wait_for_preset_n
   //-------------------------------------------------------
   // Task: sample_data
@@ -82,21 +80,19 @@ interface apb_master_monitor_bfm (input bit pclk,
      @(masterCb); 
     while(masterCb.psel != 1'b1 || masterCb.pready != 1'b1) begin
       @(masterCb);
-      `uvm_info(name, $sformatf("MASTER_ID %0d Inside while loop PSEL", master_id), UVM_HIGH)
     end
  
-   $display("CHECKED FOR PREADY AND PENABLE @%0t",$time());
    if(masterCb.pready ==1 && masterCb.psel ==1)
    begin
  
-    apb_data_packet.psel= psel;
+    apb_data_packet.psel     = psel;
     apb_data_packet.pslverr  = masterCb.pslverr;
     apb_data_packet.pprot    = masterCb.pprot;
     apb_data_packet.pwrite   = masterCb.pwrite;
     apb_data_packet.paddr    = masterCb.paddr;
     apb_data_packet.pstrb    = masterCb.pstrb;
-    apb_data_packet.pready =   masterCb.pready;
-    apb_data_packet.penable = masterCb.penable;
+    apb_data_packet.pready   = masterCb.pready;
+    apb_data_packet.penable  = masterCb.penable;
  
  
     if (pwrite == WRITE) begin
@@ -107,23 +103,20 @@ interface apb_master_monitor_bfm (input bit pclk,
     end
   end
   else begin 
-    apb_data_packet.pready = masterCb.pready;
+    apb_data_packet.pready  = masterCb.pready;
     apb_data_packet.penable = masterCb.penable;
   end 
-    `uvm_info(name, $sformatf("\n\n\nMASTER_SAMPLE_DATA=%p\n\n\n", apb_data_packet), UVM_MEDIUM)
+    `uvm_info(name, $sformatf("MASTER_SAMPLE_DATA = %p\n", apb_data_packet), UVM_MEDIUM)
   endtask : sample_data
  
 task access_state(output apb_transfer_char_s apb_data_packet, input apb_transfer_cfg_s apb_cfg_packet, int master_id);
 @(posedge pclk);
   while(pready !== 1) begin
-      $display("ACCESS SATTE");
-      `uvm_info(name, $sformatf("MASTER_ID %0d Inside while loop: penable =%0d, pready=%0d, psel=%0d", master_id, penable, pready, psel), UVM_HIGH)
-      @(posedge pclk);
-      //Increment the counter of wait states
-      apb_data_packet.no_of_wait_states++;
-    end
-  apb_data_packet.pready = pready;
-  $display("$$$$$$$$$$$$$$$$$$$$$BFM PENABLE IS %0b %0t$$$$$$$$$$$$$$$$$",penable,$time());
+    @(posedge pclk);
+    apb_data_packet.no_of_wait_states++;
+  end
+
+  apb_data_packet.pready  = pready;
   apb_data_packet.penable = penable;
 endtask
  

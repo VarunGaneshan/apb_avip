@@ -50,10 +50,7 @@ interface apb_slave_monitor_bfm (input bit pclk,
   //-------------------------------------------------------
   task wait_for_preset_n();
     @(negedge preset_n);
-    //`uvm_info(name, $sformatf("SYSTEM_RESET_DETECTED"), UVM_HIGH)
-    
     @(posedge preset_n);
-    //`uvm_info(name, $sformatf("SYSTEM_RESET_DEACTIVATED"), UVM_HIGH)
   endtask : wait_for_preset_n
 
   //-------------------------------------------------------
@@ -65,49 +62,46 @@ interface apb_slave_monitor_bfm (input bit pclk,
   //  apb_cfg_packet  - Handle for apb_transfer_cfg_s class
   //-------------------------------------------------------
   task sample_data (output apb_transfer_char_s apb_data_packet, input apb_transfer_cfg_s apb_cfg_packet, int slave_id);
-	 name = $sformatf("APB_SLAVE_MONITOR_BFM_%0d",slave_id);
-	 @(posedge pclk); 
+	  name = $sformatf("APB_SLAVE_MONITOR_BFM_%0d",slave_id);
+	  @(posedge pclk); 
     while(psel === 1'bX) begin
       @(posedge pclk);
     end
 
     while(pready !==1) begin
-    `uvm_info(name, $sformatf("SLAVE_ID %0d Inside while loop: SLAVE[%0d] penable =%0d, pready=%0d, psel=%0b ",slave_id,
-                              apb_cfg_packet.slave_id, penable, pready, psel), UVM_HIGH)
+    `uvm_info(name, $sformatf("Inside while loop penable = %0b, pready = %0b, psel = %0b ",
+                              penable, pready, psel), UVM_HIGH)
       @(posedge pclk);
-      // $display("IN THIS LOOP @%0t",$time());
     end
     `uvm_info(name, $sformatf("After while loop: penable =%0d, pready=%0d, psel=%0d ", penable, pready, psel), UVM_HIGH)
 
 
-   if(pready ==1 && penable ==1)
-   begin 
+    if(pready == 1 && penable == 1)begin 
+      apb_data_packet.psel     = psel;
+			apb_data_packet.pprot    = pprot;
+			apb_data_packet.pwrite   = pwrite;
+			apb_data_packet.paddr    = paddr;
+			apb_data_packet.pstrb    = pstrb;
+			apb_data_packet.pready   = pready;
+			apb_data_packet.penable  = penable;
+				 
+		  if(TOTAL_SLAVES-1 == slave_id)
+    	  apb_data_packet.pslverr = ERROR;
+		  else
+    	  apb_data_packet.pslverr = NO_ERROR;
 
-    apb_data_packet.psel= psel;
-    apb_data_packet.pprot    = pprot;
-    apb_data_packet.pwrite   = pwrite;
-    apb_data_packet.paddr    = paddr;
-    apb_data_packet.pstrb    = pstrb;
-    apb_data_packet.pready = pready;
-    apb_data_packet.penable = penable;
- 
-		if(TOTAL_SLAVES-1 == slave_id)
-    	apb_data_packet.pslverr = ERROR;
-		else
-    	apb_data_packet.pslverr = NO_ERROR;
-
-    if (pwrite == WRITE) begin
-      apb_data_packet.pwdata = pwdata;
+      if (pwrite == WRITE) begin
+        apb_data_packet.pwdata = pwdata;
+      end
+      else begin
+        apb_data_packet.prdata = prdata;
+      end
     end
-    else begin
-      apb_data_packet.prdata = prdata;
-    end
-  end
-  else begin 
-    apb_data_packet.pready = pready;
-    apb_data_packet.penable = penable;
-  end 
-    `uvm_info(name, $sformatf("\n\n\SLAVE_SAMPLE_DATA=%p \n\n", apb_data_packet), UVM_MEDIUM)
+    else begin 
+      apb_data_packet.pready  = pready;
+      apb_data_packet.penable = penable;
+    end 
+      `uvm_info(name, $sformatf("SLAVE_SAMPLE_DATA = %p\n", apb_data_packet), UVM_MEDIUM)
   endtask : sample_data
 
 endinterface : apb_slave_monitor_bfm

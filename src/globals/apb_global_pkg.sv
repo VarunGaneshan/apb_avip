@@ -10,11 +10,11 @@ package apb_global_pkg;
 
   //Parameter : NO_OF_SLAVES 
   //Used to set the number of slaves required
-  parameter int NO_OF_SLAVES = 3;
+  parameter int NO_OF_SLAVES = 7;
 
 	//Parameter : NO_OF_MASTERS
 	//Used to set number of masters required
-	parameter int NO_OF_MASTERS = 3;
+	parameter int NO_OF_MASTERS = 5;
 
 	//Parameter : MULTIPLE_MASTER_TO_SAME_SLAVE
 	//Used to set number of masters access the same slave

@@ -51,9 +51,7 @@ interface apb_slave_driver_bfm (input bit pclk,
   task wait_for_preset_n();
 
     @(negedge preset_n);
-    //`uvm_info(name,$sformatf("SYSTEM RESET DETECTED"),UVM_HIGH)
     @(posedge preset_n);
-    //`uvm_info(name,$sformatf("SYSTEM RESET DEACTIVATED"),UVM_HIGH)
   
   endtask: wait_for_preset_n
  
@@ -61,7 +59,6 @@ interface apb_slave_driver_bfm (input bit pclk,
    default input #1 output #1;
    input preset_n, psel, penable,paddr, pwrite,pstrb,pwdata,pprot;
    output pslverr, pready, prdata;
-
   endclocking
   
 
@@ -75,30 +72,33 @@ interface apb_slave_driver_bfm (input bit pclk,
     @(slaveCb);
    
     slaveCb.pready<=0; 
-    `uvm_info(name,$sformatf("SLAVE_ID %0D WAITING FOR SETUP STATE",slave_id),UVM_HIGH)
-    `uvm_info(name,$sformatf("PSEL=%0d",psel),UVM_HIGH)
+    `uvm_info(name,$sformatf("WAITING FOR SETUP STATE"),UVM_HIGH)
     
     while(slaveCb.psel !==1) begin
-      //`uvm_info(name, $sformatf("SLAVE_ID %0d Inside while loop: penable =%0d, pready=%0d, psel=%0d ", slave_id, penable, pready, psel), UVM_HIGH)
       @(slaveCb);
-      $display("SLAVE_ID %0d WAITING FOR SELECT psel is %0b",slave_id, slaveCb.psel);
+      `uvm_info(name,$sformatf("WAITING FOR PSEL : %0b",slaveCb.psel),UVM_HIGH)
     end
 
     `uvm_info(name,$sformatf("SLAVE_ID %0d SETUP PHASE STARTED", slave_id),UVM_HIGH)
-    `uvm_info(name,$sformatf("PSEL = %0b",psel),UVM_HIGH)
-    `uvm_info(name,$sformatf("SLAVE SETUP STATE DONE"),UVM_HIGH)
 
     // Sampling the signals
-    data_packet.psel  = slaveCb.psel;
-    data_packet.paddr  = slaveCb.paddr;
-    data_packet.pwrite = slaveCb.pwrite;
-    data_packet.pstrb  = slaveCb.pstrb;
-    data_packet.preset_n  = slaveCb.preset_n;
+    data_packet.psel     = slaveCb.psel;
+    data_packet.paddr    = slaveCb.paddr;
+    data_packet.pwrite   = slaveCb.pwrite;
+    data_packet.pstrb    = slaveCb.pstrb;
+    data_packet.preset_n = slaveCb.preset_n;
+    data_packet.pprot    = slaveCb.pprot;
     data_packet.penable  = slaveCb.penable;
+
+		if((slave_id == TOTAL_SLAVES - 1)) 
+    	data_packet.pslverr = ERROR;
+		else
+    	data_packet.pslverr = NO_ERROR;
+
     if(slaveCb.pwrite == WRITE) begin
       data_packet.pwdata = slaveCb.pwdata;
     end
-    data_packet.pprot = slaveCb.pprot;
+    `uvm_info(name,$sformatf("SLAVE SETUP STATE DONE"),UVM_HIGH)
    
   endtask: wait_for_setup_state
 
@@ -118,24 +118,20 @@ interface apb_slave_driver_bfm (input bit pclk,
     slaveCb.pready<=1;
     
     if(data_packet.pwrite == READ) begin
-      `uvm_info(name,$sformatf("SLAVE_ID %0d INSIDE ACCESS - PRDATA = %0d | pready = %0b | pslverr = %0b",slave_id, data_packet.prdata, slaveCb.pready, slaveCb.pslverr),UVM_HIGH);
       slaveCb.prdata <= data_packet.prdata;
-    `uvm_info(name,$sformatf("INSIDE ACCESS - PRDATA=%0h | pready = %0b | pslverr = %0b | psel = %0b | penable = %0b",data_packet.prdata, slaveCb.pready, slaveCb.pslverr,data_packet.psel,data_packet.penable),UVM_HIGH);
+      `uvm_info(name,$sformatf("INSIDE ACCESS - PRDATA=%0h | pready = %0b | pslverr = %0b | psel = %0b | penable = %0b",data_packet.prdata, slaveCb.pready, slaveCb.pslverr,data_packet.psel,data_packet.penable),UVM_HIGH);
       @(slaveCb); // if not present will detect the psel even if the transfer is not needed (psel made 0)
-      slaveCb.pready <=0; 
+      slaveCb.pready <= 0; 
     end
     else begin  
       @(slaveCb); 
-    slaveCb.pready <= 0;
+      slaveCb.pready <= 0;
     end 
-    `uvm_info(name,$sformatf("TOTAL_SLAVES - 1 = %0d | pready = %0d",TOTAL_SLAVES-1,slaveCb.pready),UVM_HIGH);
 
-		if( slaveCb.pready && (slave_id == TOTAL_SLAVES - 1)) begin
+		if((slave_id == TOTAL_SLAVES - 1)) 
     	slaveCb.pslverr <= ERROR;
-		end
 		else
     	slaveCb.pslverr <= NO_ERROR;
-    `uvm_info(name,$sformatf("INSIDE ACCESS - PRDATA=%0h | pready = %0b | pslverr = %0b | psel = %0b | penable = %0b",data_packet.prdata, slaveCb.pready, slaveCb.pslverr,data_packet.psel,data_packet.penable),UVM_HIGH);
 
   endtask: wait_for_access_state
 

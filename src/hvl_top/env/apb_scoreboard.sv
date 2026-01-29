@@ -236,7 +236,7 @@ task apb_scoreboard::run_phase(uvm_phase phase);
   // Wait for all the threads to complete
   wait fork;
 endtask
-
+/*
 // Get the specific slave IDs / customize this based on your design spec
 function int apb_scoreboard::get_slave_index(bit [ADDRESS_WIDTH-1:0] addr);
   for(int i = 0; i < TOTAL_SLAVES; i++) begin
@@ -247,6 +247,22 @@ function int apb_scoreboard::get_slave_index(bit [ADDRESS_WIDTH-1:0] addr);
   `uvm_error(get_type_name(), $sformatf("Address %0d mapped to invalid slave", addr))
   return TOTAL_SLAVES-1;
 endfunction
+*/
+
+function int apb_scoreboard::get_slave_index(bit [ADDRESS_WIDTH-1:0] addr);
+  for(int i = 0; i < TOTAL_SLAVES-1; i++) begin
+    if(addr >= SLAVE_START_ADDR[i] && addr <= SLAVE_END_ADDR[i]) begin
+      return i;
+    end
+  end
+  // If address doesn't fall in any slave range except the last one
+  // Return the last slave index (TOTAL_SLAVES-1)
+  `uvm_info(get_type_name(), 
+    $sformatf("Address %0h mapped to default slave[%0d]", addr, TOTAL_SLAVES-1), 
+    UVM_MEDIUM)
+  return TOTAL_SLAVES-1;
+endfunction
+
 
 function void apb_scoreboard::compare_trans(apb_master_tx m_tx, apb_slave_tx s_tx, int master_idx, int slave_idx);
 
@@ -327,7 +343,7 @@ function void apb_scoreboard::compare_trans(apb_master_tx m_tx, apb_slave_tx s_t
     end
     else begin
       `uvm_error("SB_PSLVERR_MISMATCH",
-			 $sformatf("Master PSLVERR = %s Slave PSLVERR = %s", m_tx.pslverr, s_tx.pslverr));
+			 $sformatf("Master PSLVERR = %s Slave PSLVERR = %s for slave = %0d master = %0d", m_tx.pslverr, s_tx.pslverr, slave_idx, master_idx));
       apb_slave_pslverr_fail[slave_idx]++;
     end
 
