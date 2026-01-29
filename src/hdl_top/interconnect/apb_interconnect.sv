@@ -218,7 +218,6 @@ interface apb_interconnect
           $display("[%0t] APB_INTERCONNECT: M%0d starting INVALID access to addr %0d",
                    $time, m, m_paddr[m]);
           
-          // Show why it's invalid
           for (int i = 0; i < TOTAL_SLAVES - 1; i++) begin
             if (m_paddr[m] < slave_min_addr[i]) begin
               $display("  Address %0d is below Slave[%0d] range (%0d-%0d)",
@@ -255,7 +254,6 @@ interface apb_interconnect
             if (s == INVALID_SLAVE_IDX) begin
               $display("[%0t] APB_INTERCONNECT: M%0d requests INVALID_SLAVE[%0d] (Invalid Addr=%0d)",
                        $time, m, s, m_paddr[m]);
-              // Call debug function to show why it's invalid
               debug_address(m_paddr[m], m);
             end else begin
               $display("[%0t] APB_INTERCONNECT: M%0d requests Slave[%0d] (Addr=%0d, Write=%0d)",
@@ -279,7 +277,6 @@ interface apb_interconnect
   logic [MID_W-1:0]     rr_ptr       [TOTAL_SLAVES];
   logic [NO_OF_MASTERS-1:0] grant    [TOTAL_SLAVES];
 
-  // FIX: Add transaction tracking to prevent pready routing issues
   typedef struct packed {
     logic [MID_W-1:0] master_id;
     logic is_valid;
@@ -340,14 +337,12 @@ interface apb_interconnect
             end
           end
           
-          // FIX: Maintain response owner during ACCESS phase
           if (slave_busy[s] && m_psel[owner[s]] && m_penable[owner[s]]) begin
             response_owner[s] <= owner[s];
           end
         end
       end
 
-      // combinational grant (only if not busy)
       always_comb begin
         grant[s] = '0;
 
@@ -378,7 +373,6 @@ interface apb_interconnect
 
   always_ff @(posedge pclk) begin
     for (int s = 0; s < TOTAL_SLAVES; s++) begin
-      // Display free slave status with pending requests
       if (!slave_busy[s] && (|req[s])) begin
         $write("[%0t] APB_INTERCONNECT: Slave[%0d] free, Requests: ", $time, s);
         for (int m = 0; m < NO_OF_MASTERS; m++) begin
@@ -389,7 +383,6 @@ interface apb_interconnect
         $display("");
       end
 
-      // Display grant decisions
       for (int m = 0; m < NO_OF_MASTERS; m++) begin
         if (grant[s][m] && !slave_busy[s]) begin
           if (use_fixed_priority) begin
@@ -449,7 +442,6 @@ interface apb_interconnect
   // ----------------------------
   // Return response to MASTER side
   // ----------------------------
-  // Helper function to route responses
   function automatic void route_response(
     input int slave_idx,
     input logic s_pready_arr [TOTAL_SLAVES],
@@ -577,14 +569,12 @@ interface apb_interconnect
             slave_for_response = SID_W'(s);
           end
 
-          // Check response owner (backup)
           if (response_owner[s] == MID_W'(m) && slave_busy[s]) begin
             responding = 1'b1;
             slave_for_response = SID_W'(s);
           end
         end
 
-        // Use helper function to route responses
         route_response(
           slave_for_response,
           s_pready,
@@ -639,7 +629,6 @@ interface apb_interconnect
           end
         end
 
-        // Display when master is stalled (waiting)
         if (m_psel[m] && !m_penable[m] && !responding) begin
           $display("[%0t] APB_INTERCONNECT: M%0d STALLED waiting for slave access",
                    $time, m);
@@ -662,7 +651,6 @@ interface apb_interconnect
           $display("[%0t] APB_INTERCONNECT DEBUG: Invalid slave busy with M%0d, Addr=%0d",
                    $time, current_master, current_addr);
           
-          // Verify this is actually an invalid address
           if (!is_invalid_addr(current_addr)) begin
             $display("[%0t] APB_INTERCONNECT ERROR: Addr=%0d should be invalid but decode_slave returned %0d",
                      $time, current_addr, decode_slave(current_addr));
@@ -777,7 +765,6 @@ interface apb_interconnect
         end
       end
     end
-    $display("============================================\n");
   endfunction
 
 endinterface
