@@ -17,31 +17,37 @@
   //Used for different access
   rand protection_type_e pprot;
 
-  //Variable: pselx
-  //Used to select the address range for the slave
-  rand slave_no_e pselx;	// Should not be used in version 2.0
-
-  bit psel;
-
   //Variable: pwrite
   //Write when pwrite is 1 and read is 0
   rand tx_type_e pwrite;
 
   //Variable: transfer_size
-  //Used to dcide the transfer size of the pwdata
+  //Used to decide the transfer size of the pwdata
   rand transfer_size_e transfer_size;
 
   //Variable: pwdata
   //Used to store the wdata
-  rand bit [DATA_WIDTH-1:0]pwdata;
+  rand bit [DATA_WIDTH-1:0] pwdata;
 
   //Variable: pstrb
   //Used to transfer the data to pwdata bus
-  rand bit [(DATA_WIDTH/8)-1:0]pstrb;              
+  rand bit [(DATA_WIDTH/8)-1:0] pstrb;              
     
   //Variable: prdata
   //Used to store the rdata from the slave
-  bit [DATA_WIDTH-1:0]prdata;
+  bit [DATA_WIDTH-1:0] prdata;
+
+  //Variable: psel 
+  //Used for accessing a slave
+  bit psel;
+
+  //Variable: pready
+  //Used by the slave to sinal that it is ready for transaction
+  bit pready;
+
+  //Variable: penable
+  //Used by the master to indicate that that the state is in access state
+  bit penable;
 
   //Variable: pslverr
   //Goes high when a transfer fails
@@ -53,17 +59,8 @@
 
   // Variable: no_of_wait_states_detected
   // Used to keep track of the no of wait states
-  int no_of_wait_states_detected;
+  rand int no_of_wait_states_detected;
 
-  // Variable : cont_write_read
-  // Used to show the transfer as cont write and read
-  rand bit cont_write_read;
- 
-  //Variable : address
-  bit [ADDRESS_WIDTH-1:0]address;
-
-  bit pready;
-  bit penable;
   //-------------------------------------------------------
   // Externally defined Tasks and Functions
   //-------------------------------------------------------
@@ -71,31 +68,29 @@
   extern function void do_copy(uvm_object rhs);
   extern function bit  do_compare(uvm_object rhs, uvm_comparer comparer);
   extern function void do_print(uvm_printer printer);
-  extern function void post_randomize();
 
   //-------------------------------------------------------
   // Constraints defined on variables pselx,
   //-------------------------------------------------------
 
-  constraint pselx_c1  { $countones(pselx) == 1; }
-
-  // c1 and c2 cause randomization failure maybe due to conflict
-
-  constraint pselx_c2 { pselx >0 && pselx < 2**TOTAL_SLAVES; }
-
-  constraint pwdata_c3 { soft pwdata inside {[0:100]}; }
+  // used to set the data range
+  constraint pwdata_range { soft pwdata inside {[0:100]}; }
 
   //This constraint is used to decide the pwdata size based on transfer size
-  constraint transfer_size_c4 {if(transfer_size == BIT_8)
-                                  pstrb == 1;
-                              else if(transfer_size == BIT_16)
-                                  pstrb == 3;
-                              else if(transfer_size == BIT_24)
-                                  pstrb == 7;
-                              else 
-                                  pstrb == 15;
-                             }
-
+  constraint transfer_size_set {
+		if(transfer_size == BIT_8)
+      pstrb == 1;
+    else if(transfer_size == BIT_16)
+      pstrb == 3;
+    else if(transfer_size == BIT_24)
+      pstrb == 7;
+    else 
+      pstrb == 15;
+	}
+  
+	constraint default_values {
+    soft no_of_wait_states_detected == 0;
+	}
 endclass : apb_master_tx
 
 //--------------------------------------------------------------------------------------------
@@ -126,17 +121,16 @@ function void apb_master_tx::do_copy (uvm_object rhs);
 
   paddr   = apb_master_tx_copy_obj.paddr;
   pprot   = apb_master_tx_copy_obj.pprot;
-  psel   = apb_master_tx_copy_obj.psel;
+  psel    = apb_master_tx_copy_obj.psel;
   pwrite  = apb_master_tx_copy_obj.pwrite;
   pwdata  = apb_master_tx_copy_obj.pwdata;
   pstrb   = apb_master_tx_copy_obj.pstrb;
   prdata  = apb_master_tx_copy_obj.prdata;
   pslverr = apb_master_tx_copy_obj.pslverr;
-  
   penable = apb_master_tx_copy_obj.penable;
-   $display("PENABLE IS %0d",penable);
   pready = apb_master_tx_copy_obj.penable;
-  no_of_wait_states_detected =apb_master_tx_copy_obj.no_of_wait_states_detected;
+  no_of_wait_states_detected = apb_master_tx_copy_obj.no_of_wait_states_detected;
+
 endfunction : do_copy
 
 //--------------------------------------------------------------------------------------------
@@ -157,7 +151,7 @@ function bit apb_master_tx::do_compare (uvm_object rhs, uvm_comparer comparer);
   return super.do_compare(apb_master_tx_compare_obj, comparer) &&
   paddr   == apb_master_tx_compare_obj.paddr &&
   pprot   == apb_master_tx_compare_obj.pprot &&
-  pselx   == apb_master_tx_compare_obj.pselx &&
+  psel    == apb_master_tx_compare_obj.psel &&
   pwrite  == apb_master_tx_compare_obj.pwrite &&
   pwdata  == apb_master_tx_compare_obj.pwdata &&
   pstrb   == apb_master_tx_compare_obj.pstrb &&
@@ -175,56 +169,21 @@ endfunction : do_compare
 //--------------------------------------------------------------------------------------------
 function void apb_master_tx::do_print(uvm_printer printer);
   
-  printer.print_string ("pselx",pselx.name());
-  printer.print_field  ("paddr",paddr,$bits(paddr),UVM_HEX);
-  printer.print_string ("pwrite",pwrite.name());
-  printer.print_field  ("pwdata",pwdata,$bits(pwdata),UVM_HEX);
   printer.print_string ("transfer_size",transfer_size.name());
+  printer.print_string ("pwrite",pwrite.name());
+  printer.print_field  ("paddr",paddr,$bits(paddr),UVM_HEX);
+  printer.print_field  ("pwdata",pwdata,$bits(pwdata),UVM_HEX);
+  printer.print_field  ("prdata",prdata,$bits(prdata),UVM_HEX);
   printer.print_field  ("pstrb",pstrb,4,UVM_BIN);
   printer.print_string ("pprot",pprot.name());
-  printer.print_field  ("prdata",prdata,$bits(prdata),UVM_HEX);
+  printer.print_field  ("psel",psel,1,UVM_BIN);
+  printer.print_field  ("penable",penable,1,UVM_BIN);
+  printer.print_field  ("pready",pready,1,UVM_BIN);
   printer.print_string ("pslverr",pslverr.name());
   printer.print_field  ("no_of_wait_states_detected", no_of_wait_states_detected, $bits(no_of_wait_states_detected), UVM_DEC);
 
 endfunction : do_print
 
-//--------------------------------------------------------------------------------------------
-// Function : post_randomize
-// Selects the address based on the slave selected
-//--------------------------------------------------------------------------------------------
-function void apb_master_tx::post_randomize();
-  int index;
-  pselx = SLAVE_2;
-
-  // Derive the slave number using the index
-  for(int i=0; i<TOTAL_SLAVES; i++) begin
-    if(pselx[i]) begin
-      index = i;
-    end
-  end
- 
-  // Randomly chosing paddr value between a given range
-  if (!std::randomize(paddr) with { paddr inside {[apb_master_agent_cfg_h.master_min_addr_range_array[index]:
-                                                   apb_master_agent_cfg_h.master_max_addr_range_array[index]]};
-    paddr %4 == 0;
-  }) begin
-    `uvm_fatal("FATAL_STD_RANDOMIZATION_PADDR", $sformatf("Not able to randomize paddr"));
-  end
-
-  paddr =100;		// Why this?
-  //Constraint to make pwdata non-zero when pstrb is high for that 8-bit lane
-  for(int i=0; i<DATA_WIDTH/8; i++) begin
-    if(pstrb[i]) begin
-      if(!std::randomize(pwdata) with {pwdata[8*i+7 -: 8] != 0;}) begin
-        `uvm_fatal("FATAL_STD_RANDOMIZATION_PWDATA", $sformatf("Not able to randomize pwdata"));
-      end
-      else begin
-        `uvm_info(get_type_name(),$sformatf("MASTER-TX-pwdata[%0d]=%0h",8*i+7,pwdata[8*i+7 +: 8]),UVM_HIGH);
-      end 
-    end
-  end
-
-endfunction : post_randomize
 
 `endif
 

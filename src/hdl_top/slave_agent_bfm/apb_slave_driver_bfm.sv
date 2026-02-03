@@ -116,6 +116,11 @@ interface apb_slave_driver_bfm (input bit pclk,
       slaveCb.pready<=0;
     end
     slaveCb.pready<=1;
+					
+		if((slave_id == TOTAL_SLAVES - 1)) 
+    	slaveCb.pslverr <= ERROR;
+		else
+    	slaveCb.pslverr <= NO_ERROR;
     
     if(data_packet.pwrite == READ) begin
       slaveCb.prdata <= data_packet.prdata;
@@ -128,10 +133,6 @@ interface apb_slave_driver_bfm (input bit pclk,
       slaveCb.pready <= 0;
     end 
 
-		if((slave_id == TOTAL_SLAVES - 1)) 
-    	slaveCb.pslverr <= ERROR;
-		else
-    	slaveCb.pslverr <= NO_ERROR;
 
   endtask: wait_for_access_state
 

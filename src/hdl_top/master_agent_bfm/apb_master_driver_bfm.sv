@@ -77,10 +77,7 @@ interface apb_master_driver_bfm (input  bit   pclk,
   //-------------------------------------------------------
   task wait_for_preset_n();
     @(negedge preset_n);
-    //`uvm_info(name ,$sformatf("SYSTEM RESET DETECTED"),UVM_HIGH)
- 
     @(posedge preset_n);
-    //`uvm_info(name ,$sformatf("SYSTEM RESET DEACTIVATED"),UVM_HIGH)
   endtask: wait_for_preset_n
   
   //--------------------------------------------------------------------------------------------

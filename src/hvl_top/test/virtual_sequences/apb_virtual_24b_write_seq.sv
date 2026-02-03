@@ -10,11 +10,11 @@ class apb_virtual_24b_write_seq extends apb_virtual_base_seq;
 
   //Variable : apb_master_24b_seq_h
   //Instatiation of apb_master_24b_seq handle
-  apb_master_24b_write_seq apb_master_24b_write_seq_h[];
+  apb_master_sequence apb_master_24b_write_seq_h[];
 
   //Variable : apb_slave_24b_write_seq_h
   //Instantiation of apb_slave_24b_write_seq handle
-  apb_slave_24b_write_seq apb_slave_24b_write_seq_h[];
+  apb_slave_sequence apb_slave_24b_write_seq_h[];
   
   //-------------------------------------------------------
   // Externally defined Tasks and Functions
@@ -46,13 +46,13 @@ task apb_virtual_24b_write_seq::body();
   apb_slave_24b_write_seq_h = new[TOTAL_SLAVES];
 
   foreach(apb_master_24b_write_seq_h[i]) begin
-    apb_master_24b_write_seq_h[i] = apb_master_24b_write_seq::type_id::create(
+    apb_master_24b_write_seq_h[i] = apb_master_sequence::type_id::create(
       $sformatf("apb_master_24b_write_seq_h[%0d]", i));
   end
 
   // Create slave sequence handles
   foreach(apb_slave_24b_write_seq_h[i]) begin
-    apb_slave_24b_write_seq_h[i] = apb_slave_24b_write_seq::type_id::create(
+    apb_slave_24b_write_seq_h[i] = apb_slave_sequence::type_id::create(
       $sformatf("apb_slave_24b_write_seq_h[%0d]", i));
   end
 

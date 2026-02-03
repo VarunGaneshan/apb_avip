@@ -1,5 +1,5 @@
 $date
-	Wed Jan 28 15:57:57 2026
+	Mon Feb  2 14:39:33 2026
 $end
 $version
 	QuestaSim Version 10.6c
@@ -12,7 +12,7 @@ $scope module hdl_top $end
 $var reg 1 ! pclk $end
 $var reg 1 " preset_n $end
 
-$scope begin apb_slave_agent_bfm[7] $end
+$scope begin apb_slave_agent_bfm[3] $end
 $var parameter 32 # i $end
 
 $scope module apb_slave_agent_bfm_h $end
@@ -20,7 +20,7 @@ $var parameter 32 $ SLAVE_ID $end
 $upscope $end
 $upscope $end
 
-$scope begin apb_slave_agent_bfm[6] $end
+$scope begin apb_slave_agent_bfm[2] $end
 $var parameter 32 % i $end
 
 $scope module apb_slave_agent_bfm_h $end
@@ -28,7 +28,7 @@ $var parameter 32 & SLAVE_ID $end
 $upscope $end
 $upscope $end
 
-$scope begin apb_slave_agent_bfm[5] $end
+$scope begin apb_slave_agent_bfm[1] $end
 $var parameter 32 ' i $end
 
 $scope module apb_slave_agent_bfm_h $end
@@ -36,7 +36,7 @@ $var parameter 32 ( SLAVE_ID $end
 $upscope $end
 $upscope $end
 
-$scope begin apb_slave_agent_bfm[4] $end
+$scope begin apb_slave_agent_bfm[0] $end
 $var parameter 32 ) i $end
 
 $scope module apb_slave_agent_bfm_h $end
@@ -44,133 +44,59 @@ $var parameter 32 * SLAVE_ID $end
 $upscope $end
 $upscope $end
 
-$scope begin apb_slave_agent_bfm[3] $end
-$var parameter 32 + i $end
-
-$scope module apb_slave_agent_bfm_h $end
-$var parameter 32 , SLAVE_ID $end
-$upscope $end
-$upscope $end
-
-$scope begin apb_slave_agent_bfm[2] $end
-$var parameter 32 - i $end
-
-$scope module apb_slave_agent_bfm_h $end
-$var parameter 32 . SLAVE_ID $end
-$upscope $end
-$upscope $end
-
-$scope begin apb_slave_agent_bfm[1] $end
-$var parameter 32 / i $end
-
-$scope module apb_slave_agent_bfm_h $end
-$var parameter 32 0 SLAVE_ID $end
-$upscope $end
-$upscope $end
-
-$scope begin apb_slave_agent_bfm[0] $end
-$var parameter 32 1 i $end
-
-$scope module apb_slave_agent_bfm_h $end
-$var parameter 32 2 SLAVE_ID $end
-$upscope $end
-$upscope $end
-
-$scope begin apb_master_agent_bfm[4] $end
-$var parameter 32 3 j $end
-
-$scope module apb_master_agent_bfm_h $end
-$var parameter 32 4 MASTER_ID $end
-$var parameter 32 5 ID $end
-$upscope $end
-$upscope $end
-
-$scope begin apb_master_agent_bfm[3] $end
-$var parameter 32 6 j $end
-
-$scope module apb_master_agent_bfm_h $end
-$var parameter 32 7 MASTER_ID $end
-$var parameter 32 8 ID $end
-$upscope $end
-$upscope $end
-
 $scope begin apb_master_agent_bfm[2] $end
-$var parameter 32 9 j $end
+$var parameter 32 + j $end
 
 $scope module apb_master_agent_bfm_h $end
-$var parameter 32 : MASTER_ID $end
-$var parameter 32 ; ID $end
+$var parameter 32 , MASTER_ID $end
+$var parameter 32 - ID $end
 $upscope $end
 $upscope $end
 
 $scope begin apb_master_agent_bfm[1] $end
-$var parameter 32 < j $end
+$var parameter 32 . j $end
 
 $scope module apb_master_agent_bfm_h $end
-$var parameter 32 = MASTER_ID $end
-$var parameter 32 > ID $end
+$var parameter 32 / MASTER_ID $end
+$var parameter 32 0 ID $end
 $upscope $end
 $upscope $end
 
 $scope begin apb_master_agent_bfm[0] $end
-$var parameter 32 ? j $end
+$var parameter 32 1 j $end
 
 $scope module apb_master_agent_bfm_h $end
-$var parameter 32 @ MASTER_ID $end
-$var parameter 32 A ID $end
+$var parameter 32 2 MASTER_ID $end
+$var parameter 32 3 ID $end
 $upscope $end
-$upscope $end
-
-$scope begin genblk2[4] $end
-$var parameter 32 B j $end
-$upscope $end
-
-$scope begin genblk2[3] $end
-$var parameter 32 C j $end
 $upscope $end
 
 $scope begin genblk2[2] $end
-$var parameter 32 D j $end
+$var parameter 32 4 j $end
 $upscope $end
 
 $scope begin genblk2[1] $end
-$var parameter 32 E j $end
+$var parameter 32 5 j $end
 $upscope $end
 
 $scope begin genblk2[0] $end
-$var parameter 32 F j $end
-$upscope $end
-
-$scope begin genblk1[7] $end
-$var parameter 32 G i $end
-$upscope $end
-
-$scope begin genblk1[6] $end
-$var parameter 32 H i $end
-$upscope $end
-
-$scope begin genblk1[5] $end
-$var parameter 32 I i $end
-$upscope $end
-
-$scope begin genblk1[4] $end
-$var parameter 32 J i $end
+$var parameter 32 6 j $end
 $upscope $end
 
 $scope begin genblk1[3] $end
-$var parameter 32 K i $end
+$var parameter 32 7 i $end
 $upscope $end
 
 $scope begin genblk1[2] $end
-$var parameter 32 L i $end
+$var parameter 32 8 i $end
 $upscope $end
 
 $scope begin genblk1[1] $end
-$var parameter 32 M i $end
+$var parameter 32 9 i $end
 $upscope $end
 
 $scope begin genblk1[0] $end
-$var parameter 32 N i $end
+$var parameter 32 : i $end
 $upscope $end
 
 $scope begin <genblk#246573824#71#7> $end
@@ -184,50 +110,30 @@ $enddefinitions $end
 $dumpvars
 0!
 1"
-b0 N
-b1 M
-b10 L
-b11 K
-b100 J
-b101 I
-b110 H
-b111 G
-b0 F
-b1 E
-b10 D
-b11 C
-b100 B
-b0 ?
-b0 @
-b0 A
-b1 <
-b1 =
-b1 >
-b10 9
-b10 :
-b10 ;
-b11 6
+b0 :
+b1 9
+b10 8
 b11 7
-b11 8
-b100 3
-b100 4
-b100 5
+b0 6
+b1 5
+b10 4
 b0 1
 b0 2
+b0 3
+b1 .
 b1 /
 b1 0
+b10 +
+b10 ,
 b10 -
-b10 .
-b11 +
-b11 ,
-b100 )
-b100 *
-b101 '
-b101 (
-b110 %
-b110 &
-b111 #
-b111 $
+b0 )
+b0 *
+b1 '
+b1 (
+b10 %
+b10 &
+b11 #
+b11 $
 $end
 #10
 1!
@@ -432,109 +338,3 @@ $end
 1!
 #1000
 0!
-#1010
-1!
-#1020
-0!
-#1030
-1!
-#1040
-0!
-#1050
-1!
-#1060
-0!
-#1070
-1!
-#1080
-0!
-#1090
-1!
-#1100
-0!
-#1110
-1!
-#1120
-0!
-#1130
-1!
-#1140
-0!
-#1150
-1!
-#1160
-0!
-#1170
-1!
-#1180
-0!
-#1190
-1!
-#1200
-0!
-#1210
-1!
-#1220
-0!
-#1230
-1!
-#1240
-0!
-#1250
-1!
-#1260
-0!
-#1270
-1!
-#1280
-0!
-#1290
-1!
-#1300
-0!
-#1310
-1!
-#1320
-0!
-#1330
-1!
-#1340
-0!
-#1350
-1!
-#1360
-0!
-#1370
-1!
-#1380
-0!
-#1390
-1!
-#1400
-0!
-#1410
-1!
-#1420
-0!
-#1430
-1!
-#1440
-0!
-#1450
-1!
-#1460
-0!
-#1470
-1!
-#1480
-0!
-#1490
-1!
-#1500
-0!
-#1510
-1!
-#1520
-0!
-#1530
-1!

@@ -7,74 +7,58 @@
 //--------------------------------------------------------------------------------------------
 class apb_slave_tx extends uvm_sequence_item;
   `uvm_object_utils(apb_slave_tx)
-  
-  //Variable: psel
-  //Used to select the slave
-  bit psel;
-
-  //Variable: pstrb
-  //Used to select the data valid lane
-  bit [(DATA_WIDTH/8)-1:0] pstrb;
-    
-  //Variable: penable
-  //Used to determone the state of the slave
-  bit penable;
 
   //Variable: preset_n
   //Used to reset the slave
   bit preset_n;
 
-  //Variable: paddr
-  //Address selected in apb_slave
-  bit [ADDRESS_WIDTH-1:0]paddr;
+  //Variable: psel
+  //Used to select the slave
+  bit psel;
 
-  //Varibale: pwrite
-  //pwrite when write is 1 and read is 0
-	tx_type_e pwrite;
-
-  //Variable: pwdata
-  //Used to store the wdata
-  bit [DATA_WIDTH-1:0]pwdata;
-
-  //Variable: pslverr
-  //Goes high when a transfer fails
-  rand slave_error_e pslverr;
+  //Variable: penable
+  //Used to determone the state of the slave
+  bit penable;
 
   //Variable: pready
   //Used to extend the transfer
   bit pready;
 
+  //Variable: pstrb
+  //Used to select the data valid lane
+  bit [(DATA_WIDTH/8)-1:0] pstrb;
+    
+  //Variable: paddr
+  //Address selected in apb_slave
+  bit [ADDRESS_WIDTH-1:0]paddr;
+
+  //Variable: pwdata
+  //Used to store the wdata
+  bit [DATA_WIDTH-1:0]pwdata;
+
   //Variable: prdata
   //Used to store the rdata from the slave
-  rand bit [DATA_WIDTH-1:0]prdata;
+  bit [DATA_WIDTH-1:0]prdata;
  
-  //Variable: pprot
-  //Used for different access
-  rand protection_type_e pprot;
-
   //Variable: no_of_wait_states
   //Used to decide the number of wait states
-  rand bit [2:0]no_of_wait_states;
+  bit [2:0]no_of_wait_states;
 
-  //Variable: choose_packet_data
-  //Used for driving the prdata from this packet rather than from the Slave memory
-  rand bit choose_packet_data;
+  //Variable: pslverr
+  //Goes high when a transfer fails
+  slave_error_e pslverr;
+
+  //Varibale: pwrite
+  //pwrite when write is 1 and read is 0
+	tx_type_e pwrite;
+
+  //Variable: pprot
+  //Used for different access
+  protection_type_e pprot;
 
   //Variable: transfer_size
   //Used to decide the transfer size of the data
-  rand transfer_size_e transfer_size;
-
-  //-------------------------------------------------------
-  // Constraints
-  //-------------------------------------------------------
-  //To randomise the wait states in range of 0 to 3
-  constraint wait_states_c1 {soft no_of_wait_states inside {[0:3]};}
-
-  //To randomize the pslverr as NO_ERROR by defualt
-  constraint pslverr_c2 {soft pslverr == NO_ERROR;}
-
-  //To choose the randomised pslverr and prdata make choose_packet_data as high
-  //constraint choose_data_packet_c3 {soft choose_packet_data==1;} 
+  transfer_size_e transfer_size;
 
   //-------------------------------------------------------
   // Externally defined Tasks and Functions
@@ -162,17 +146,17 @@ endfunction : do_compare
 function void apb_slave_tx::do_print(uvm_printer printer);
 
   printer.print_field("preset_n",preset_n,1,UVM_DEC);
-  printer.print_field("penable",penable,1,UVM_DEC);
-  printer.print_field("psel",psel,1,UVM_DEC);
   printer.print_field("paddr",paddr,$bits(paddr),UVM_HEX);
   printer.print_string("pwrite",pwrite.name());
   printer.print_field("pwdata",pwdata,$bits(pwdata),UVM_HEX);
-  printer.print_field("pready",pready,1,UVM_DEC);
   printer.print_field("prdata",prdata,$bits(prdata),UVM_HEX);
-  printer.print_string("pslverr",pslverr.name());
   printer.print_string("pprot",pprot.name());
+  printer.print_field("pstrb",pstrb,$bits(pstrb),UVM_BIN);
+  printer.print_field("psel",psel,1,UVM_DEC);
+  printer.print_field("penable",penable,1,UVM_DEC);
+  printer.print_field("pready",pready,1,UVM_DEC);
+  printer.print_string("pslverr",pslverr.name());
   printer.print_field ("no_of_wait_states",no_of_wait_states,$bits(no_of_wait_states),UVM_DEC);
-  printer.print_field ("choose_packet_data",choose_packet_data,$bits(choose_packet_data),UVM_DEC);
 
 endfunction : do_print
 

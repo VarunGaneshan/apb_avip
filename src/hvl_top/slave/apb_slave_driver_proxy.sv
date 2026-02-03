@@ -112,7 +112,7 @@ task apb_slave_driver_proxy::run_phase(uvm_phase phase);
     //Printing the req item
     `uvm_info(name, $sformatf("REQ-SLAVE_TX \n %s",req.sprint),UVM_LOW);
       
-    if(req.choose_packet_data) begin
+    //if(req.choose_packet_data) begin
 
       //Converting transaction to struct data_packet
       apb_slave_seq_item_converter::from_class(req, struct_packet); 
@@ -128,14 +128,14 @@ task apb_slave_driver_proxy::run_phase(uvm_phase phase);
       //converting the struct data items into transcations 
       apb_slave_seq_item_converter::to_class(struct_packet, req);
 
-    end
-    else begin
+    //end
+    //else begin
 
-      `uvm_info(name, $sformatf("before wait for access state- inside else :: %p", struct_packet), UVM_HIGH); 
-      `uvm_info(name, $sformatf("before wait for access state- inside else prdata :: %0h", struct_packet.prdata), UVM_HIGH); 
+      //`uvm_info(name, $sformatf("before wait for access state- inside else :: %p", struct_packet), UVM_HIGH); 
+      //`uvm_info(name, $sformatf("before wait for access state- inside else prdata :: %0h", struct_packet.prdata), UVM_HIGH); 
        
       //drive the converted data packets to the slave driver bfm
-      apb_slave_drv_bfm_h.wait_for_access_state(struct_packet, apb_slave_agent_cfg_h.slave_id);
+      //apb_slave_drv_bfm_h.wait_for_access_state(struct_packet, apb_slave_agent_cfg_h.slave_id);
 
 
      if(struct_packet.pwrite == WRITE)begin
@@ -143,7 +143,7 @@ task apb_slave_driver_proxy::run_phase(uvm_phase phase);
      end
 
       //`uvm_info(name, $sformatf("before wait for access state- inside else :: %p", struct_packet), UVM_HIGH); 
-    end
+    //end
   
     seq_item_port.item_done();
 

@@ -194,10 +194,10 @@ interface apb_interconnect
         always_comb begin
           if (s == INVALID_SLAVE_IDX) begin
             // Invalid slave gets requests for addresses that don't match any valid slave
-            req[s][m] = (m_psel[m] && !m_penable[m]) && is_invalid_addr(m_paddr[m]);
+            req[s][m] = (m_psel[m] && is_invalid_addr(m_paddr[m])); //  && !m_penable[m]) removed for now
           end else begin
             // Valid slaves get requests based on address decode
-            req[s][m] = (m_psel[m] && !m_penable[m]) && (decode_slave(m_paddr[m]) == SID_W_EXT'(s));
+            req[s][m] = (m_psel[m] && (decode_slave(m_paddr[m]) == SID_W_EXT'(s))); //  && !m_penable[m]) removed for now
           end
         end
       end

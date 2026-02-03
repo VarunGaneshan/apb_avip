@@ -10,13 +10,11 @@ class apb_virtual_8b_write_read_seq extends apb_virtual_base_seq;
 
   //Variable: apb_master_8b_seq_h
   //Instatiation of apb_master_8b_write_seq
-  apb_master_8b_write_seq apb_master_8b_write_seq_h[NO_OF_MASTERS];
-  apb_master_8b_read_seq apb_master_8b_read_seq_h[NO_OF_MASTERS];
+  apb_master_sequence apb_master_8b_write_seq_h[NO_OF_MASTERS], apb_master_8b_read_seq_h[NO_OF_MASTERS];
 
   //Variable: apb_slave_8b_write_seq_h
   //Instatiation of apb_slave_8b_write_seq
-  apb_slave_8b_write_seq apb_slave_8b_write_seq_h[TOTAL_SLAVES];
-  apb_slave_8b_read_seq apb_slave_8b_read_seq_h[TOTAL_SLAVES];
+  apb_slave_sequence apb_slave_8b_write_seq_h[TOTAL_SLAVES], apb_slave_8b_read_seq_h[TOTAL_SLAVES];
 
   //-------------------------------------------------------
   // Externally defined Tasks and Functions
@@ -45,25 +43,19 @@ task apb_virtual_8b_write_read_seq::body();
 
 	// Creates the objects for multiple master and slave
 	foreach(apb_master_8b_write_seq_h[i]) begin
-	  apb_master_8b_write_seq_h[i] = apb_master_8b_write_seq::type_id::create($sformatf("apb_master_8b_write_seq_h[%0d]", i));
+	  apb_master_8b_write_seq_h[i] = apb_master_sequence::type_id::create($sformatf("apb_master_8b_write_seq_h[%0d]", i));
 	end
 
 	foreach(apb_master_8b_read_seq_h[i]) begin
-  	apb_master_8b_read_seq_h[i] = apb_master_8b_read_seq::type_id::create($sformatf("apb_master_8b_read_seq_h[%0d]", i));
+  	apb_master_8b_read_seq_h[i] = apb_master_sequence::type_id::create($sformatf("apb_master_8b_read_seq_h[%0d]", i));
 	end
 
 	foreach(apb_slave_8b_write_seq_h[i]) begin
-  	apb_slave_8b_write_seq_h[i]=apb_slave_8b_write_seq::type_id::create($sformatf("apb_slave_8b_write_seq_h[%0d]", i));
-		if(!apb_slave_8b_write_seq_h[i].randomize() with {choose_packet_data_seq == 0;}) begin
-    	`uvm_error(get_type_name(), "Randomization failed : Inside apb_virtual_8b_write_read_seq")
-		end
+  	apb_slave_8b_write_seq_h[i]=apb_slave_sequence::type_id::create($sformatf("apb_slave_8b_write_seq_h[%0d]", i));
 	end
 
 	foreach(apb_slave_8b_read_seq_h[i]) begin
-  	apb_slave_8b_read_seq_h[i]=apb_slave_8b_read_seq::type_id::create($sformatf("apb_slave_8b_read_seq_h[%0d]", i));
-    if(!apb_slave_8b_read_seq_h[0].randomize() with {choose_packet_data_seq == 0;}) begin
-    	`uvm_error(get_type_name(), "Randomization failed : Inside apb_virtual_8b_write_read_seq")
-    end
+  	apb_slave_8b_read_seq_h[i]=apb_slave_sequence::type_id::create($sformatf("apb_slave_8b_read_seq_h[%0d]", i));
 	end
 
 	// Write sequnce
