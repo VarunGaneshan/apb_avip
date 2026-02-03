@@ -3,19 +3,20 @@
 
 //--------------------------------------------------------------------------------------------
 // Class: apb_virtual_24b_write_seq
-//  Creates and starts the master and slave sequences.
+// Creates and starts the master and slave vd_vws sequnences of variable data and variable 
+// wait states.
 //--------------------------------------------------------------------------------------------
 class apb_virtual_24b_write_seq extends apb_virtual_base_seq;
   `uvm_object_utils(apb_virtual_24b_write_seq)
 
-  //Variable : apb_master_24b_seq_h
-  //Instatiation of apb_master_24b_seq handle
-  apb_master_sequence apb_master_24b_write_seq_h[];
+  //Variable: apb_master_24b_seq_h
+  //Instatiation of apb_master_24b_write_seq
+  apb_master_sequence apb_master_24b_write_seq_h[NO_OF_MASTERS];
 
-  //Variable : apb_slave_24b_write_seq_h
-  //Instantiation of apb_slave_24b_write_seq handle
-  apb_slave_sequence apb_slave_24b_write_seq_h[];
-  
+  //Variable: apb_slave_24b_write_seq_h
+  //Instantiation of apb_master_24b_write_seq
+  apb_slave_sequence apb_slave_24b_write_seq_h[TOTAL_SLAVES];
+
   //-------------------------------------------------------
   // Externally defined Tasks and Functions
   //-------------------------------------------------------
@@ -24,68 +25,62 @@ class apb_virtual_24b_write_seq extends apb_virtual_base_seq;
   extern task body();
 
 endclass : apb_virtual_24b_write_seq
-
 //--------------------------------------------------------------------------------------------
 // Construct: new
 //
 // Parameters:
 //  name - apb_virtual_24b_write_seq
 //--------------------------------------------------------------------------------------------
+
 function apb_virtual_24b_write_seq::new(string name ="apb_virtual_24b_write_seq");
   super.new(name);
 endfunction : new
 
 //--------------------------------------------------------------------------------------------
-// Task: body
-//  Creates and starts the 24bit data of master and slave sequences
+// Task - body
+// Creates and starts the 24bit data of master and slave sequences
 //--------------------------------------------------------------------------------------------
 task apb_virtual_24b_write_seq::body();
   super.body();
-
-  apb_master_24b_write_seq_h = new[NO_OF_MASTERS];
-  apb_slave_24b_write_seq_h = new[TOTAL_SLAVES];
-
+  
   foreach(apb_master_24b_write_seq_h[i]) begin
-    apb_master_24b_write_seq_h[i] = apb_master_sequence::type_id::create(
-      $sformatf("apb_master_24b_write_seq_h[%0d]", i));
+    apb_master_24b_write_seq_h[i] = apb_master_sequence::type_id::create($sformatf("apb_master_24b_write_seq_h[%0d]", i));
   end
 
-  // Create slave sequence handles
   foreach(apb_slave_24b_write_seq_h[i]) begin
-    apb_slave_24b_write_seq_h[i] = apb_slave_sequence::type_id::create(
-      $sformatf("apb_slave_24b_write_seq_h[%0d]", i));
+    apb_slave_24b_write_seq_h[i] = apb_slave_sequence::type_id::create($sformatf("apb_slave_24b_write_seq_h[%0d]", i));
   end
 
-  // Start slave sequences on all slaves in parallel
-  foreach(apb_slave_24b_write_seq_h[i]) begin
-    automatic int j = i;
-    fork
-      forever begin
-        apb_slave_24b_write_seq_h[j].start(p_sequencer.apb_slave_seqr_h[j]);
+  foreach(apb_master_24b_write_seq_h[i]) 
+		if(!apb_master_24b_write_seq_h[i].randomize() with { 
+						address inside {[master_addr.min_addr[i]:master_addr.max_addr[i]]};
+		}) begin
+      `uvm_error(get_type_name(), $sformatf("Randomization failed for master %0d", i))
+    end
+
+  fork
+    begin
+      foreach(apb_slave_24b_write_seq_h[i]) begin
+        fork
+          automatic int j = i;
+			  	forever begin
+            apb_slave_24b_write_seq_h[j].start(p_sequencer.apb_slave_seqr_h[j]);
+          end
+				join_none
       end
-    join_none
-  end
+    end
 
-  // Start master sequences on all masters in parallel
-  fork 
-   begin
-     foreach(apb_master_24b_write_seq_h[i]) begin
-       if(!apb_master_24b_write_seq_h[i].randomize() with { address_seq inside {[master_addr.min_addr[i]:master_addr.max_addr[i]]};}) begin
-            `uvm_error(get_type_name(), $sformatf("Randomization failed for master %0d", i))
-       end 
-     end
-
-    fork 
+    begin
       foreach(apb_master_24b_write_seq_h[i]) begin
-        automatic int j = i;
-        apb_master_24b_write_seq_h[j].start(p_sequencer.apb_master_seqr_h[j]);
+        fork
+          automatic int j =i;
+          apb_master_24b_write_seq_h[j].start(p_sequencer.apb_master_seqr_h[j]);
+        join_none
       end
-    join_none
-  wait fork;
-  end 
-join
+    end
+ 	  wait fork;
+  join 
 
- endtask : body
+endtask : body
 
 `endif
-

@@ -13,7 +13,7 @@ class apb_virtual_24b_read_seq extends apb_virtual_base_seq;
   apb_master_sequence apb_master_24b_read_seq_h[NO_OF_MASTERS];
 
   //Variable : apb_slave_24b_write_seq_h
-  //Instantiation of apb_master_32b_seq
+  //Instantiation of apb_master_24b_seq
   apb_slave_sequence apb_slave_24b_read_seq_h[TOTAL_SLAVES];
 
   //-------------------------------------------------------
@@ -41,41 +41,46 @@ endfunction : new
 task apb_virtual_24b_read_seq::body();
   super.body();
 
-        foreach(apb_master_24b_read_seq_h[i])begin
-        apb_master_24b_read_seq_h[i]=apb_master_sequence::type_id::create($sformatf("apb_master_24b_read_seq_h[%0d]", i));
-        end
+	foreach(apb_master_24b_read_seq_h[i])begin
+  	apb_master_24b_read_seq_h[i]=apb_master_sequence::type_id::create($sformatf("apb_master_24b_read_seq_h[%0d]", i));
+	end
 
-        foreach(apb_slave_24b_read_seq_h[i])begin
-        apb_slave_24b_read_seq_h[i]=apb_slave_sequence::type_id::create($sformatf("apb_slave_24b_read_seq_h[%0d]", i));
-        end
-
-        foreach(apb_slave_24b_read_seq_h[i]) begin
-        fork
-      automatic int j = i;
-        forever begin
-        apb_slave_24b_read_seq_h[j].start(p_sequencer.apb_slave_seqr_h[j]);
-                        end
-        join_none
-        end
+	foreach(apb_slave_24b_read_seq_h[i])begin
+  	apb_slave_24b_read_seq_h[i]=apb_slave_sequence::type_id::create($sformatf("apb_slave_24b_read_seq_h[%0d]", i));
+	end
+   
+  foreach(apb_master_24b_read_seq_h[i])
+    if(!apb_master_24b_read_seq_h[i].randomize() with {
+            address inside {[master_addr.min_addr[i]:master_addr.max_addr[i]]};
+            read_write == READ;
+    }) begin
+      `uvm_error(get_type_name(), $sformatf("Randomization failed for master %0d", i))
+    end
 
   fork
-    begin: MASTER_READ_SEQ
-      foreach(apb_master_24b_read_seq_h[i]) begin
-        if(!apb_master_24b_read_seq_h[i].randomize() with { address_seq inside {[slave_addr.min_addr[i]:slave_addr.max_addr[i]]};})
-                                        `uvm_error(get_type_name(), $sformatf("Randomization failed for master %0d", i))
-                        end
-
-                        fork
-       foreach(apb_master_24b_read_seq_h[i]) begin
-          automatic int idx = i;
-                apb_master_24b_read_seq_h[idx].start(p_sequencer.apb_master_seqr_h[idx]);
-       end
-  join_none
-
-    wait fork;
+    begin
+      foreach(apb_slave_24b_read_seq_h[i]) begin
+        fork
+          automatic int j = i;
+          forever begin
+            apb_slave_24b_read_seq_h[j].start(p_sequencer.apb_slave_seqr_h[j]);
+          end
+        join_none
+      end
     end
-  join
 
+    begin
+      foreach(apb_master_24b_read_seq_h[i]) begin
+        fork
+          automatic int j =i;
+          apb_master_24b_read_seq_h[j].start(p_sequencer.apb_master_seqr_h[j]);
+        join_none
+      end
+    end
+    wait fork;
+  join
+ 
 endtask : body
 
 `endif
+
