@@ -27,7 +27,7 @@ package apb_test_pkg;
   //-------------------------------------------------------
   // Including the base_test files
   //-------------------------------------------------------
-	`include "apb_report_server.sv"
+  `include "apb_report_server.sv" // used to colorize the log file comment if not required
   `include "apb_base_test.sv"
 
   `include "apb_8b_write_test.sv"
@@ -43,7 +43,9 @@ package apb_test_pkg;
   `include "apb_32b_write_read_test.sv"
 	
   `include "apb_error_test.sv"
-
+  `include "apb_write_read_with_wait_test.sv"
+  `include "apb_multiple_trans_from_same_master_test.sv"	
+	
 endpackage : apb_test_pkg
 
 `endif
