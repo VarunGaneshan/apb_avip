@@ -36,6 +36,7 @@ package apb_virtual_seq_pkg;
   `include "apb_virtual_32b_write_read_seq.sv"
   
   `include "apb_virtual_error_seq.sv"
+  `include "apb_virtual_write_read_with_wait_seq.sv"
 
 endpackage : apb_virtual_seq_pkg
 
