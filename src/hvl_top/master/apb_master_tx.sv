@@ -61,6 +61,10 @@
   // Used to keep track of the no of wait states
   rand int no_of_wait_states_detected;
 
+ //Variable: address_queue
+ //Stores the write addresses during the write transaction for the readtransaction
+ static bit[ADDRESS_WIDTH-1:0] address_queue[$];
+
   //-------------------------------------------------------
   // Externally defined Tasks and Functions
   //-------------------------------------------------------
@@ -68,6 +72,7 @@
   extern function void do_copy(uvm_object rhs);
   extern function bit  do_compare(uvm_object rhs, uvm_comparer comparer);
   extern function void do_print(uvm_printer printer);
+  extern function void post_randomize();
 
   //-------------------------------------------------------
   // Constraints defined on variables pselx,
@@ -87,6 +92,13 @@
     else 
       pstrb == 15;
 	}
+
+  // used to set the addr range for pwrite == 0
+  constraint paddr_for_READ {
+    if(pwrite == READ)
+       if(address_queue.size() > 0)
+       soft paddr inside {address_queue};
+  }
   
 	constraint default_values {
     soft no_of_wait_states_detected == 0;
@@ -183,6 +195,22 @@ function void apb_master_tx::do_print(uvm_printer printer);
   printer.print_field  ("no_of_wait_states_detected", no_of_wait_states_detected, $bits(no_of_wait_states_detected), UVM_DEC);
 
 endfunction : do_print
+
+//--------------------------------------------------------------------------------------------
+// Function: post_randomize
+// The post function randomization
+//
+//--------------------------------------------------------------------------------------------
+function void apb_master_tx::post_randomize();
+  int index[$];
+  if(pwrite == WRITE)
+    address_queue.push_back(paddr);
+  else begin
+    index = address_queue.find_index(idx) with (address_queue[idx] == paddr);
+    foreach(index[i])
+      address_queue.delete(index[i]);
+  end
+endfunction
 
 
 `endif
