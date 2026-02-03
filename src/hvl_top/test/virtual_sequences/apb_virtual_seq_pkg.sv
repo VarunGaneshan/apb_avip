@@ -37,7 +37,7 @@ package apb_virtual_seq_pkg;
   
   `include "apb_virtual_error_seq.sv"
   `include "apb_virtual_write_read_with_wait_seq.sv"
-  `include "apb_multiple_trans_from_same_master_seq.sv"
+  `include "apb_virtual_multiple_trans_from_same_master_seq.sv"
 
 endpackage : apb_virtual_seq_pkg
 
