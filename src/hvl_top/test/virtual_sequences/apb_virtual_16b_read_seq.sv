@@ -52,6 +52,7 @@ task apb_virtual_16b_read_seq::body();
   foreach(apb_master_16b_read_seq_h[i])
     if(!apb_master_16b_read_seq_h[i].randomize() with {
             address inside {[master_addr.min_addr[i]:master_addr.max_addr[i]]};
+		    transfer_len == BIT_16;
             read_write == READ;
     }) begin
       `uvm_error(get_type_name(), $sformatf("Randomization failed for master %0d", i))
