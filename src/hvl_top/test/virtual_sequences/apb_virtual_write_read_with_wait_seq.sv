@@ -61,7 +61,8 @@ task apb_virtual_write_read_with_wait_seq::body();
 	// Write sequnce
   foreach(apb_master_8b_write_seq_h[i]) 
 		if(!apb_master_8b_write_seq_h[i].randomize() with { 
-						address inside {[master_addr.min_addr[i]:master_addr.max_addr[i]]};
+			wait_states inside {[1:32]};
+			address inside {[master_addr.min_addr[i]:master_addr.max_addr[i]]};
 		}) begin
       `uvm_error(get_type_name(), $sformatf("Randomization failed for master %0d", i))
     end
@@ -92,8 +93,9 @@ task apb_virtual_write_read_with_wait_seq::body();
 	// Read Sequence
   foreach(apb_master_8b_read_seq_h[i]) 
 		if(!apb_master_8b_read_seq_h[i].randomize() with { 
-						address inside {[master_addr.min_addr[i]:master_addr.max_addr[i]]};
-						read_write == READ;	
+			wait_states inside {[1:32]};
+			address inside {[master_addr.min_addr[i]:master_addr.max_addr[i]]};
+			read_write == READ;	
 		}) begin
       `uvm_error(get_type_name(), $sformatf("Randomization failed for master %0d", i))
     end
