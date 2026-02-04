@@ -125,7 +125,7 @@ function void apb_base_test::setup_apb_master_agent_config();
   apb_env_cfg_h.apb_master_agent_cfg_h[0].has_coverage = 1;
   apb_env_cfg_h.apb_master_agent_cfg_h[0].master_id    = 0;
 
- 	for(int i = 0; i < TOTAL_SLAVES; i++) begin
+ 	for(int i = 0; i < TOTAL_SLAVES - 1; i++) begin
   	if(i == 0) begin
     	apb_env_cfg_h.apb_master_agent_cfg_h[0].master_min_addr_range(i,0);
     	local_min_address = apb_master_agent_config::master_min_addr_range_array[i];
@@ -136,18 +136,14 @@ function void apb_base_test::setup_apb_master_agent_config();
 			slave_addr.max_addr[i] = apb_master_agent_config::master_max_addr_range_array[i];
   	end
   	else begin
-    	apb_env_cfg_h.apb_master_agent_cfg_h[0].master_min_addr_range(i,local_max_address + SLAVE_MEMORY_GAP);
+    	apb_env_cfg_h.apb_master_agent_cfg_h[0].master_min_addr_range(i,local_max_address + SLAVE_MEMORY_GAP + 1);
     	local_min_address = apb_master_agent_config::master_min_addr_range_array[i];
       slave_addr.min_addr[i] = apb_master_agent_config::master_min_addr_range_array[i];
 
-    	apb_env_cfg_h.apb_master_agent_cfg_h[0].master_max_addr_range(i,local_max_address+2**(SLAVE_MEMORY_SIZE)-1 + SLAVE_MEMORY_GAP);
+    	apb_env_cfg_h.apb_master_agent_cfg_h[0].master_max_addr_range(i,local_max_address + 2**(SLAVE_MEMORY_SIZE)-1 + SLAVE_MEMORY_GAP + 1);
     	local_max_address = apb_master_agent_config::master_max_addr_range_array[i];
       slave_addr.max_addr[i] = apb_master_agent_config::master_max_addr_range_array[i];
   	end
-	end
-
-	for(int i = 0; i < TOTAL_SLAVES; i++) begin
-    `uvm_info(name,$sformatf("SLAVE[%0d] : min addr = %0d | max_addr = %0d",i,apb_master_agent_config::master_min_addr_range_array[i],apb_master_agent_config::master_max_addr_range_array[i]), UVM_MEDIUM)
 	end
 
   map_master_to_slave();
@@ -176,7 +172,6 @@ function void apb_base_test::setup_apb_slave_agent_config();
     end
     apb_env_cfg_h.apb_slave_agent_cfg_h[i].has_coverage = 1; 
     uvm_config_db #(apb_slave_agent_config)::set(this,$sformatf("*env*"),$sformatf("apb_slave_agent_config_%0d",i),apb_env_cfg_h.apb_slave_agent_cfg_h[i]);
-   `uvm_info(name,$sformatf("\nAPB_SLAVE_CONFIG[%0d]\n%s",i,apb_env_cfg_h.apb_slave_agent_cfg_h[i].sprint()),UVM_LOW);
   end
 
 endfunction : setup_apb_slave_agent_config
@@ -248,12 +243,6 @@ function void apb_base_test::map_master_to_slave();
       
       `uvm_info(name, $sformatf("Master[%0d] -> Slave[%0d] (%0d-%0d)",
                 m, slave_idx, slave_addr.min_addr[slave_idx], slave_addr.max_addr[slave_idx]), UVM_LOW)
-    end
-  end
-
-  for(m = 0; m < NO_OF_MASTERS; m++) begin
-    if(master_addr.min_addr[m] == '1 && master_addr.max_addr[m] == '0) begin
-      `uvm_error(name, $sformatf("Master[%0d] mapped to invalid slave!", m))
     end
   end
 

@@ -143,7 +143,7 @@ function void apb_scoreboard::ref_model(apb_master_tx m_tx, int slave_idx);
     	for (int i = 0; i < DATA_WIDTH/8; i++) begin
       	if (m_tx.pstrb[i]) begin
         	mem[slave_idx][m_tx.paddr + i] = m_tx.pwdata[8*i+7 -: 8];
-        	$display("DATA IS WRITTEN INTO MEM[SLAVE%0d] at address %0d", slave_idx, m_tx.paddr + i);
+					`uvm_info("SCB",$sformatf("DATA IS WRITTEN INTO MEM[SLAVE%0d] at address %0d", slave_idx, m_tx.paddr + i),UVM_MEDIUM);
       	end
     	end
   	end
@@ -184,8 +184,6 @@ task apb_scoreboard::run_phase(uvm_phase phase);
         else begin
           // Update the ref model to predict the prdata
           ref_model(m_tx, slave_idx);
-          $display("SCB_MASTER_TX_PRINT");
-					m_tx.print();
 
           // Push into the specific slave's expected queue
           slave_expected_q[slave_idx].push_back(m_tx);
@@ -208,10 +206,8 @@ task apb_scoreboard::run_phase(uvm_phase phase);
 
         // Get transaction from Slave
 
-        $display("s_index = %0d",s_index);
         apb_slave_analysis_fifo[s_index].get(s_tx);  //check if this is working since you are not getting the value
         apb_slave_tx_count[s_index]++;
-        //$display("queue size = %0d", slave_expected_q.size());
         /*if(slave_expected_q[s_index].size() <= 0) begin
           `uvm_error("SCB", $sformatf("Slave[%0d] received unexpected transaction!", s_index))
           match_fail_count++;
@@ -224,9 +220,6 @@ task apb_scoreboard::run_phase(uvm_phase phase);
           `uvm_info("SCB", $sformatf("Slave[%0d] match found for ADDR=%0d", s_index, s_tx.paddr), UVM_HIGH)
           // Compare
 					
-          $display("SCB_SLAVE_TX_PRINT");
-					s_tx.print();
-					exp_tx.print();
           compare_trans(exp_tx, s_tx, master_id, s_index);
        // end
       end

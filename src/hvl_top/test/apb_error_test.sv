@@ -42,9 +42,7 @@ task apb_error_test::run_phase(uvm_phase phase);
   int num, k, q[$];
 
   apb_virtual_error_seq_h = apb_virtual_error_seq::type_id::create("apb_virtual_error_seq_h");
-  `uvm_info(get_type_name(),$sformatf("apb_error_test"),UVM_LOW);
   
-  //num = $urandom_range(0,TOTAL_SLAVES-2);
 
 	num = $urandom_range(1, NO_OF_MASTERS);  
 
@@ -60,7 +58,7 @@ task apb_error_test::run_phase(uvm_phase phase);
 	end							
 	
 	foreach(q[i]) begin
-		master_addr.min_addr[i] = master_addr.max_addr[i];
+		master_addr.min_addr[i] = master_addr.max_addr[i] + 1;
 		master_addr.max_addr[i] = master_addr.max_addr[i] + SLAVE_MEMORY_GAP;
 	end
 	foreach(master_addr.min_addr[i]) begin
@@ -69,7 +67,7 @@ task apb_error_test::run_phase(uvm_phase phase);
 
   phase.raise_objection(this);
     apb_virtual_error_seq_h.start(apb_env_h.apb_virtual_seqr_h);
-   #100;
+   //#100;
 
   phase.drop_objection(this);
 
